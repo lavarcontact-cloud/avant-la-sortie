@@ -3,27 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AVANT LA SORTIE — Sébastien</title>
+<title>AVANT LA SORTIE, Sébastien</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
 
   /* ============================================================
-     TOKENS
+     TOKENS — V2
+     Fond quasi noir conservé (il fonctionnait), mais recadré vers
+     un neutre froid plutôt que le brun/mauve poussiéreux de la V1.
+     Un accent unique, chaud et vif plutôt que doré/mature. Un ton
+     "papier" clair réservé à une ou deux respirations dans le
+     récit, pas un thème alternatif complet.
      ============================================================ */
   :root{
-    --bg:        #0A0908;
-    --bg-panel:  #14110D;
-    --fg:        #ECE7DD;
-    --fg-muted:  #8A8072;
-    --accent:    #C9A15C;
-    --line:      #2B241C;
+    --bg:        #0B0B0F;
+    --bg-panel:  #16151A;
+    --bg-paper:  #F4EEE2;
+    --ink:       #17140F;
+    --ink-muted: #6B6459;
+    --fg:        #F6F3EC;
+    --fg-muted:  #9C97A6;
+    --accent:    #FF5B3C;
+    --accent-soft: #FFD8CB;
+    --line:      #232228;
 
-    --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-    --font-body:    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-    --font-mono:    ui-monospace, "SF Mono", "Cascadia Code", "Courier New", monospace;
+    --font-display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --font-mono:    "Space Mono", ui-monospace, "SF Mono", "Cascadia Code", "Courier New", monospace;
 
-    --edge: clamp(24px, 6vw, 88px);
+    --edge: clamp(22px, 6vw, 88px);
   }
 
   *{ box-sizing:border-box; }
@@ -37,7 +49,7 @@
     line-height:1.6;
     -webkit-font-smoothing:antialiased;
   }
-  ::selection{ background:var(--accent); color:#14110D; }
+  ::selection{ background:var(--accent); color:var(--bg); }
   a{ color:inherit; }
   img,video{ display:block; max-width:100%; }
 
@@ -65,14 +77,32 @@
     left:var(--edge); top:50%;
     transform:translateY(-50%);
     z-index:50;
-    display:flex; flex-direction:column; gap:14px;
+    display:flex; flex-direction:column; gap:13px;
+    mix-blend-mode:difference;
   }
   .chapter-nav a{
-    width:6px; height:6px; border-radius:50%;
-    background:var(--line);
-    transition:background .3s, transform .3s;
+    display:flex; align-items:center; gap:9px;
+    text-decoration:none;
+    color:var(--fg-muted);
   }
-  .chapter-nav a.active{ background:var(--accent); transform:scale(1.6); }
+  .chapter-nav a::before{
+    content:attr(data-index);
+    font-family:var(--font-mono); font-size:9.5px;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:0.04em;
+    opacity:0.55;
+    transition:opacity .35s ease, color .35s ease;
+  }
+  .chapter-nav a::after{
+    content:"";
+    width:5px; height:5px; border-radius:50%;
+    background:currentColor;
+    opacity:0.4;
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .chapter-nav a.active{ color:var(--accent); }
+  .chapter-nav a.active::before{ opacity:1; }
+  .chapter-nav a.active::after{ opacity:1; transform:scale(1.6); }
 
   @media (max-width:820px){
     .chapter-nav{ display:none; }
@@ -110,7 +140,7 @@
        stop that body text never sits on a bright patch */
     content:"";
     position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(10,9,8,0.55) 0%, rgba(10,9,8,0.72) 45%, rgba(10,9,8,0.95) 100%);
+    background:linear-gradient(180deg, rgba(11,11,15,0.55) 0%, rgba(11,11,15,0.72) 45%, rgba(11,11,15,0.95) 100%);
   }
 
   .media-placeholder{
@@ -147,15 +177,16 @@
 
   h1,h2{
     font-family:var(--font-display);
-    font-weight:800;
-    letter-spacing:-0.01em;
+    font-weight:700;
+    letter-spacing:-0.02em;
     margin:0 0 20px;
   }
-  h1{ font-size:clamp(32px, 5.2vw, 64px); line-height:1.08; }
-  h2{ font-size:clamp(26px, 3.6vw, 42px); line-height:1.12; }
+  h1{ font-size:clamp(34px, 6.4vw, 76px); line-height:1.04; }
+  h2{ font-size:clamp(28px, 4.4vw, 48px); line-height:1.08; }
 
   .lede{
-    font-size:clamp(15px,1.6vw,18px);
+    font-size:clamp(16px,1.6vw,19px);
+    font-weight:400;
     color:var(--fg-muted);
     max-width:560px;
   }
@@ -212,7 +243,7 @@
   .on-media .credits,
   .on-media .stat{
     color:var(--fg);
-    text-shadow:0 1px 6px rgba(10,9,8,0.7);
+    text-shadow:0 1px 6px rgba(11,11,15,0.7);
   }
   .on-media .credits b,
   .on-media .stat b{ color:var(--fg); }
@@ -305,6 +336,21 @@
   .align-right .stat-row{ justify-content:flex-end; }
   .chapter--top{ align-items:flex-start; padding-top:calc(var(--edge) * 1.6); }
 
+  /* ============================================================
+     PAPIER — un seul chapitre du site s'ouvre en clair : une vraie
+     respiration, pas un thème alternatif. Réservé à Vision, pour
+     un contraste qui appuie le propos plutôt que de le décorer.
+     ============================================================ */
+  .chapter--paper{
+    background:var(--bg-paper);
+    color:var(--ink);
+    border-bottom-color:rgba(23,20,15,0.12);
+  }
+  .chapter--paper .eyebrow{ color:var(--accent); }
+  .chapter--paper h2{ color:var(--ink); }
+  .chapter--paper .lede{ color:var(--ink-muted); }
+  .chapter--paper ::selection{ background:var(--accent); color:var(--bg-paper); }
+
   @media (prefers-reduced-motion: reduce){
     .grain{ animation:none; }
     .scanline{ animation:none; top:50%; }
@@ -395,7 +441,7 @@
   .ambient-photo::after{
     content:"";
     position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(10,9,8,0) 35%, rgba(10,9,8,0.9) 100%);
+    background:linear-gradient(180deg, rgba(11,11,15,0) 35%, rgba(11,11,15,0.9) 100%);
   }
   .ambient-photo .proof-caption{
     position:absolute; left:14px; bottom:12px; z-index:2; margin-top:0;
@@ -448,6 +494,86 @@
   }
 
   /* ============================================================
+     ÉTUDE DE CAS — BRK présenté comme une stratégie, pas comme
+     une simple bande de preuves. Deux colonnes qui redeviennent
+     une seule en dessous de 820px.
+     ============================================================ */
+  .case-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:28px 40px;
+    margin-top:32px; max-width:640px;
+  }
+  .case-grid__item--wide{ grid-column:1 / -1; }
+  .case-grid__label{
+    display:block; margin-bottom:8px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
+    color:var(--accent); text-transform:uppercase;
+  }
+  .case-grid__item p{ margin:0; font-size:14.5px; line-height:1.6; color:var(--fg-muted); }
+  .on-media .case-grid__item p{ color:var(--fg); text-shadow:0 1px 6px rgba(11,11,15,0.7); }
+  .on-media .case-grid__item p b{ color:var(--fg); }
+  @media (max-width:600px){
+    .case-grid{ grid-template-columns:1fr; }
+  }
+
+  .growth{ max-width:420px; }
+  .growth__bar{
+    height:6px; border-radius:99px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+  }
+  .growth__bar span{
+    display:block; height:100%;
+    background:var(--accent);
+    border-radius:99px;
+    transform-origin:left center;
+    animation:growth-fill 1.4s cubic-bezier(.16,.84,.44,1) both;
+  }
+  @keyframes growth-fill{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+  @media (prefers-reduced-motion: reduce){
+    .growth__bar span{ animation:none; }
+  }
+  .growth__figures{
+    display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+    margin-top:12px;
+    font-family:var(--font-display); font-weight:700;
+    font-size:26px; color:var(--fg);
+  }
+  .growth__arrow{ color:var(--fg-muted); font-weight:400; font-size:18px; }
+  .growth__label{
+    font-family:var(--font-mono); font-weight:400; font-size:12px;
+    letter-spacing:0.04em; color:var(--fg-muted); align-self:center;
+  }
+  .growth__delta{
+    font-family:var(--font-mono); font-weight:700; font-size:13px;
+    color:var(--accent); align-self:center;
+    padding:3px 8px; border:1px solid var(--accent); border-radius:99px;
+  }
+
+  /* ============================================================
+     STAGE FLOW — la logique média → découverte → développement
+     → écosystème d'artistes, en une séquence discrète.
+     ============================================================ */
+  .stage-flow{
+    display:flex; flex-wrap:wrap; gap:0;
+    margin-top:26px;
+  }
+  .stage-flow__step{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.04em;
+    color:var(--fg-muted);
+    padding:6px 0;
+  }
+  .stage-flow__step:not(:last-child)::after{
+    content:"→"; margin:0 12px; color:var(--accent);
+  }
+  .on-media .stage-flow__step{ color:var(--fg); text-shadow:0 1px 6px rgba(11,11,15,0.7); }
+  @media (max-width:600px){
+    .stage-flow{ flex-direction:column; gap:6px; }
+    .stage-flow__step:not(:last-child)::after{ content:none; }
+    .stage-flow__step{ padding:2px 0; }
+    .stage-flow__step:not(:last-child)::before{ content:"↓"; margin-right:8px; color:var(--accent); }
+  }
+
+  /* ============================================================
      CONTACT — dernière étape, sobre, dans le langage du reste
      du site (mono, accent chaud, pas de bouton voyant).
      ============================================================ */
@@ -493,7 +619,7 @@
   body.lightbox-open{ overflow:hidden; }
   .lightbox{
     position:fixed; inset:0; z-index:100;
-    background:rgba(10,9,8,0.92);
+    background:rgba(11,11,15,0.92);
     display:flex; align-items:center; justify-content:center;
     padding:24px;
     opacity:0;
@@ -560,7 +686,7 @@
     <div class="chapter-content">
       <span class="eyebrow">Avant la sortie</span>
       <h1>Je n'ai pas commencé par un poste.<br>J'ai commencé par un studio.</h1>
-      <p class="lede">Candidature — Responsable Pôle Stratégie Créative, A&amp;R Studios<br>Universal Music France</p>
+      <p class="lede">Candidature, Responsable Pôle Stratégie Créative, A&amp;R Studios<br>Universal Music France</p>
     </div>
     <div class="scroll-cue">Défiler</div>
   </section>
@@ -578,11 +704,11 @@
     <div class="chapter-content on-media">
       <span class="eyebrow">Origines</span>
       <h2>Millau, Aveyron. Puis un studio, au Bois-l'Abbé.</h2>
-      <p class="lede">Dès la seconde, au lycée : premières sessions de production, notamment avec Bolemvn. En 2021, un studio cofondé avec l'artiste ZS, au cœur du Bois-l'Abbé — à deux pas des Mordacs.</p>
-      <p class="credits">Sont passés par ce studio — <b>L2B, Rsko, BRK, Didi Trix, Kerchak, ZS</b></p>
+      <p class="lede">Dès la seconde, au lycée : premières sessions de production, notamment avec Bolemvn. En 2021, un studio cofondé avec l'artiste ZS, au cœur du Bois-l'Abbé, à deux pas des Mordacs.</p>
+      <p class="credits">Sont passés par ce studio : <b>L2B, Rsko, BRK, Didi Trix, Kerchak, ZS</b></p>
       <div class="ambient-photo">
         <img src="images/origins-millau.jpg" alt="Millau, Aveyron" loading="lazy">
-        <span class="proof-caption">Millau, Aveyron — ville natale</span>
+        <span class="proof-caption">Millau, Aveyron, ville natale</span>
       </div>
       <div class="location-note">
         <span class="location-note__place">Bois-l'Abbé, Champigny (94500)</span>
@@ -610,36 +736,36 @@
           <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" autoplay muted loop playsinline></video>
           <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" autoplay muted loop playsinline></video>
         </div>
-        <p class="image-block__credit">Clips : « Noir » de L2B, « Maybach » de Landy feat. Gazo et « Afro Trap Part. 11 » de MHD.</p>
+        <p class="image-block__credit">Clips : "Noir" de L2B, "Maybach" de Landy feat. Gazo et "Afro Trap Part. 11" de MHD.</p>
       </div>
 
       <div class="image-block">
         <h3 class="image-block__title">Photographe de plateau</h3>
         <div class="proof-row">
           <video class="proof-tile proof-tile--wide" src="videos/dexter-lahasba-bts.mp4" autoplay muted loop playsinline></video>
-          <img class="proof-tile proof-tile--post" src="images/image-photo-batbat.jpg" alt="Photo plateau — Batbat" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-photo-rvfleuze.jpg" alt="Photo plateau — Rvfleuze" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-photo-bilouki.jpg" alt="Photo plateau — Bilouki, Paire Assortie" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-photo-bilouki-2.jpg" alt="Photo plateau — Bilouki, Paire Assortie" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/hld-photo-presse.jpg" alt="Photo de presse — HLD" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/klm-100k-photo.jpg" alt="Photo plateau — KLM, 100K" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/concert-photo-ashe22.jpg" alt="Photo de concert — Ashe22" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-photo-batbat.jpg" alt="Photo plateau, Batbat" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-photo-rvfleuze.jpg" alt="Photo plateau, Rvfleuze" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-photo-bilouki.jpg" alt="Photo plateau, Bilouki, Paire Assortie" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-photo-bilouki-2.jpg" alt="Photo plateau, Bilouki, Paire Assortie" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/hld-photo-presse.jpg" alt="Photo de presse, HLD" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/klm-100k-photo.jpg" alt="Photo plateau, KLM, 100K" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/concert-photo-ashe22.jpg" alt="Photo de concert, Ashe22" loading="lazy">
         </div>
-        <p class="image-block__credit">Sur les tournages de Batbat, Rvfleuze, Bilouki et Dexter HMC ft. La Hasba (« 91022 »).</p>
-        <p class="image-block__credit">Et pour HLD, une photo de presse. Pour KLM, sur le tournage de « 100K ». En concert, pour Ashe22.</p>
+        <p class="image-block__credit">Sur les tournages de Batbat, Rvfleuze, Bilouki et Dexter HMC ft. La Hasba ("91022").</p>
+        <p class="image-block__credit">Et pour HLD, une photo de presse. Pour KLM, sur le tournage de "100K". En concert, pour Ashe22.</p>
       </div>
 
       <div class="image-block">
         <h3 class="image-block__title">Direction artistique</h3>
         <div class="proof-row">
-          <img class="proof-tile proof-tile--post" src="images/image-cover-leto-pessas.jpg" alt="Cover — Leto, Enlève tes Pessas" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-cover-blackd-leto.jpg" alt="Cover — Black D feat. Leto, Sauvage" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-cover-negrito-stavo.jpg" alt="Cover — Negrito feat. Stavo, Bala Bala" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-cover-fave-five.jpg" alt="Cover — Favé, J'aime pas perdre" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-leto-pessas.jpg" alt="Cover, Leto, Enlève tes Pessas" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-blackd-leto.jpg" alt="Cover, Black D feat. Leto, Sauvage" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-negrito-stavo.jpg" alt="Cover, Negrito feat. Stavo, Bala Bala" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-fave-five.jpg" alt="Cover, Favé, J'aime pas perdre" loading="lazy">
           <video class="proof-tile proof-tile--wide" src="videos/scene-rue-groupe.mp4" autoplay muted loop playsinline></video>
         </div>
-        <p class="image-block__credit">Covers : Leto, « Enlève tes Pessas » ; Dexter HMC feat. La Hasba, « 91022 » ; Negrito feat. Stavo, « Bala Bala » ; Favé, « J'aime pas perdre » ; Black D feat. Leto, « Sauvage ».</p>
-        <p class="image-block__credit">Timal, « 760 » : synopsis et moodboard. V2V, « Crapuleux » : co-réalisation. Contenus réseaux pour Fascoflex.</p>
+        <p class="image-block__credit">Covers : Leto, "Enlève tes Pessas" ; Dexter HMC feat. La Hasba, "91022" ; Negrito feat. Stavo, "Bala Bala" ; Favé, "J'aime pas perdre" ; Black D feat. Leto, "Sauvage".</p>
+        <p class="image-block__credit">Timal, "760" : synopsis et moodboard. V2V, "Crapuleux" : co-réalisation. Contenus réseaux pour Fascoflex.</p>
       </div>
     </div>
   </section>
@@ -653,7 +779,7 @@
     <div class="chapter-content">
       <span class="eyebrow">Générations</span>
       <h2>Six mois comme monteur-réalisateur.</h2>
-      <p class="lede">Montage et cadrage d'interviews, contenus éditoriaux, intros et habillages — au studio.</p>
+      <p class="lede">Montage et cadrage d'interviews, contenus éditoriaux, intros et habillages, au studio.</p>
       <p class="credits">Photographe accrédité pour <b>Générations</b>, au festival <b>FCNY</b>, sur l'apparition de <b>La Mano</b>.</p>
       <div class="photo-placeholder">
         <span>Photo à venir</span>
@@ -674,23 +800,41 @@
     <div class="chapter-content on-media">
       <span class="eyebrow">Développement d'artiste</span>
       <h2>BRK</h2>
-      <p class="lede">Stratégie artistique, image, branding. Choix des réalisateurs et des beatmakers. Contenu, calendrier entre studio et sorties, recherche de label.</p>
-      <p class="credits">Collaborations — beatmakers <b>ABL</b> (Sexy Nana) et <b>Achille GX</b> (Covid-19, Mouss et Alonzo)</p>
-      <div class="stat-row">
-        <div class="stat"><b>8 000</b>abonnés au départ</div>
-        <div class="stat"><b>10 500</b>abonnés aujourd'hui</div>
+      <p class="lede">Mon travail ne se limite pas à publier du contenu. Je développe l'artiste avant, pendant et entre les sorties.</p>
+
+      <div class="case-grid">
+        <div class="case-grid__item">
+          <span class="case-grid__label">Stratégie</span>
+          <p>Image et branding, choix des réalisateurs et des beatmakers, contenu, calendrier entre studio et sorties, recherche de label.</p>
+        </div>
+        <div class="case-grid__item">
+          <span class="case-grid__label">Collaborations</span>
+          <p>Beatmakers <b>ABL</b> (Sexy Nana) et <b>Achille GX</b> (Covid-19, Mouss et Alonzo).</p>
+        </div>
+        <div class="case-grid__item case-grid__item--wide">
+          <span class="case-grid__label">Résultats</span>
+          <div class="growth">
+            <div class="growth__bar"><span style="width:76%"></span></div>
+            <div class="growth__figures">
+              <b>8 000</b><span class="growth__arrow">→</span><b>10 500</b>
+              <span class="growth__label">abonnés</span>
+              <span class="growth__delta">+31 %</span>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="proof-row">
         <video class="proof-tile proof-tile--wide" src="videos/brk-katimini-highlights.mp4" autoplay muted loop playsinline></video>
         <video class="proof-tile proof-tile--wide" src="videos/brk-everyday-highlights.mp4" autoplay muted loop playsinline></video>
         <video class="proof-tile proof-tile--wide" src="videos/brk-flex-highlights.mp4" autoplay muted loop playsinline></video>
       </div>
-      <span class="proof-caption">Direction artistique et étalonnage — Katimini, Everyday, Flex</span>
+      <span class="proof-caption">Direction artistique et étalonnage : Katimini, Everyday, Flex</span>
 
       <div class="proof-row">
-        <img class="proof-tile proof-tile--post" src="images/brk-photo-1.jpg" alt="Photo — BRK en studio" loading="lazy">
-        <img class="proof-tile proof-tile--post" src="images/brk-photo-2.jpg" alt="Photo — BRK en studio" loading="lazy">
-        <img class="proof-tile proof-tile--post" src="images/brk-photo-3.jpg" alt="Photo — BRK et dnhoo.8 en studio" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/brk-photo-1.jpg" alt="Photo, BRK en studio" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/brk-photo-2.jpg" alt="Photo, BRK en studio" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/brk-photo-3.jpg" alt="Photo, BRK et dnhoo.8 en studio" loading="lazy">
       </div>
       <span class="proof-caption">Photos studio</span>
     </div>
@@ -711,7 +855,15 @@
       <span class="eyebrow"><img class="brand-mark" src="images/lavar-logo.png" alt="" loading="lazy"> La Var</span>
       <h2>Un média qui devient un système.</h2>
       <p class="lede">Média rap et culture urbaine. Stratégie éditoriale, prospection, négociation.</p>
-      <p class="credits">Artistes mis en avant — <b>Rvfleuze, LMT, KLM, Darlingchouchou, Shippeur, Supremenova, Eliah ZS</b></p>
+
+      <div class="stage-flow">
+        <span class="stage-flow__step">Média</span>
+        <span class="stage-flow__step">Découverte</span>
+        <span class="stage-flow__step">Développement</span>
+        <span class="stage-flow__step">Écosystème d'artistes</span>
+      </div>
+
+      <p class="credits">Artistes mis en avant : <b>Rvfleuze, LMT, KLM, Darlingchouchou, Shippeur, Supremenova, Eliah ZS</b></p>
       <div class="stat-row">
         <div class="stat"><b>11 000+</b>abonnés</div>
         <div class="stat"><b>~2 000</b>vues en moyenne sur certains formats</div>
@@ -719,8 +871,8 @@
       <div class="proof-row">
         <video class="proof-tile" src="videos/lavar-rnboi-preview.mp4" autoplay muted loop playsinline></video>
         <video class="proof-tile" src="videos/lavar-rvfleuze-preview.mp4" autoplay muted loop playsinline></video>
-        <img class="proof-tile proof-tile--post" src="images/lavar-post-klm.jpg" alt="Post La Var — KLM" loading="lazy">
-        <img class="proof-tile proof-tile--post" src="images/lavar-post-creamy.jpg" alt="Post La Var — Creamy G à Marsatac" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/lavar-post-klm.jpg" alt="Post La Var, KLM" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/lavar-post-creamy.jpg" alt="Post La Var, Creamy G à Marsatac" loading="lazy">
       </div>
       <span class="proof-caption">Contenu réel publié par La Var</span>
     </div>
@@ -731,15 +883,15 @@
        Pas de vidéo dédiée — section texte, contraste volontaire
        avec le rythme visuel des chapitres précédents.
        ============================================================ -->
-  <section class="chapter" id="vision" data-chapter="Vision" style="background:var(--bg-panel); min-height:80vh;">
+  <section class="chapter chapter--paper" id="vision" data-chapter="Vision" style="min-height:80vh;">
     <div class="chapter-content">
       <span class="eyebrow">Vision</span>
       <h2>Un artiste se construit avant la sortie.</h2>
       <p class="lede">
-        Identité, communauté, image, univers — entre deux projets, pas seulement au moment d'une sortie.
+        Identité, communauté, image, univers, entre deux projets, pas seulement au moment d'une sortie.
         Les labels gagneraient à être plus proches des communautés, à montrer les métiers et les personnes
         qui les font vivre. Une réflexion plus longue, aussi, sur des lieux qui réuniraient artistes,
-        beatmakers, ingénieurs son et créateurs visuels — une pensée en construction, née du terrain.
+        beatmakers, ingénieurs son et créateurs visuels : une pensée en construction, née du terrain.
       </p>
     </div>
   </section>
@@ -948,14 +1100,14 @@
       function frame(){
         ctx.clearRect(0,0,w,h);
         // fond quasi noir
-        ctx.fillStyle = '#0A0908';
+        ctx.fillStyle = '#0B0B0F';
         ctx.fillRect(0,0,w,h);
-        // lueur chaude, décentrée, façon lampe de bureau
+        // lueur vive et fraîche, décentrée
         var gx = w*0.72, gy = h*0.38;
         var glow = ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(w,h)*0.55);
-        glow.addColorStop(0,'rgba(201,161,92,0.22)');
-        glow.addColorStop(0.4,'rgba(120,90,50,0.10)');
-        glow.addColorStop(1,'rgba(10,9,8,0)');
+        glow.addColorStop(0,'rgba(255,91,60,0.20)');
+        glow.addColorStop(0.4,'rgba(255,91,60,0.07)');
+        glow.addColorStop(1,'rgba(11,11,15,0)');
         ctx.fillStyle = glow;
         ctx.fillRect(0,0,w,h);
         // poussière en suspension
@@ -963,7 +1115,7 @@
           var p = particles[i];
           ctx.beginPath();
           ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-          ctx.fillStyle = 'rgba(236,231,221,' + p.o + ')';
+          ctx.fillStyle = 'rgba(246,243,236,' + p.o + ')';
           ctx.fill();
           if(!reducedLocal){
             p.y -= p.s; p.x += p.drift;
@@ -1000,19 +1152,19 @@
 
       function frame(){
         ctx.clearRect(0,0,w,h);
-        ctx.fillStyle = '#0A0908';
+        ctx.fillStyle = '#0B0B0F';
         ctx.fillRect(0,0,w,h);
         var gx = w*0.5, gy = h*0.25;
         var glow = ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(w,h)*0.6);
-        glow.addColorStop(0,'rgba(140,130,110,0.08)');
-        glow.addColorStop(1,'rgba(10,9,8,0)');
+        glow.addColorStop(0,'rgba(255,216,203,0.07)');
+        glow.addColorStop(1,'rgba(11,11,15,0)');
         ctx.fillStyle = glow;
         ctx.fillRect(0,0,w,h);
         for(var i=0;i<motes.length;i++){
           var p = motes[i];
           ctx.beginPath();
           ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-          ctx.fillStyle = 'rgba(236,231,221,' + p.o + ')';
+          ctx.fillStyle = 'rgba(246,243,236,' + p.o + ')';
           ctx.fill();
           if(!reducedLocal){ p.y -= p.s; if(p.y < -5){ p.y = h+5; } }
         }
@@ -1064,6 +1216,23 @@
           scrollTrigger: { trigger: el, start: 'top 75%' }
         });
       });
+
+      /* One deliberate parallax, not one per section: the Millau
+         photo drifts slightly slower than the scroll, the single
+         moment in the site where the camera itself seems to move. */
+      var millau = document.querySelector('.ambient-photo img');
+      if(millau){
+        gsap.to(millau, {
+          yPercent: 12,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: millau.closest('.ambient-photo'),
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true
+          }
+        });
+      }
     }
 
     /* ----------------------------------------------------------
@@ -1071,10 +1240,11 @@
        ---------------------------------------------------------- */
     var sections = Array.from(document.querySelectorAll('.chapter'));
     var nav = document.getElementById('chapterNav');
-    var dots = sections.map(function(s){
+    var dots = sections.map(function(s, i){
       var a = document.createElement('a');
       a.href = '#' + s.id;
       a.title = s.dataset.chapter || s.id;
+      a.setAttribute('data-index', String(i + 1).padStart(2, '0'));
       nav.appendChild(a);
       return a;
     });

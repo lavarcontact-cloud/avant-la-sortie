@@ -6,14 +6,17 @@ Candidature de Sébastien pour Responsable Pôle Stratégie Créative (A&R Studi
 Ligne directrice : « Je n'ai pas commencé par un poste. J'ai commencé par un studio. »
 Le site raconte une trajectoire (studio → image → développement d'artiste → média) plutôt qu'un CV. Vision assumée mais non promotionnelle : une pensée en construction, née du terrain, sans promesses exagérées.
 
-## Système visuel
-- Fond quasi noir `#0A0908`, panneau `#14110D`, texte `#ECE7DD`, accent unique chaud `#C9A15C`, lignes `#2B241C`
-- Typo système (pas de police externe chargée) : display en 800, mono pour les eyebrows/labels/stats
+## Système visuel — V2 (2026-08-24)
+- Fond quasi noir neutre `#0B0B0F`, panneau `#16151A`, texte `#F6F3EC`, muted `#9C97A6`, accent unique corail `#FF5B3C`, lignes `#232228`
+- Un chapitre "papier" (Vision) passe en clair : fond `#F4EEE2`, encre `#17140F` — la seule respiration claire du site, volontairement unique plutôt que répétée
+- Typo chargée depuis Google Fonts : Bricolage Grotesque (display, grands titres), Inter (corps de texte), Space Mono (eyebrows/labels/stats). Avant : polices système uniquement
 - Élément signature : timecode qui tourne en continu en haut à droite, calé sur la progression du scroll (métaphore du montage continu)
-- Emplacements vidéo traités comme de la pellicule en attente (perforations, coins de viseur, scanline) — disparaît automatiquement dès qu'un vrai fichier est chargé
+- Navigation à gauche : dots numérotés 01 à 08, très discrets, un seul actif en accent à la fois
+- Emplacements vidéo traités comme de la pellicule en attente (perforations, coins de viseur, scanline) — disparaît automatiquement dès qu'un vrai fichier est chargé, et n'affiche plus aucun texte technique (nom de fichier, "EMPLACEMENT VIDÉO") depuis la passe précédente
 - Curseur en forme de viseur (desktop)
 - Grain de pellicule permanent, léger, sur tout le site
 - Rythme cassé volontairement entre chapitres (alignement, point de départ du texte) pour éviter la répétition mécanique
+- Aucun tiret cadratin (—) utilisé comme séparateur dans le texte visible ; guillemets français « » remplacés par des guillemets droits " " partout dans le contenu, à la demande explicite de Sébastien
 
 ## Chapitres et statut des assets — mise à jour : plus d'Higgsfield
 
@@ -73,6 +76,25 @@ Une passe de direction artistique a été appliquée sur `index.html` à la dema
 
 ## Passe mobile-first et lisibilité (2026-08-23, suite)
 Overlay d'Origins largement renforcé (le fond drone lavait le titre) + filtre d'assombrissement sur les vidéos de fond. Image restructurée en 3 blocs nommés (Acteur / Photographe de plateau / Direction artistique) avec 2-3 visuels et une ligne de crédit chacun, au lieu d'un paragraphe et d'une grille dense — sélection éditoriale faite sur les visuels les plus forts (une photo écartée pour son ton peu adapté à un recruteur, quelques autres gardées en texte seul faute de place). Plus aucun texte technique (« EMPLACEMENT VIDÉO », nom de fichier) visible à l'écran nulle part. Mobile testé à 390px : grille 1-2 colonnes, texte et légendes agrandis, capitales minuscules supprimées, blocs alignés à droite repassent en alignement gauche. Navigation et libellés en français partout.
+
+## V2 direction artistique (2026-08-24)
+Sébastien a demandé une V2 complète après avoir vu la V1 en ligne : trop "mature/mauve poussiéreux", pas assez jeune/fraîche, pas assez premium pour Universal. Brief très long et détaillé (13 points), traité directement dans `index.html`, pas par une liste de recommandations. Fait :
+- **Couleurs** : nouveaux tokens (voir Système visuel ci-dessus), accent corail `#FF5B3C` choisi pour rester chaud et énergique sans tomber dans le rouge/noir cliché rap, le bleu Universal, ou le doré poussiéreux de la V1. Chapitre Vision passé en clair ("papier") pour une vraie respiration, un seul endroit, volontairement.
+- **Typographie** : Bricolage Grotesque + Inter + Space Mono via Google Fonts, chargées avec `display=swap`.
+- **Tirets et guillemets** : tous les tirets cadratins utilisés comme séparateurs dans le texte visible remplacés par virgules ou deux-points ; toutes les guillemets françaises « » remplacées par des guillemets droits " ". Seuls les commentaires de code (invisibles pour un visiteur) gardent des tirets.
+- **BRK** : restructuré en étude de cas (Stratégie / Collaborations / Résultats), avec une barre de progression visuelle 8 000 → 10 500 abonnés et un delta calculé (+31 %). Aucun fait inventé, uniquement le contenu réel déjà présent, réorganisé.
+- **La Var** : la séquence Média → Découverte → Développement → Écosystème d'artistes (qui existait dans un commentaire de placeholder jamais affiché) est maintenant un vrai élément visuel dans la section.
+- **Navigation** : dots numérotés 01-08 à gauche, très discrets, `mix-blend-mode:difference` pour rester lisibles même sur le chapitre clair.
+- **Motion** : un seul parallax ajouté (la photo de Millau, dans Origines), volontairement unique plutôt que dispersé sur tout le site, conformément à la préférence exprimée ("5 animations extrêmement bien exécutées" plutôt que 30 effets moyens).
+- Vérifié en 1280px, 390px et 1728px de large.
+
+**Pas fait, bloqué en attente d'infos réelles de Sébastien :**
+- Point 12 du brief demande des CTA CV / LinkedIn / Contact dans la section finale. Seul Contact existe (email + téléphone, réels). Impossible d'ajouter un lien LinkedIn ou un CV sans une vraie URL ou un vrai fichier : je ne fabrique pas de lien. À compléter dès que Sébastien fournit son URL LinkedIn et, si besoin, un PDF de CV à héberger dans le repo.
+
+**Pas fait, hors scope de cette passe (le brief est trop large pour tout couvrir en une fois) :**
+- Audit pixel par pixel sur les 7 tailles d'écran demandées (mobile petit/grand, tablette portrait/paysage, laptop, desktop, grand écran) — testé à 3 largeurs représentatives (390, 1280, 1728), pas les 7 exactement
+- Transitions cinématiques poussées entre chaque chapitre (au-delà du fade/rise existant + le parallax Millau)
+- Emplacements vidéo pensés spécifiquement pour de futures vidéos cinématiques générées (le système de placeholder existant fonctionne déjà pour ça, pas de nouveau composant ajouté)
 
 ## Ce qui n'est PAS encore fait
 - **`image-photo-batbat-v2.jpg` (2026-08-23, 23h)** : Sébastien a demandé de remplacer la photo Batbat actuelle par ce fichier recadré en 4:5, censé être dans un dossier `a-integrer/`. Ce dossier n'existe pas et le fichier n'est nulle part sur le disque — seule une image collée dans le message de chat, que Claude Code ne peut pas enregistrer lui-même. La photo Batbat actuelle (`image-photo-batbat.jpg`) est donc restée en place. À refaire dès que le fichier est réellement déposé dans `images/`
