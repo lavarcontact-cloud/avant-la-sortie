@@ -779,6 +779,94 @@
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     /* ----------------------------------------------------------
+       Lightbox — ouvre en grand les vrais médias (.proof-tile)
+       uniquement : photos plateau, covers, posts La Var, clips.
+       Jamais les fonds, le canvas, ou la photo d'ambiance Millau
+       (aucun de ces éléments ne porte la classe .proof-tile).
+       Volontairement placé en premier et sans dépendance à GSAP :
+       si le CDN externe échoue à charger, tout ce qui suit dans ce
+       script peut planter, mais pas ceci.
+       ---------------------------------------------------------- */
+    (function(){
+      var lightbox = document.getElementById('lightbox');
+      var stage = document.getElementById('lightboxStage');
+      var closeBtn = document.getElementById('lightboxClose');
+      if(!lightbox || !stage || !closeBtn) return;
+
+      var lastTrigger = null;
+
+      function focusableInLightbox(){
+        return Array.prototype.slice.call(
+          lightbox.querySelectorAll('button, video, [tabindex]')
+        );
+      }
+
+      function onKeydown(e){
+        if(e.key === 'Escape'){ close(); return; }
+        if(e.key === 'Tab'){
+          var f = focusableInLightbox();
+          if(!f.length) return;
+          var first = f[0], last = f[f.length - 1];
+          if(e.shiftKey && document.activeElement === first){
+            e.preventDefault(); last.focus();
+          } else if(!e.shiftKey && document.activeElement === last){
+            e.preventDefault(); first.focus();
+          }
+        }
+      }
+
+      function open(el){
+        lastTrigger = el;
+        stage.innerHTML = '';
+
+        var node;
+        if(el.tagName === 'VIDEO'){
+          node = document.createElement('video');
+          node.src = el.currentSrc || el.src;
+          node.controls = true;
+          node.playsInline = true;
+          node.autoplay = false;
+          node.muted = false;
+        } else {
+          node = document.createElement('img');
+          node.src = el.currentSrc || el.src;
+          node.alt = el.alt || '';
+        }
+        stage.appendChild(node);
+
+        lightbox.hidden = false;
+        document.body.classList.add('lightbox-open');
+        document.addEventListener('keydown', onKeydown);
+        closeBtn.focus();
+      }
+
+      function close(){
+        if(lightbox.hidden) return;
+        lightbox.hidden = true;
+        stage.innerHTML = ''; // stops video playback immediately
+        document.body.classList.remove('lightbox-open');
+        document.removeEventListener('keydown', onKeydown);
+        if(lastTrigger){ lastTrigger.focus(); }
+      }
+
+      document.querySelectorAll('.proof-tile').forEach(function(el){
+        el.tabIndex = 0;
+        el.setAttribute('role', 'button');
+        var label = (el.tagName === 'IMG' && el.alt) ? ('Agrandir : ' + el.alt) : 'Agrandir';
+        el.setAttribute('aria-label', label);
+        el.addEventListener('click', function(){ open(el); });
+        el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(el); }
+        });
+      });
+
+      lightbox.addEventListener('click', function(e){
+        if(e.target === lightbox){ close(); }
+      });
+      closeBtn.addEventListener('click', close);
+    })();
+
+    /* ----------------------------------------------------------
        Chapter registry — every section + optional video config
        lives here. To plug in a real file later: set `src`, done.
        Nothing else in this script needs to change per chapter.
@@ -813,7 +901,7 @@
         if(!ch.scrub && !reduced){ video.play().catch(function(){}); }
       });
 
-      if(ch.scrub && !reduced){
+      if(ch.scrub && !reduced && window.ScrollTrigger){
         ScrollTrigger.create({
           trigger: '#' + ch.id,
           start: 'top top',
@@ -961,95 +1049,10 @@
     }
 
     /* ----------------------------------------------------------
-       Lightbox — ouvre en grand les vrais médias (.proof-tile)
-       uniquement : photos plateau, covers, posts La Var, clips.
-       Jamais les fonds, le canvas, ou la photo d'ambiance Millau
-       (aucun de ces éléments ne porte la classe .proof-tile).
-       ---------------------------------------------------------- */
-    (function(){
-      var lightbox = document.getElementById('lightbox');
-      var stage = document.getElementById('lightboxStage');
-      var closeBtn = document.getElementById('lightboxClose');
-      if(!lightbox || !stage || !closeBtn) return;
-
-      var lastTrigger = null;
-
-      function focusableInLightbox(){
-        return Array.prototype.slice.call(
-          lightbox.querySelectorAll('button, video, [tabindex]')
-        );
-      }
-
-      function onKeydown(e){
-        if(e.key === 'Escape'){ close(); return; }
-        if(e.key === 'Tab'){
-          var f = focusableInLightbox();
-          if(!f.length) return;
-          var first = f[0], last = f[f.length - 1];
-          if(e.shiftKey && document.activeElement === first){
-            e.preventDefault(); last.focus();
-          } else if(!e.shiftKey && document.activeElement === last){
-            e.preventDefault(); first.focus();
-          }
-        }
-      }
-
-      function open(el){
-        lastTrigger = el;
-        stage.innerHTML = '';
-
-        var node;
-        if(el.tagName === 'VIDEO'){
-          node = document.createElement('video');
-          node.src = el.currentSrc || el.src;
-          node.controls = true;
-          node.playsInline = true;
-          node.autoplay = false;
-          node.muted = false;
-        } else {
-          node = document.createElement('img');
-          node.src = el.currentSrc || el.src;
-          node.alt = el.alt || '';
-        }
-        stage.appendChild(node);
-
-        lightbox.hidden = false;
-        document.body.classList.add('lightbox-open');
-        document.addEventListener('keydown', onKeydown);
-        closeBtn.focus();
-      }
-
-      function close(){
-        if(lightbox.hidden) return;
-        lightbox.hidden = true;
-        stage.innerHTML = ''; // stops video playback immediately
-        document.body.classList.remove('lightbox-open');
-        document.removeEventListener('keydown', onKeydown);
-        if(lastTrigger){ lastTrigger.focus(); }
-      }
-
-      document.querySelectorAll('.proof-tile').forEach(function(el){
-        el.tabIndex = 0;
-        el.setAttribute('role', 'button');
-        var label = (el.tagName === 'IMG' && el.alt) ? ('Agrandir : ' + el.alt) : 'Agrandir';
-        el.setAttribute('aria-label', label);
-        el.addEventListener('click', function(){ open(el); });
-        el.addEventListener('keydown', function(e){
-          if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(el); }
-        });
-      });
-
-      lightbox.addEventListener('click', function(e){
-        if(e.target === lightbox){ close(); }
-      });
-      closeBtn.addEventListener('click', close);
-    })();
-
-    /* ----------------------------------------------------------
        Text reveal — one orchestrated moment per chapter, not
        scattered effects. Skipped entirely under reduced motion.
        ---------------------------------------------------------- */
-    if(!reduced && window.gsap){
+    if(!reduced && window.gsap && window.ScrollTrigger){
       gsap.registerPlugin(ScrollTrigger);
       document.querySelectorAll('.chapter-content').forEach(function(el){
         gsap.from(el.children, {
