@@ -51,6 +51,7 @@ Les prompts Higgsfield restent dans l'historique de la conversation si l'accès 
 - `hld-photo-presse.jpg` — photo de presse pour l'artiste HLD. **Câblée** dans la bande Photographe de plateau
 - `klm-100k-photo.jpg` — photo prise sur le tournage du clip « 100K » de KLM. **Câblée** dans la bande Photographe de plateau
 - `image-photo-bilouki-2.jpg` — deuxième photo du shoot Bilouki « Paire Assortie ». **Câblée** à côté de la première (qui n'était affichée qu'en texte jusqu'ici, remise en image à cette occasion)
+- `concert-photo-ashe22.jpg` — photo de concert, Ashe22. **Câblée** dans la bande Photographe de plateau (2026-08-23, 23h30) — Sébastien a confirmé l'intégration après coup, placement choisi par Claude Code faute de section "concert" dédiée
 
 ## Fichiers annoncés dans une passation précédente mais jamais reçus dans ce dossier
 Ces noms de fichiers apparaissent régulièrement comme "déjà câblés" dans les versions régénérées de ce document, mais ils n'ont jamais été livrés dans `/videos` ou `/images`. Le HTML ne les référence pas (pour éviter des tuiles cassées), sauf comme fond de section avec repli sur le placeholder pellicule :
@@ -72,9 +73,6 @@ Une passe de direction artistique a été appliquée sur `index.html` à la dema
 
 ## Passe mobile-first et lisibilité (2026-08-23, suite)
 Overlay d'Origins largement renforcé (le fond drone lavait le titre) + filtre d'assombrissement sur les vidéos de fond. Image restructurée en 3 blocs nommés (Acteur / Photographe de plateau / Direction artistique) avec 2-3 visuels et une ligne de crédit chacun, au lieu d'un paragraphe et d'une grille dense — sélection éditoriale faite sur les visuels les plus forts (une photo écartée pour son ton peu adapté à un recruteur, quelques autres gardées en texte seul faute de place). Plus aucun texte technique (« EMPLACEMENT VIDÉO », nom de fichier) visible à l'écran nulle part. Mobile testé à 390px : grille 1-2 colonnes, texte et légendes agrandis, capitales minuscules supprimées, blocs alignés à droite repassent en alignement gauche. Navigation et libellés en français partout.
-
-## Fichier non intégré (2026-08-23, 23h)
-`concert-photo-ashe22.jpg` est arrivé à la racine du dossier en même temps que les 6 autres fichiers de cette livraison, mais n'était mentionné dans aucune instruction. Laissé tel quel à la racine, non déplacé, non câblé. À traiter dès que Sébastien précise où (ou si) il doit être utilisé.
 
 ## Ce qui n'est PAS encore fait
 - **`image-photo-batbat-v2.jpg` (2026-08-23, 23h)** : Sébastien a demandé de remplacer la photo Batbat actuelle par ce fichier recadré en 4:5, censé être dans un dossier `a-integrer/`. Ce dossier n'existe pas et le fichier n'est nulle part sur le disque — seule une image collée dans le message de chat, que Claude Code ne peut pas enregistrer lui-même. La photo Batbat actuelle (`image-photo-batbat.jpg`) est donc restée en place. À refaire dès que le fichier est réellement déposé dans `images/`
