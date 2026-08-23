@@ -19,18 +19,18 @@ Le site raconte une trajectoire (studio → image → développement d'artiste �
 
 Sébastien n'a plus accès à Higgsfield. Plutôt que de chercher un autre outil de génération vidéo IA, la stratégie a changé : s'appuyer sur les rushs réels déjà envoyés (qui étaient de toute façon plus cohérents avec le discours "sans promesses exagérées, issu du terrain") et traiter en génératif pur (canvas/CSS, aucun outil externe) les deux seuls endroits sans matière réelle.
 
-**Note Claude Code (2026-08-23) : cette table listait plusieurs fichiers comme "câblés"/"réels" alors qu'ils n'étaient pas présents dans le dossier livré. Le statut ci-dessous reflète ce qui existe réellement sur disque après vérification.**
+**Note Claude Code (2026-08-23, corrigée pour la 2e fois) : ce fichier est régénéré de temps en temps par ailleurs et revient systématiquement avec des fichiers marqués "câblés"/"réels" qui n'ont jamais été livrés dans ce dossier. Le tableau et la liste ci-dessous ont été recorrigés pour matcher ce qui existe réellement sur disque. Si ce fichier est régénéré à nouveau, considérer `index.html` (pas ce document) comme la source de vérité sur ce qui est effectivement câblé — et redemander à Claude Code de revérifier avant de faire confiance à un nouveau statut "fait".**
 
 | Chapitre | Contenu texte | Fond vidéo | Statut |
 |---|---|---|---|
 | Hero | fait | **canvas génératif** (lueur chaude + poussière en suspension, `#heroCanvas`) | Fait, en code pur. Alternative si Sébastien a une vraie photo du studio : la proposer à la place |
-| Origins | fait | `origins-drone-quartier.mp4` (réel, cadré par Sébastien) + photo `origins-millau.jpg` | Fait |
-| Image | fait | pas de fond séparé — 3 bandes de preuves réelles (vidéos, photos plateau, covers) | Fait avec les fichiers réellement reçus : `l2b-noir-cuts.mp4`, `landy-gazo-maybach-cuts.mp4`, `mhd-afrotrap11-cuts.mp4`, `festival-fcny-lamano.mp4`, 4 photos plateau, 4 covers |
-| Générations | fait | image fixe optionnelle | Non bloquant |
-| BRK | fait | `brk-background-loop.mp4` — **annoncé mais fichier non reçu** ; placeholder pellicule affiché en attendant | Partiel — en attente du fichier vidéo |
-| La Var | fait | `lavar-background-loop.mp4` — **annoncé mais fichier non reçu** ; placeholder pellicule affiché en attendant. Bande de preuves réelles (logo, 2 posts, 2 extraits) déjà intégrée et fonctionnelle | Partiel — en attente du fichier vidéo de fond (la bande de preuves, elle, est complète) |
+| Origins | fait | `origins-drone-quartier.mp4` (réel, cadré par Sébastien) + photo `origins-millau.jpg` en grande image d'ambiance | Fait |
+| Image | fait | pas de fond séparé — 3 bandes de preuves réelles (vidéos, photos plateau, covers) | Fait, avec les fichiers réellement reçus uniquement |
+| Générations | fait | emplacement photo sobre en attente (pour une photo de Sébastien au montage/cadrage/studio) | Non bloquant |
+| BRK | fait | `brk-background-loop.mp4` — **annoncé mais fichier non reçu**, placeholder pellicule actif. 3 photos studio réelles (`brk-photo-1/2/3.jpg`) câblées en complément | Partiel — fond vidéo en attente, photos câblées |
+| La Var | fait | `lavar-background-loop.mp4` — **annoncé mais fichier non reçu**, placeholder pellicule actif. Bande de preuves réelles (logo, 2 posts, 2 extraits) complète | Partiel — fond vidéo en attente |
 | Vision | fait | aucune (contraste voulu) | Fait |
-| Final | fait | **canvas génératif** (variante calme du même système que Hero, `#finalCanvas`) | Fait, en attendant une vraie photo du studio — à remplacer si Sébastien en envoie une |
+| Final | fait | **canvas génératif** (variante calme du même système que Hero, `#finalCanvas`) + carte contact (nom, email, téléphone) | Fait |
 
 Les prompts Higgsfield restent dans l'historique de la conversation si l'accès revient un jour et que Sébastien veut upgrader Hero ou Final avec une vraie séquence cinématique IA — mais ce n'est plus le chemin critique.
 
@@ -40,31 +40,33 @@ Les prompts Higgsfield restent dans l'historique de la conversation si l'accès 
 - `lavar-rnboi-preview.mp4`, `lavar-rvfleuze-preview.mp4` — extraits de 7s, sans audio, 480px large. **Câblés** dans La Var
 - `l2b-noir-cuts.mp4` (76s), `landy-gazo-maybach-cuts.mp4` (14s), `mhd-afrotrap11-cuts.mp4` (5s) — compilations de passages précis où il apparaît comme acteur dans ces 3 clips officiels. **Câblés** dans la bande de preuves de la section Image
 - `festival-fcny-lamano.mp4` — Sébastien photographe, festival Fcny, aux côtés de l'artiste La Mano. **Câblé** dans la section Image
-- `origins-millau.jpg` — photo de Millau (Aveyron), ville natale. **Câblée** dans Origins
+- `origins-millau.jpg` — photo de Millau (Aveyron), ville natale. **Câblée** dans Origins, en grande image d'ambiance assombrie
+- `origins-drone-quartier.mp4` — 2 plans drone réels (Bois-l'Abbé, Les Mordacs), cadrés par Sébastien. **Câblé** en fond de la section Origins
 - `image-photo-batbat.jpg`, `image-photo-rvfleuze.jpg`, `image-photo-bilouki.jpg`, `image-photo-dexterhmc.jpg` — photos plateau. **Câblées** dans Image
 - `image-cover-leto-pessas.jpg`, `image-cover-negrito-stavo.jpg`, `image-cover-fave-five.jpg`, `image-cover-blackd-leto.jpg` — covers DA. **Câblées** dans Image
+- `brk-photo-1.jpg`, `brk-photo-2.jpg`, `brk-photo-3.jpg` — photos réelles de BRK en studio. **Câblées** dans la section BRK (bande "Photos studio")
 
 ## Fichiers annoncés dans une passation précédente mais jamais reçus dans ce dossier
-Ces noms de fichiers apparaissaient comme "déjà câblés" dans une version antérieure de ce document, mais ils n'ont jamais été livrés dans `/videos` ou `/images`. Le HTML ne les référence plus (pour éviter des tuiles cassées) sauf comme fond de section avec repli sur le placeholder pellicule :
-- `scene-rue-groupe.mp4` (V2V « Crapuleux »), `scene-pont-nuit.mp4` (Fascoflex) — retirés de la bande de preuves Image
-- `brk-studio-couch.mp4`, `brk-studio-solo.mp4`, `brk-studio-session.mp4` — bande de preuves BRK retirée en attendant
+Ces noms de fichiers apparaissent régulièrement comme "déjà câblés" dans les versions régénérées de ce document, mais ils n'ont jamais été livrés dans `/videos` ou `/images`. Le HTML ne les référence pas (pour éviter des tuiles cassées), sauf comme fond de section avec repli sur le placeholder pellicule :
+- `scene-rue-groupe.mp4` (V2V « Crapuleux »), `scene-pont-nuit.mp4` (Fascoflex) — pas dans la bande de preuves Image
+- `brk-studio-couch.mp4`, `brk-studio-solo.mp4`, `brk-studio-session.mp4` — pas dans la bande de preuves BRK (les 3 vraies photos studio les remplacent avantageusement pour l'instant)
 - `brk-motion-abstract.mp4` — jamais placé, chapitre à confirmer
-- `brk-background-loop.mp4`, `lavar-background-loop.mp4` — fonds de section, référencés en commentaire dans le HTML mais `src` laissé à `null` (placeholder actif) tant qu'ils ne sont pas livrés
+- `brk-background-loop.mp4`, `lavar-background-loop.mp4` — fonds de section, `src` laissé à `null` dans le HTML (placeholder actif) tant qu'ils ne sont pas livrés
 
-`origins-drone-quartier.mp4` a depuis été reçu (déposé dans `videos/`, 2026-08-23) et est maintenant câblé en fond de la section Origins — retiré de cette liste.
-
-**À faire côté Sébastien : renvoyer les fichiers restants ci-dessus s'ils existent, pour qu'ils soient câblés à leur tour.**
-
-## Bug corrigé (2026-08-23)
-Les vidéos de fond ont `preload="none"` ; assigner `.src` en JS seul ne déclenchait pas toujours le chargement des métadonnées dans certains navigateurs (le slot restait bloqué sur le placeholder même une fois le fichier livré). Le script appelle désormais `video.load()` juste après avoir posé le `src`, ce qui corrige le chargement pour tous les fonds de section à venir (BRK, La Var).
+**À faire côté Sébastien : renvoyer ces fichiers s'ils existent, pour qu'ils soient câblés à leur tour.**
 
 ## Chemins d'assets
-Tous les chemins sont désormais relatifs et uniformes (`images/...`, `videos/...`, `posters/...`, sans slash initial) — le point corrigé lors du passage sur Claude Code le 2026-08-23.
+Tous les chemins sont relatifs et uniformes (`images/...`, `videos/...`, `posters/...`, sans slash initial).
+
+## Bug corrigé (2026-08-23)
+Les vidéos de fond ont `preload="none"` ; assigner `.src` en JS seul ne déclenchait pas toujours le chargement des métadonnées dans certains navigateurs (le slot restait bloqué sur le placeholder même une fois le fichier livré). Le script appelle désormais `video.load()` juste après avoir posé le `src`.
+
+## Refonte visuelle (2026-08-23)
+Une passe de direction artistique a été appliquée sur `index.html` à la demande de Sébastien : fond sombre resté dominant (pas d'image de fond systématique par section), photo de Millau mise en avant comme grande image d'ambiance assombrie avec léger zoom continu, tuiles de preuve légèrement agrandies avec effet de survol doux, emplacement photo dédié pour Générations (photo de Sébastien au montage à venir), et carte de contact réelle et cliquable (mailto:/tel:) dans la section Final. **Cette refonte vit uniquement dans `index.html` — si `avant-la-sortie.html` est régénéré ailleurs, il repart de l'ancienne version sans ces changements ; ne pas l'utiliser pour écraser `index.html` sans vérifier d'abord ce qui serait perdu.**
 
 ## Ce qui n'est PAS encore fait
-- Origins, BRK, La Var : câbler les vraies vidéos de fond dès réception (`origins-drone-quartier.mp4`, `brk-background-loop.mp4`, `lavar-background-loop.mp4`)
+- Câbler `brk-background-loop.mp4`, `lavar-background-loop.mp4` dès réception
 - Récupérer (si besoin) `scene-rue-groupe.mp4`, `scene-pont-nuit.mp4`, `brk-studio-couch.mp4`, `brk-studio-solo.mp4`, `brk-studio-session.mp4`, `brk-motion-abstract.mp4`
 - Final : remplacer le canvas génératif par une vraie photo/vidéo du studio dès que Sébastien l'envoie
-- Email de contact dans la section Final (placeholder actuel)
 - Version mobile 9:16 des vidéos scroll-controlled
-- Décider si Origins garde son idée de crossfade vers un plan intérieur studio, ou reste tel quel une fois le plan drone reçu
+- La Var : éventuellement une photo de tournage ou un fond de feed Instagram discret — non fait pour l'instant pour éviter de surcharger une bande déjà riche
