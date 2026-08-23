@@ -200,12 +200,6 @@
   }
   #final .chapter-content{ max-width:600px; margin:0 auto; }
   #final h2{ font-weight:600; }
-  .contact-line{
-    margin-top:28px;
-    font-family:var(--font-mono);
-    font-size:14px;
-    color:var(--accent);
-  }
 
   @media (prefers-reduced-motion: reduce){
     .scroll-cue::after{ animation:none; }
@@ -311,16 +305,16 @@
   }
   .align-right .proof-row{ justify-content:flex-end; }
   .proof-tile{
-    width:84px; aspect-ratio:9/16;
+    width:92px; aspect-ratio:9/16;
     object-fit:cover;
     background:var(--bg-panel);
     border:1px solid var(--line);
-    filter:saturate(0.9);
-    transition:filter .3s;
+    filter:saturate(0.9) brightness(0.96);
+    transition:filter .4s ease, transform .4s ease;
   }
-  .proof-tile:hover{ filter:saturate(1.1); }
+  .proof-tile:hover{ filter:saturate(1.15) brightness(1.05); transform:scale(1.035); }
   .proof-tile--post{ aspect-ratio:4/5; }
-  .proof-tile--wide{ aspect-ratio:16/9; width:150px; }
+  .proof-tile--wide{ aspect-ratio:16/9; width:168px; }
   .proof-caption{
     display:block; margin-top:10px;
     font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.06em;
@@ -338,6 +332,83 @@
   @media (max-width:820px){
     .proof-tile{ width:64px; }
   }
+
+  /* ============================================================
+     IMAGES D'AMBIANCE — respirations ponctuelles dans le récit,
+     jamais un fond systématique. Toujours assombries pour la
+     lisibilité, léger zoom continu pour qu'elles ne restent pas
+     figées sans jamais devenir un effet voyant.
+     ============================================================ */
+  @keyframes slow-zoom{
+    from{ transform:scale(1); } to{ transform:scale(1.06); }
+  }
+  .ambient-photo{
+    position:relative;
+    margin-top:32px;
+    max-width:480px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .ambient-photo img{
+    width:100%; height:240px; object-fit:cover;
+    filter:saturate(0.85) brightness(0.78);
+    animation:slow-zoom 26s ease-in-out infinite alternate;
+  }
+  .ambient-photo::after{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,9,8,0) 35%, rgba(10,9,8,0.9) 100%);
+  }
+  .ambient-photo .proof-caption{
+    position:absolute; left:14px; bottom:12px; z-index:2; margin-top:0;
+  }
+  .align-right .ambient-photo{ margin-left:auto; }
+  @media (prefers-reduced-motion: reduce){
+    .ambient-photo img{ animation:none; }
+  }
+  @media (max-width:820px){
+    .ambient-photo img{ height:180px; }
+  }
+
+  /* Emplacement "photo à venir" — plus sobre que le placeholder
+     vidéo (pas de pellicule/sprockets), pour un futur portrait ou
+     une photo fixe plutôt qu'une boucle. */
+  .photo-placeholder{
+    position:relative;
+    margin-top:28px;
+    max-width:320px;
+    aspect-ratio:4/3;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:20px;
+    border:1px solid var(--line);
+    background:
+      repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,0.02) 18px 19px),
+      var(--bg-panel);
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.06em;
+    color:var(--fg-muted); text-transform:uppercase;
+  }
+  .align-right .photo-placeholder{ margin-left:auto; }
+
+  /* ============================================================
+     CONTACT — dernière étape, sobre, dans le langage du reste
+     du site (mono, accent chaud, pas de bouton voyant).
+     ============================================================ */
+  .contact-card{
+    margin-top:28px;
+    display:flex; flex-direction:column; gap:8px;
+    align-items:center;
+  }
+  .contact-name{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.1em;
+    color:var(--fg-muted); text-transform:uppercase;
+  }
+  .contact-link{
+    font-family:var(--font-mono); font-size:16px;
+    color:var(--accent); text-decoration:none;
+    border-bottom:1px solid transparent;
+    transition:border-color .3s, opacity .3s;
+  }
+  .contact-link:hover{ border-bottom-color:var(--accent); }
 </style>
 </head>
 <body>
@@ -383,10 +454,10 @@
       <h2>Millau, Aveyron. Puis un studio, au Bois-l'Abbé.</h2>
       <p class="lede">Dès la seconde, au lycée : premières sessions de production, notamment avec Bolemvn. En 2021, un studio cofondé avec l'artiste ZS, au cœur du Bois-l'Abbé — à deux pas des Mordacs.</p>
       <p class="credits">Sont passés par ce studio — <b>L2B, Rsko, BRK, Didi Trix, Kerchak, ZS</b></p>
-      <div class="proof-row">
-        <img class="proof-tile proof-tile--wide" src="images/origins-millau.jpg" alt="Millau, Aveyron" loading="lazy">
+      <div class="ambient-photo">
+        <img src="images/origins-millau.jpg" alt="Millau, Aveyron" loading="lazy">
+        <span class="proof-caption">Millau, Aveyron — ville natale</span>
       </div>
-      <span class="proof-caption">Millau, Aveyron — ville natale</span>
     </div>
   </section>
 
@@ -440,8 +511,8 @@
   <section class="chapter" id="generations" data-chapter="Générations" style="min-height:60vh;">
     <div class="media-slot" id="generationsMedia">
       <div class="media-placeholder">
-        EMPLACEMENT VISUEL — image fixe ou courte boucle<br>
-        pas de scroll-scrub nécessaire ici
+        EMPLACEMENT PHOTO — Sébastien au montage, en cadrage, ou en studio<br>
+        image fixe, aucune boucle nécessaire ici
       </div>
     </div>
     <div class="chapter-content">
@@ -472,6 +543,9 @@
       <div class="stat-row">
         <div class="stat"><b>8 000</b>abonnés au départ</div>
         <div class="stat"><b>10 500</b>abonnés aujourd'hui</div>
+      </div>
+      <div class="photo-placeholder">
+        PORTRAIT BRK OU PHOTO DE SESSION STUDIO<br>à intégrer
       </div>
     </div>
   </section>
@@ -540,7 +614,11 @@
     <div class="chapter-content">
       <span class="eyebrow">Prochaine étape</span>
       <h2>Vers Universal.</h2>
-      <p class="contact-line">[ email de contact à renseigner ]</p>
+      <div class="contact-card">
+        <span class="contact-name">Sébastien F.</span>
+        <a class="contact-link" href="mailto:sebastienfp@hotmail.com">sebastienfp@hotmail.com</a>
+        <a class="contact-link" href="tel:+33753745500">07 53 74 55 00</a>
+      </div>
     </div>
   </section>
 
