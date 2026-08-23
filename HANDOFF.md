@@ -24,7 +24,7 @@ Sébastien n'a plus accès à Higgsfield. Plutôt que de chercher un autre outil
 | Chapitre | Contenu texte | Fond vidéo | Statut |
 |---|---|---|---|
 | Hero | fait | **canvas génératif** (lueur chaude + poussière en suspension, `#heroCanvas`) | Fait, en code pur. Alternative si Sébastien a une vraie photo du studio : la proposer à la place |
-| Origins | fait | `origins-drone-quartier.mp4` — **annoncé mais fichier non reçu** ; placeholder pellicule affiché en attendant. Photo réelle `origins-millau.jpg` intégrée | Partiel — en attente du fichier vidéo |
+| Origins | fait | `origins-drone-quartier.mp4` (réel, cadré par Sébastien) + photo `origins-millau.jpg` | Fait |
 | Image | fait | pas de fond séparé — 3 bandes de preuves réelles (vidéos, photos plateau, covers) | Fait avec les fichiers réellement reçus : `l2b-noir-cuts.mp4`, `landy-gazo-maybach-cuts.mp4`, `mhd-afrotrap11-cuts.mp4`, `festival-fcny-lamano.mp4`, 4 photos plateau, 4 covers |
 | Générations | fait | image fixe optionnelle | Non bloquant |
 | BRK | fait | `brk-background-loop.mp4` — **annoncé mais fichier non reçu** ; placeholder pellicule affiché en attendant | Partiel — en attente du fichier vidéo |
@@ -49,9 +49,14 @@ Ces noms de fichiers apparaissaient comme "déjà câblés" dans une version ant
 - `scene-rue-groupe.mp4` (V2V « Crapuleux »), `scene-pont-nuit.mp4` (Fascoflex) — retirés de la bande de preuves Image
 - `brk-studio-couch.mp4`, `brk-studio-solo.mp4`, `brk-studio-session.mp4` — bande de preuves BRK retirée en attendant
 - `brk-motion-abstract.mp4` — jamais placé, chapitre à confirmer
-- `origins-drone-quartier.mp4`, `brk-background-loop.mp4`, `lavar-background-loop.mp4` — fonds de section, référencés en commentaire dans le HTML mais `src` laissé à `null` (placeholder actif) tant qu'ils ne sont pas livrés
+- `brk-background-loop.mp4`, `lavar-background-loop.mp4` — fonds de section, référencés en commentaire dans le HTML mais `src` laissé à `null` (placeholder actif) tant qu'ils ne sont pas livrés
 
-**À faire côté Sébastien : renvoyer ces fichiers s'ils existent, pour qu'ils soient câblés à leur tour.**
+`origins-drone-quartier.mp4` a depuis été reçu (déposé dans `videos/`, 2026-08-23) et est maintenant câblé en fond de la section Origins — retiré de cette liste.
+
+**À faire côté Sébastien : renvoyer les fichiers restants ci-dessus s'ils existent, pour qu'ils soient câblés à leur tour.**
+
+## Bug corrigé (2026-08-23)
+Les vidéos de fond ont `preload="none"` ; assigner `.src` en JS seul ne déclenchait pas toujours le chargement des métadonnées dans certains navigateurs (le slot restait bloqué sur le placeholder même une fois le fichier livré). Le script appelle désormais `video.load()` juste après avoir posé le `src`, ce qui corrige le chargement pour tous les fonds de section à venir (BRK, La Var).
 
 ## Chemins d'assets
 Tous les chemins sont désormais relatifs et uniformes (`images/...`, `videos/...`, `posters/...`, sans slash initial) — le point corrigé lors du passage sur Claude Code le 2026-08-23.

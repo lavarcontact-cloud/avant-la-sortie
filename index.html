@@ -369,17 +369,14 @@
 
   <!-- ============================================================
        02 — ORIGINS
-       Video (à venir) : videos/origins-drone-quartier.mp4 | Poster: posters/origins.jpg
-       Fichier pas encore reçu — le slot reste sur le placeholder pellicule
-       jusqu'à ce qu'il soit livré. Photo réelle de Millau déjà intégrée.
+       Video: videos/origins-drone-quartier.mp4 | Poster: posters/origins.jpg
+       Plans drone réels, cadrés par Sébastien. Photo réelle de Millau
+       intégrée en complément.
        ============================================================ -->
   <section class="chapter" id="origins" data-chapter="Origins">
     <div class="media-slot" id="originsMedia">
       <video id="originsVideo" muted playsinline preload="none" loop></video>
-      <div class="media-placeholder">
-        EMPLACEMENT VIDÉO — videos/origins-drone-quartier.mp4<br>
-        Plans drone, Bois-l'Abbé — Les Mordacs, Champigny (cadré par Sébastien)
-      </div>
+      <span class="footage-credit">Cadre : Sébastien<br>Bois-l'Abbé (94500) — Les Mordacs, Champigny</span>
     </div>
     <div class="chapter-content">
       <span class="eyebrow">Origines</span>
@@ -558,7 +555,7 @@
        ---------------------------------------------------------- */
     var chapters = [
       { id:'hero',        videoId:'heroVideo',        src:null, scrub:true,  loop:false },
-      { id:'origins',     videoId:'originsVideo',     src:null, scrub:false, loop:true  },
+      { id:'origins',     videoId:'originsVideo',     src:'videos/origins-drone-quartier.mp4', scrub:false, loop:true  },
       { id:'image',       videoId:null },
       { id:'generations', videoId:null },
       { id:'brk',         videoId:'brkVideo',         src:null, scrub:false, loop:true  },
@@ -578,6 +575,7 @@
 
       video.src = ch.src;
       video.loop = !!ch.loop && !ch.scrub;
+      video.load(); // preload="none" needs an explicit load() to fetch metadata
 
       video.addEventListener('loadedmetadata', function(){
         slot.classList.add('has-media');
