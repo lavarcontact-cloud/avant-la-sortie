@@ -224,10 +224,6 @@
     .eyebrow{ font-size:13px; }
     .proof-caption{ font-size:12px; text-transform:none; letter-spacing:0.02em; line-height:1.5; }
     .stat{ font-size:13px; }
-    .align-right{ margin-left:0; text-align:left; }
-    .align-right .stat-row,
-    .align-right .proof-row,
-    .align-right .ambient-photo{ justify-content:flex-start; margin-left:0; }
   }
 
   /* ============================================================
@@ -471,6 +467,22 @@
     transition:border-color .3s, opacity .3s;
   }
   .contact-link:hover{ border-bottom-color:var(--accent); }
+
+  /* Doit rester après toutes les règles .align-right ci-dessus pour
+     gagner la cascade sur mobile (même spécificité, donc l'ordre
+     dans la feuille de style compte). */
+  @media (max-width:820px){
+    .align-right{ margin-left:0; text-align:left; }
+    .align-right .stat-row,
+    .align-right .proof-row,
+    .align-right .ambient-photo,
+    .align-right .location-note,
+    .align-right .photo-placeholder,
+    .align-right .image-block__credit{
+      justify-content:flex-start; margin-left:0; margin-right:0;
+    }
+    .align-right .location-note{ border-left:2px solid var(--accent); border-right:none; padding-left:14px; padding-right:0; }
+  }
 </style>
 </head>
 <body>
@@ -545,27 +557,27 @@
           <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" autoplay muted loop playsinline></video>
           <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" autoplay muted loop playsinline></video>
         </div>
-        <p class="image-block__credit">Dans les clips « Colombine » et « Cache Cache ». Dans Afro Trap Part. 11, le hit de MHD. Et dans des projets autour de L2B, Gazo et Landy.</p>
+        <p class="image-block__credit">Clips : « Noir » de L2B, « Maybach » de Landy feat. Gazo et « Afro Trap Part. 11 » de MHD.</p>
       </div>
 
       <div class="image-block">
         <h3 class="image-block__title">Photographe de plateau</h3>
         <div class="proof-row">
-          <video class="proof-tile proof-tile--wide" src="videos/festival-fcny-lamano.mp4" autoplay muted loop playsinline></video>
           <img class="proof-tile proof-tile--post" src="images/image-photo-batbat.jpg" alt="Photo plateau — Batbat" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/image-photo-rvfleuze.jpg" alt="Photo plateau — Rvfleuze" loading="lazy">
         </div>
-        <p class="image-block__credit">Sur les tournages de Batbat, Rvfleuze, Bilouki et Dexter HMC ft. La Hasba (« 91022 »). Et au festival Fcny, appareil en main aux côtés du photographe La Mano.</p>
+        <p class="image-block__credit">Sur les tournages de Batbat, Rvfleuze, Bilouki et Dexter HMC ft. La Hasba (« 91022 »).</p>
       </div>
 
       <div class="image-block">
         <h3 class="image-block__title">Direction artistique</h3>
         <div class="proof-row">
-          <img class="proof-tile proof-tile--post" src="images/image-cover-blackd-leto.jpg" alt="Cover — Black D ft. Leto, Sauvage" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-cover-negrito-stavo.jpg" alt="Cover — Negrito, Stavo" loading="lazy">
-          <img class="proof-tile proof-tile--post" src="images/image-cover-fave-five.jpg" alt="Cover — Favé, Fivé" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-blackd-leto.jpg" alt="Cover — Black D feat. Leto, Sauvage" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-negrito-stavo.jpg" alt="Cover — Negrito feat. Stavo, Bala Bala" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-fave-five.jpg" alt="Cover — Favé, J'aime pas perdre" loading="lazy">
         </div>
-        <p class="image-block__credit">Les covers de Black D ft. Leto (« Sauvage »), de Favé (« Fivé ») et « Négrito » pour Stavo. Le synopsis et le moodboard de « 760 » pour Timal, la co-réalisation de « Crapuleux » pour V2V, et du contenu réseaux pour Fascoflex.</p>
+        <p class="image-block__credit">Covers : Leto, « Enlève tes Pessas » ; Dexter HMC feat. La Hasba, « 91022 » ; Negrito feat. Stavo, « Bala Bala » ; Favé, « J'aime pas perdre » ; Black D feat. Leto, « Sauvage ».</p>
+        <p class="image-block__credit">Timal, « 760 » : synopsis et moodboard. V2V, « Crapuleux » : co-réalisation. Contenus réseaux pour Fascoflex.</p>
       </div>
     </div>
   </section>
@@ -580,6 +592,7 @@
       <span class="eyebrow">Générations</span>
       <h2>Six mois comme monteur-réalisateur.</h2>
       <p class="lede">Montage et cadrage d'interviews, contenus éditoriaux, intros et habillages — au studio.</p>
+      <p class="credits">Photographe accrédité pour <b>Générations</b>, au festival <b>FCNY</b>, sur l'apparition de <b>La Mano</b>.</p>
       <div class="photo-placeholder">
         <span>Photo à venir</span>
       </div>

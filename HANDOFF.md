@@ -39,7 +39,7 @@ Les prompts Higgsfield restent dans l'historique de la conversation si l'accès 
 - `lavar-logo.png` — logo La Var, recadré. **Câblé** dans La Var
 - `lavar-rnboi-preview.mp4`, `lavar-rvfleuze-preview.mp4` — extraits de 7s, sans audio, 480px large. **Câblés** dans La Var
 - `l2b-noir-cuts.mp4` (76s), `landy-gazo-maybach-cuts.mp4` (14s), `mhd-afrotrap11-cuts.mp4` (5s) — compilations de passages précis où il apparaît comme acteur dans ces 3 clips officiels. **Câblés** dans la bande de preuves de la section Image
-- `festival-fcny-lamano.mp4` — Sébastien photographe, festival Fcny, aux côtés de l'artiste La Mano. **Câblé** dans la section Image
+- `festival-fcny-lamano.mp4` — Sébastien photographe accrédité pour Générations, festival FCNY, sur l'apparition de La Mano. Présent dans le dossier mais **plus référencé dans le HTML** depuis le 2026-08-23 (23h) : le crédit FCNY/La Mano a été déplacé en texte dans la section Générations, la vidéo n'y est pas (encore) montée
 - `origins-millau.jpg` — photo de Millau (Aveyron), ville natale. **Câblée** dans Origins, en grande image d'ambiance assombrie
 - `origins-drone-quartier.mp4` — 2 plans drone réels (Bois-l'Abbé, Les Mordacs), cadrés par Sébastien. **Câblé** en fond de la section Origins
 - `image-photo-batbat.jpg`, `image-photo-rvfleuze.jpg`, `image-photo-bilouki.jpg`, `image-photo-dexterhmc.jpg` — photos plateau. **Câblées** dans Image
@@ -69,6 +69,7 @@ Une passe de direction artistique a été appliquée sur `index.html` à la dema
 Overlay d'Origins largement renforcé (le fond drone lavait le titre) + filtre d'assombrissement sur les vidéos de fond. Image restructurée en 3 blocs nommés (Acteur / Photographe de plateau / Direction artistique) avec 2-3 visuels et une ligne de crédit chacun, au lieu d'un paragraphe et d'une grille dense — sélection éditoriale faite sur les visuels les plus forts (une photo écartée pour son ton peu adapté à un recruteur, quelques autres gardées en texte seul faute de place). Plus aucun texte technique (« EMPLACEMENT VIDÉO », nom de fichier) visible à l'écran nulle part. Mobile testé à 390px : grille 1-2 colonnes, texte et légendes agrandis, capitales minuscules supprimées, blocs alignés à droite repassent en alignement gauche. Navigation et libellés en français partout.
 
 ## Ce qui n'est PAS encore fait
+- **`image-photo-batbat-v2.jpg` (2026-08-23, 23h)** : Sébastien a demandé de remplacer la photo Batbat actuelle par ce fichier recadré en 4:5, censé être dans un dossier `a-integrer/`. Ce dossier n'existe pas et le fichier n'est nulle part sur le disque — seule une image collée dans le message de chat, que Claude Code ne peut pas enregistrer lui-même. La photo Batbat actuelle (`image-photo-batbat.jpg`) est donc restée en place. À refaire dès que le fichier est réellement déposé dans `images/`
 - Câbler `brk-background-loop.mp4`, `lavar-background-loop.mp4` dès réception
 - Récupérer (si besoin) `scene-rue-groupe.mp4`, `scene-pont-nuit.mp4`, `brk-studio-couch.mp4`, `brk-studio-solo.mp4`, `brk-studio-session.mp4`, `brk-motion-abstract.mp4` — moins urgent maintenant que BRK a des highlights réels et récents
 - Final : remplacer le canvas génératif par une vraie photo/vidéo du studio dès que Sébastien l'envoie
