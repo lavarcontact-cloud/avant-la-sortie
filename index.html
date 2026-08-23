@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVANT LA SORTIE — Sébastien</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+
+  /* ============================================================
+     TOKENS
+     ============================================================ */
+  :root{
+    --bg:        #0A0908;
+    --bg-panel:  #14110D;
+    --fg:        #ECE7DD;
+    --fg-muted:  #8A8072;
+    --accent:    #C9A15C;
+    --line:      #2B241C;
+
+    --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    --font-body:    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --font-mono:    ui-monospace, "SF Mono", "Cascadia Code", "Courier New", monospace;
+
+    --edge: clamp(24px, 6vw, 88px);
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:auto; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--font-body);
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent); color:#14110D; }
+  a{ color:inherit; }
+  img,video{ display:block; max-width:100%; }
+
+  /* ============================================================
+     SIGNATURE ELEMENT — the running timecode
+     Reads as one continuous edit from hero to final, not a set
+     of separate pages. Real content: it reflects actual scroll
+     position, mapped onto a nominal 6-minute "cut".
+     ============================================================ */
+  .tc-counter{
+    position:fixed;
+    top:24px; right:var(--edge);
+    z-index:50;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--fg-muted);
+    pointer-events:none;
+    mix-blend-mode:difference;
+  }
+  .tc-counter b{ color:var(--fg); font-weight:500; }
+
+  .chapter-nav{
+    position:fixed;
+    left:var(--edge); top:50%;
+    transform:translateY(-50%);
+    z-index:50;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .chapter-nav a{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--line);
+    transition:background .3s, transform .3s;
+  }
+  .chapter-nav a.active{ background:var(--accent); transform:scale(1.6); }
+
+  @media (max-width:820px){
+    .chapter-nav{ display:none; }
+    .tc-counter{ top:16px; right:16px; font-size:10px; }
+  }
+
+  /* ============================================================
+     CHAPTER SHELL — every section follows this shell so a video
+     can be dropped in without touching layout code.
+     ============================================================ */
+  .chapter{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-end;
+    padding:calc(var(--edge) * 1.4) var(--edge) var(--edge);
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+
+  .media-slot{
+    position:absolute; inset:0;
+    background:var(--bg-panel);
+  }
+  .media-slot video{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    opacity:0;
+    transition:opacity .8s ease;
+  }
+  .media-slot video.is-ready{ opacity:1; }
+  .media-slot::after{
+    /* readability gradient over any media */
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,9,8,0.15) 0%, rgba(10,9,8,0.55) 65%, rgba(10,9,8,0.92) 100%);
+  }
+
+  .media-placeholder{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--fg-muted);
+    background:
+      repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,0.02) 18px 19px),
+      var(--bg-panel);
+    border:1px dashed var(--line);
+    margin:8px;
+    text-align:center;
+    padding:20px;
+  }
+  .media-slot.has-media .media-placeholder{ display:none; }
+
+  .chapter-content{
+    position:relative; z-index:2;
+    max-width:760px;
+  }
+
+  .eyebrow{
+    display:block;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.12em;
+    color:var(--accent);
+    margin-bottom:18px;
+    text-transform:uppercase;
+  }
+
+  h1,h2{
+    font-family:var(--font-display);
+    font-weight:800;
+    letter-spacing:-0.01em;
+    margin:0 0 20px;
+  }
+  h1{ font-size:clamp(32px, 5.2vw, 64px); line-height:1.08; }
+  h2{ font-size:clamp(26px, 3.6vw, 42px); line-height:1.12; }
+
+  .lede{
+    font-size:clamp(15px,1.6vw,18px);
+    color:var(--fg-muted);
+    max-width:560px;
+  }
+
+  .credits{
+    margin-top:22px;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    line-height:1.9;
+    color:var(--fg-muted);
+    letter-spacing:0.02em;
+  }
+  .credits b{ color:var(--fg); font-weight:500; }
+
+  .stat-row{
+    display:flex; gap:40px;
+    margin-top:26px;
+    flex-wrap:wrap;
+  }
+  .stat{ font-family:var(--font-mono); font-size:12px; color:var(--fg-muted); }
+  .stat b{ display:block; font-family:var(--font-display); font-size:26px; color:var(--fg); font-weight:700; }
+
+  #hero{ align-items:center; padding-top:var(--edge); }
+  #hero .chapter-content{ max-width:820px; }
+  .scroll-cue{
+    position:absolute; bottom:32px; left:var(--edge);
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
+    color:var(--fg-muted); text-transform:uppercase;
+    display:flex; align-items:center; gap:10px;
+  }
+  .scroll-cue::after{
+    content:""; width:1px; height:26px; background:var(--fg-muted);
+    animation:scrollcue 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollcue{ 0%,100%{ transform:scaleY(1); opacity:.6; } 50%{ transform:scaleY(.4); opacity:1; } }
+
+  #final{
+    border-bottom:none;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    min-height:70vh;
+  }
+  #final .chapter-content{ max-width:600px; margin:0 auto; }
+  #final h2{ font-weight:600; }
+  .contact-line{
+    margin-top:28px;
+    font-family:var(--font-mono);
+    font-size:14px;
+    color:var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .scroll-cue::after{ animation:none; }
+  }
+
+  @media (max-width:820px){
+    .chapter{ align-items:flex-end; }
+    .credits{ font-size:11.5px; }
+  }
+
+  /* ============================================================
+     TEXTURE — grain permanent, léger, sur tout le site.
+     Casse le côté "plat" indépendamment des vidéos.
+     ============================================================ */
+  .grain{
+    position:fixed; inset:-50%;
+    width:200%; height:200%;
+    z-index:40;
+    pointer-events:none;
+    opacity:0.05;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    animation:grain-shift 1.4s steps(4) infinite;
+  }
+  @keyframes grain-shift{
+    0%{ transform:translate(0,0); } 25%{ transform:translate(-2%,1%); }
+    50%{ transform:translate(1%,-2%); } 75%{ transform:translate(-1%,-1%); }
+    100%{ transform:translate(0,0); }
+  }
+
+  /* ============================================================
+     CURSEUR — repère de viseur, desktop uniquement
+     ============================================================ */
+  .viewfinder{
+    position:fixed; top:0; left:0;
+    width:26px; height:26px;
+    margin:-13px 0 0 -13px;
+    border:1px solid var(--accent);
+    border-radius:50%;
+    z-index:60;
+    pointer-events:none;
+    mix-blend-mode:difference;
+    transition:transform .15s ease, opacity .3s ease;
+    opacity:0;
+  }
+  .viewfinder::before, .viewfinder::after{ content:""; position:absolute; background:var(--accent); }
+  .viewfinder::before{ top:50%; left:-6px; width:4px; height:1px; }
+  .viewfinder::after{ top:-6px; left:50%; width:1px; height:4px; }
+  @media (hover:none), (max-width:820px){ .viewfinder{ display:none; } }
+
+  /* ============================================================
+     EMPLACEMENTS VIDÉO — traités comme de la pellicule en attente,
+     pas comme des boîtes vides de dev. Amovible dès qu'un fichier
+     réel est chargé (voir .has-media plus bas).
+     ============================================================ */
+  .media-slot::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:10px;
+    background-image:repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 16px);
+    opacity:0.6; z-index:1;
+  }
+  .sprockets-bottom{
+    position:absolute; bottom:0; left:0; right:0; height:10px;
+    background-image:repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 16px);
+    opacity:0.6; z-index:1;
+  }
+  .corner{ position:absolute; width:18px; height:18px; border:1px solid var(--accent); opacity:0.55; z-index:2; }
+  .corner-tl{ top:20px; left:20px; border-right:none; border-bottom:none; }
+  .corner-tr{ top:20px; right:20px; border-left:none; border-bottom:none; }
+  .corner-bl{ bottom:20px; left:20px; border-right:none; border-top:none; }
+  .corner-br{ bottom:20px; right:20px; border-left:none; border-top:none; }
+  .scanline{
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity:0.3; z-index:2;
+    animation:scan 5s linear infinite;
+  }
+  @keyframes scan{ 0%{ top:0%; } 100%{ top:100%; } }
+  .media-slot.has-media .corner,
+  .media-slot.has-media .scanline,
+  .media-slot.has-media::before,
+  .media-slot.has-media .sprockets-bottom{ opacity:0; transition:opacity .6s; }
+
+  /* ============================================================
+     RYTHME — casse la répétition d'un chapitre à l'autre
+     ============================================================ */
+  .align-right{ margin-left:auto; text-align:right; }
+  .align-right .stat-row{ justify-content:flex-end; }
+  .chapter--top{ align-items:flex-start; padding-top:calc(var(--edge) * 1.6); }
+
+  @media (prefers-reduced-motion: reduce){
+    .grain{ animation:none; }
+    .scanline{ animation:none; top:50%; }
+  }
+
+  /* ============================================================
+     PREUVES — contenu réel (posts, extraits), pas de l'IA.
+     Volontairement en petit format, sous le texte : ça appuie
+     le discours sans prendre toute la place.
+     ============================================================ */
+  .brand-mark{ height:14px; width:auto; vertical-align:-2px; margin-right:6px; opacity:0.85; }
+  .proof-row{
+    display:flex; gap:10px; margin-top:28px; flex-wrap:wrap;
+  }
+  .align-right .proof-row{ justify-content:flex-end; }
+  .proof-tile{
+    width:84px; aspect-ratio:9/16;
+    object-fit:cover;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    filter:saturate(0.9);
+    transition:filter .3s;
+  }
+  .proof-tile:hover{ filter:saturate(1.1); }
+  .proof-tile--post{ aspect-ratio:4/5; }
+  .proof-tile--wide{ aspect-ratio:16/9; width:150px; }
+  .proof-caption{
+    display:block; margin-top:10px;
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.06em;
+    color:var(--fg-muted); text-transform:uppercase;
+  }
+  .footage-credit{
+    position:absolute; bottom:16px; right:20px; z-index:2;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.05em;
+    color:var(--fg-muted); opacity:0.7; text-align:right;
+    text-transform:uppercase;
+  }
+  .generative-bg{
+    position:absolute; inset:0; width:100%; height:100%; z-index:1;
+  }
+  @media (max-width:820px){
+    .proof-tile{ width:64px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="grain"></div>
+  <div class="viewfinder" id="viewfinder"></div>
+
+  <div class="tc-counter" id="tcCounter">00:00 <b>/</b> 06:00</div>
+  <nav class="chapter-nav" id="chapterNav"></nav>
+
+  <!-- ============================================================
+       01 — HERO
+       Fond : canvas génératif (#heroCanvas), aucun fichier vidéo requis.
+       À remplacer par videos/hero.mp4 + posters/hero.jpg si une vraie
+       séquence (ou photo studio) arrive un jour.
+       ============================================================ -->
+  <section class="chapter" id="hero" data-chapter="Hero">
+    <div class="media-slot has-media" id="heroMedia">
+      <video id="heroVideo" muted playsinline preload="metadata"></video>
+      <canvas id="heroCanvas" class="generative-bg"></canvas>
+    </div>
+    <div class="chapter-content">
+      <span class="eyebrow">Avant la sortie</span>
+      <h1>Je n'ai pas commencé par un poste.<br>J'ai commencé par un studio.</h1>
+      <p class="lede">Candidature — Responsable Pôle Stratégie Créative, A&amp;R Studios<br>Universal Music France</p>
+    </div>
+    <div class="scroll-cue">Scroll</div>
+  </section>
+
+  <!-- ============================================================
+       02 — ORIGINS
+       Video (à venir) : videos/origins-drone-quartier.mp4 | Poster: posters/origins.jpg
+       Fichier pas encore reçu — le slot reste sur le placeholder pellicule
+       jusqu'à ce qu'il soit livré. Photo réelle de Millau déjà intégrée.
+       ============================================================ -->
+  <section class="chapter" id="origins" data-chapter="Origins">
+    <div class="media-slot" id="originsMedia">
+      <video id="originsVideo" muted playsinline preload="none" loop></video>
+      <div class="media-placeholder">
+        EMPLACEMENT VIDÉO — videos/origins-drone-quartier.mp4<br>
+        Plans drone, Bois-l'Abbé — Les Mordacs, Champigny (cadré par Sébastien)
+      </div>
+    </div>
+    <div class="chapter-content">
+      <span class="eyebrow">Origines</span>
+      <h2>Millau, Aveyron. Puis un studio, au Bois-l'Abbé.</h2>
+      <p class="lede">Dès la seconde, au lycée : premières sessions de production, notamment avec Bolemvn. En 2021, un studio cofondé avec l'artiste ZS, au cœur du Bois-l'Abbé — à deux pas des Mordacs.</p>
+      <p class="credits">Sont passés par ce studio — <b>L2B, Rsko, BRK, Didi Trix, Kerchak, ZS</b></p>
+      <div class="proof-row">
+        <img class="proof-tile proof-tile--wide" src="images/origins-millau.jpg" alt="Millau, Aveyron" loading="lazy">
+      </div>
+      <span class="proof-caption">Millau, Aveyron — ville natale</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       03 — IMAGE
+       Pas de fond vidéo dédié : trois bandes de preuves réelles
+       (extraits acteur/plateau, photos plateau, covers DA) portent
+       le chapitre à la place d'une séquence générée.
+       ============================================================ -->
+  <section class="chapter" id="image" data-chapter="Image" style="background:var(--bg-panel);">
+    <div class="chapter-content align-right">
+      <span class="eyebrow">Image</span>
+      <h2>De l'autre côté de la caméra, puis derrière elle.</h2>
+      <p class="lede">La rencontre avec Nocolor fait évoluer la posture : acteur, photographe plateau, direction artistique image, réalisation.</p>
+      <p class="credits">
+        Clips — <b>Colombine, Cache Cache</b> · <b>Afro Trap Part. 11</b> (MHD) · projets autour de <b>L2B, Gazo, Landy</b><br>
+        Covers — <b>Leto</b>, « Enlève tes Pessas » · <b>Dexter HMC ft. La Hasba</b>, « 91022 » · <b>Negrito</b> · <b>Stavo</b> · <b>Favé</b>, « Fivé » · <b>Black D ft. Leto</b>, « Sauvage »<br>
+        <b>Timal</b> — « 760 » (synopsis, moodboard) · <b>V2V</b> — « Crapuleux » (co-réalisation) · contenu réseaux pour <b>Fascoflex</b> · festival <b>Fcny</b> avec <b>La Mano</b> (photographe)
+      </p>
+      <div class="proof-row">
+        <video class="proof-tile proof-tile--wide" src="videos/l2b-noir-cuts.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile proof-tile--wide" src="videos/festival-fcny-lamano.mp4" autoplay muted loop playsinline></video>
+      </div>
+      <span class="proof-caption">Acteur — L2B · Landy x Gazo · MHD, Afro Trap Part. 11 — et photographe, festival Fcny avec La Mano</span>
+
+      <div class="proof-row">
+        <img class="proof-tile proof-tile--post" src="images/image-photo-batbat.jpg" alt="Photo plateau — Batbat" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/image-photo-rvfleuze.jpg" alt="Photo plateau — Rvfleuze" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/image-photo-bilouki.jpg" alt="Photo plateau — Bilouki" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/image-photo-dexterhmc.jpg" alt="Photo plateau — Dexter HMC ft. La Hasba" loading="lazy">
+      </div>
+      <span class="proof-caption">Photographe plateau — Batbat, Rvfleuze, Bilouki, Dexter HMC ft. La Hasba</span>
+
+      <div class="proof-row">
+        <img class="proof-tile proof-tile--post" src="images/image-cover-leto-pessas.jpg" alt="Cover — Leto, Enlève tes Pessas" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/image-cover-negrito-stavo.jpg" alt="Cover — Negrito, Stavo" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/image-cover-fave-five.jpg" alt="Cover — Favé, Fivé" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/image-cover-blackd-leto.jpg" alt="Cover — Black D ft. Leto, Sauvage" loading="lazy">
+      </div>
+      <span class="proof-caption">Direction artistique — covers réalisées</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       04 — GÉNÉRATIONS (chapitre bref, sert de pont vers BRK)
+       Pas de séquence dédiée prévue pour ce chapitre — image fixe
+       ou courte boucle d'ambiance suffit, non bloquant.
+       ============================================================ -->
+  <section class="chapter" id="generations" data-chapter="Générations" style="min-height:60vh;">
+    <div class="media-slot" id="generationsMedia">
+      <div class="media-placeholder">
+        EMPLACEMENT VISUEL — image fixe ou courte boucle<br>
+        pas de scroll-scrub nécessaire ici
+      </div>
+    </div>
+    <div class="chapter-content">
+      <span class="eyebrow">Générations</span>
+      <h2>Six mois comme monteur-réalisateur.</h2>
+      <p class="lede">Montage et cadrage d'interviews, contenus éditoriaux, intros et habillages — au studio.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       05 — BRK
+       Video (à venir) : videos/brk-background-loop.mp4 | Poster: posters/brk.jpg
+       Fichier pas encore reçu — placeholder pellicule affiché en attendant.
+       ============================================================ -->
+  <section class="chapter" id="brk" data-chapter="BRK">
+    <div class="media-slot" id="brkMedia">
+      <video id="brkVideo" muted playsinline preload="none" loop></video>
+      <div class="media-placeholder">
+        EMPLACEMENT VIDÉO — videos/brk-background-loop.mp4<br>
+        Identité → Image → Contenu → Communauté → Développement, boucle rythmée
+      </div>
+    </div>
+    <div class="chapter-content">
+      <span class="eyebrow">Développement d'artiste</span>
+      <h2>BRK</h2>
+      <p class="lede">Stratégie artistique, image et branding, choix des réalisateurs et des beatmakers, stratégie de contenu, calendrier entre studio et sorties, recherche de label.</p>
+      <p class="credits">Collaborations — beatmakers <b>ABL</b> (Sexy Nana) et <b>Achille GX</b> (Covid-19, Mouss et Alonzo)</p>
+      <div class="stat-row">
+        <div class="stat"><b>8 000</b>abonnés au départ</div>
+        <div class="stat"><b>10 500</b>abonnés aujourd'hui</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       06 — LA VAR
+       Video (à venir) : videos/lavar-background-loop.mp4 | Poster: posters/lavar.jpg
+       Fichier pas encore reçu — placeholder pellicule affiché en attendant.
+       Bande de preuves réelles déjà intégrée (logo, 2 posts, 2 extraits).
+       ============================================================ -->
+  <section class="chapter chapter--top" id="lavar" data-chapter="La Var">
+    <div class="media-slot" id="lavarMedia">
+      <video id="lavarVideo" muted playsinline preload="none"></video>
+      <div class="media-placeholder">
+        EMPLACEMENT VIDÉO — videos/lavar-background-loop.mp4<br>
+        Pull-back continu, media → discovery → development → talent ecosystem
+      </div>
+    </div>
+    <div class="chapter-content">
+      <span class="eyebrow"><img class="brand-mark" src="images/lavar-logo.png" alt="" loading="lazy"> La Var</span>
+      <h2>Un média qui devient un système.</h2>
+      <p class="lede">Média rap et culture urbaine. Stratégie éditoriale, prospection, négociation.</p>
+      <p class="credits">Artistes mis en avant — <b>Rvfleuze, LMT, KLM, Darlingchouchou, Shippeur, Supremenova, Eliah ZS</b></p>
+      <div class="stat-row">
+        <div class="stat"><b>11 000+</b>abonnés</div>
+        <div class="stat"><b>~2 000</b>vues en moyenne sur certains formats</div>
+      </div>
+      <div class="proof-row">
+        <video class="proof-tile" src="videos/lavar-rnboi-preview.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile" src="videos/lavar-rvfleuze-preview.mp4" autoplay muted loop playsinline></video>
+        <img class="proof-tile proof-tile--post" src="images/lavar-post-klm.jpg" alt="Post La Var — KLM" loading="lazy">
+        <img class="proof-tile proof-tile--post" src="images/lavar-post-creamy.jpg" alt="Post La Var — Creamy G à Marsatac" loading="lazy">
+      </div>
+      <span class="proof-caption">Contenu réel publié par La Var</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       07 — VISION
+       Pas de vidéo dédiée — section texte, contraste volontaire
+       avec le rythme visuel des chapitres précédents.
+       ============================================================ -->
+  <section class="chapter" id="vision" data-chapter="Vision" style="background:var(--bg-panel); min-height:80vh;">
+    <div class="chapter-content">
+      <span class="eyebrow">Vision</span>
+      <h2>Un artiste se construit avant la sortie.</h2>
+      <p class="lede">
+        Identité, communauté, image, univers — entre deux projets, pas seulement au moment d'une sortie.
+        Les labels gagneraient à être plus proches des communautés, à montrer les métiers et les personnes
+        qui les font vivre. Une réflexion plus longue, aussi, sur des lieux qui réuniraient artistes,
+        beatmakers, ingénieurs son et créateurs visuels — une pensée en construction, née du terrain.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       08 — FINAL
+       Fond : canvas génératif (#finalCanvas), aucun fichier vidéo requis.
+       À remplacer par videos/final.mp4 + posters/final.jpg si une vraie
+       photo/vidéo du studio arrive un jour.
+       ============================================================ -->
+  <section class="chapter" id="final" data-chapter="Universal">
+    <div class="media-slot has-media" id="finalMedia">
+      <canvas id="finalCanvas" class="generative-bg"></canvas>
+    </div>
+    <div class="chapter-content">
+      <span class="eyebrow">Prochaine étape</span>
+      <h2>Vers Universal.</h2>
+      <p class="contact-line">[ email de contact à renseigner ]</p>
+    </div>
+  </section>
+
+  <script>
+  (function(){
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ----------------------------------------------------------
+       Chapter registry — every section + optional video config
+       lives here. To plug in a real file later: set `src`, done.
+       Nothing else in this script needs to change per chapter.
+       ---------------------------------------------------------- */
+    var chapters = [
+      { id:'hero',        videoId:'heroVideo',        src:null, scrub:true,  loop:false },
+      { id:'origins',     videoId:'originsVideo',     src:null, scrub:false, loop:true  },
+      { id:'image',       videoId:null },
+      { id:'generations', videoId:null },
+      { id:'brk',         videoId:'brkVideo',         src:null, scrub:false, loop:true  },
+      { id:'lavar',       videoId:'lavarVideo',       src:null, scrub:false, loop:true  },
+      { id:'vision',      videoId:null },
+      { id:'final',       videoId:null }
+    ];
+
+    chapters.forEach(function(ch){
+      if(!ch.videoId) return;
+      var video = document.getElementById(ch.videoId);
+      var slot  = video ? video.closest('.media-slot') : null;
+      if(!video || !slot) return;
+
+      // No src yet -> stays on the placeholder, does nothing else.
+      if(!ch.src) return;
+
+      video.src = ch.src;
+      video.loop = !!ch.loop && !ch.scrub;
+
+      video.addEventListener('loadedmetadata', function(){
+        slot.classList.add('has-media');
+        video.classList.add('is-ready');
+        if(!ch.scrub && !reduced){ video.play().catch(function(){}); }
+      });
+
+      if(ch.scrub && !reduced){
+        ScrollTrigger.create({
+          trigger: '#' + ch.id,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true,
+          onUpdate: function(self){
+            if(video.duration){ video.currentTime = self.progress * video.duration; }
+          }
+        });
+      }
+    });
+
+    /* ----------------------------------------------------------
+       Hero generative background — stand-in for the studio
+       sequence in the absence of an AI video pipeline. Reuses
+       the same visual language as the rest of the site (warm
+       tungsten light, dust, grain) instead of anything generic.
+       ---------------------------------------------------------- */
+    (function(){
+      var canvas = document.getElementById('heroCanvas');
+      if(!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var w, h, particles = [];
+      var reducedLocal = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function resize(){
+        w = canvas.width = canvas.offsetWidth;
+        h = canvas.height = canvas.offsetHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      var N = 70;
+      for(var i=0;i<N;i++){
+        particles.push({
+          x: Math.random()*w, y: Math.random()*h,
+          r: 0.6 + Math.random()*1.8,
+          s: 0.06 + Math.random()*0.18,
+          o: 0.15 + Math.random()*0.35,
+          drift: (Math.random()-0.5)*0.06
+        });
+      }
+
+      function frame(){
+        ctx.clearRect(0,0,w,h);
+        // fond quasi noir
+        ctx.fillStyle = '#0A0908';
+        ctx.fillRect(0,0,w,h);
+        // lueur chaude, décentrée, façon lampe de bureau
+        var gx = w*0.72, gy = h*0.38;
+        var glow = ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(w,h)*0.55);
+        glow.addColorStop(0,'rgba(201,161,92,0.22)');
+        glow.addColorStop(0.4,'rgba(120,90,50,0.10)');
+        glow.addColorStop(1,'rgba(10,9,8,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0,0,w,h);
+        // poussière en suspension
+        for(var i=0;i<particles.length;i++){
+          var p = particles[i];
+          ctx.beginPath();
+          ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+          ctx.fillStyle = 'rgba(236,231,221,' + p.o + ')';
+          ctx.fill();
+          if(!reducedLocal){
+            p.y -= p.s; p.x += p.drift;
+            if(p.y < -5){ p.y = h+5; p.x = Math.random()*w; }
+          }
+        }
+        if(!reducedLocal){ requestAnimationFrame(frame); }
+      }
+      frame();
+    })();
+
+    /* ----------------------------------------------------------
+       Final generative background — same technique as Hero,
+       deliberately calmer: near-static, almost no particle
+       motion, matching the "sobre" brief for this chapter.
+       ---------------------------------------------------------- */
+    (function(){
+      var canvas = document.getElementById('finalCanvas');
+      if(!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var w, h, motes = [];
+      var reducedLocal = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function resize(){
+        w = canvas.width = canvas.offsetWidth;
+        h = canvas.height = canvas.offsetHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      for(var i=0;i<24;i++){
+        motes.push({ x: Math.random()*w, y: Math.random()*h, r: 0.5+Math.random()*1.2, s: 0.02+Math.random()*0.05, o: 0.08+Math.random()*0.18 });
+      }
+
+      function frame(){
+        ctx.clearRect(0,0,w,h);
+        ctx.fillStyle = '#0A0908';
+        ctx.fillRect(0,0,w,h);
+        var gx = w*0.5, gy = h*0.25;
+        var glow = ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(w,h)*0.6);
+        glow.addColorStop(0,'rgba(140,130,110,0.08)');
+        glow.addColorStop(1,'rgba(10,9,8,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0,0,w,h);
+        for(var i=0;i<motes.length;i++){
+          var p = motes[i];
+          ctx.beginPath();
+          ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+          ctx.fillStyle = 'rgba(236,231,221,' + p.o + ')';
+          ctx.fill();
+          if(!reducedLocal){ p.y -= p.s; if(p.y < -5){ p.y = h+5; } }
+        }
+        if(!reducedLocal){ requestAnimationFrame(frame); }
+      }
+      frame();
+    })();
+
+    /* ----------------------------------------------------------
+       Media slot detail — corner brackets + scanline injected
+       once here, so every placeholder gets them without
+       duplicating markup eight times in the HTML.
+       ---------------------------------------------------------- */
+    document.querySelectorAll('.media-slot').forEach(function(slot){
+      ['corner corner-tl','corner corner-tr','corner corner-bl','corner corner-br','sprockets-bottom','scanline'].forEach(function(cls){
+        var el = document.createElement('div');
+        el.className = cls;
+        slot.appendChild(el);
+      });
+    });
+
+    /* ----------------------------------------------------------
+       Cursor — viewfinder mark, desktop only
+       ---------------------------------------------------------- */
+    var vf = document.getElementById('viewfinder');
+    if(vf && window.matchMedia('(hover:hover)').matches){
+      window.addEventListener('mousemove', function(e){
+        vf.style.opacity = 1;
+        vf.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
+      });
+      document.querySelectorAll('a,button,.chapter').forEach(function(el){
+        el.addEventListener('mouseenter', function(){ vf.style.transform += ' scale(1.6)'; });
+      });
+    }
+
+    /* ----------------------------------------------------------
+       Text reveal — one orchestrated moment per chapter, not
+       scattered effects. Skipped entirely under reduced motion.
+       ---------------------------------------------------------- */
+    if(!reduced && window.gsap){
+      gsap.registerPlugin(ScrollTrigger);
+      document.querySelectorAll('.chapter-content').forEach(function(el){
+        gsap.from(el.children, {
+          y: 24,
+          opacity: 0,
+          duration: 0.9,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 75%' }
+        });
+      });
+    }
+
+    /* ----------------------------------------------------------
+       Signature element — running timecode + chapter nav dots
+       ---------------------------------------------------------- */
+    var sections = Array.from(document.querySelectorAll('.chapter'));
+    var nav = document.getElementById('chapterNav');
+    var dots = sections.map(function(s){
+      var a = document.createElement('a');
+      a.href = '#' + s.id;
+      a.title = s.dataset.chapter || s.id;
+      nav.appendChild(a);
+      return a;
+    });
+
+    var tcEl = document.getElementById('tcCounter');
+    var NOMINAL_SECONDS = 360; // 06:00 — purely a design device, not a real duration
+
+    function fmt(sec){
+      var m = Math.floor(sec/60), s = Math.floor(sec%60);
+      return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    }
+
+    function onScroll(){
+      var doc = document.documentElement;
+      var progress = window.scrollY / (doc.scrollHeight - window.innerHeight);
+      progress = Math.max(0, Math.min(1, progress || 0));
+      tcEl.innerHTML = fmt(progress*NOMINAL_SECONDS) + ' <b>/</b> 06:00';
+
+      var mid = window.scrollY + window.innerHeight*0.5;
+      sections.forEach(function(s, i){
+        var active = mid >= s.offsetTop && mid < s.offsetTop + s.offsetHeight;
+        dots[i].classList.toggle('active', active);
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+    onScroll();
+  })();
+  </script>
+</body>
+</html>
