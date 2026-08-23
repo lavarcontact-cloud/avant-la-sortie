@@ -27,7 +27,7 @@ Sébastien n'a plus accès à Higgsfield. Plutôt que de chercher un autre outil
 | Origins | fait | `origins-drone-quartier.mp4` (réel, cadré par Sébastien) + photo `origins-millau.jpg` en grande image d'ambiance | Fait |
 | Image | fait | pas de fond séparé — 3 bandes de preuves réelles (vidéos, photos plateau, covers) | Fait, avec les fichiers réellement reçus uniquement |
 | Générations | fait | emplacement photo sobre en attente (pour une photo de Sébastien au montage/cadrage/studio) | Non bloquant |
-| BRK | fait | `brk-background-loop.mp4` — **annoncé mais fichier non reçu**, placeholder pellicule actif. 3 photos studio réelles (`brk-photo-1/2/3.jpg`) câblées en complément | Partiel — fond vidéo en attente, photos câblées |
+| BRK | fait | `brk-background-loop.mp4` — **annoncé mais fichier non reçu**, placeholder pellicule actif. En plus des photos studio : 3 compilations highlights réelles (Katimini, Everyday, Flex), sélectionnées par Sébastien pour leur direction artistique/étalonnage | Partiel — fond vidéo en attente, contenu réel très riche par ailleurs |
 | La Var | fait | `lavar-background-loop.mp4` — **annoncé mais fichier non reçu**, placeholder pellicule actif. Bande de preuves réelles (logo, 2 posts, 2 extraits) complète | Partiel — fond vidéo en attente |
 | Vision | fait | aucune (contraste voulu) | Fait |
 | Final | fait | **canvas génératif** (variante calme du même système que Hero, `#finalCanvas`) + carte contact (nom, email, téléphone) | Fait |
@@ -45,6 +45,7 @@ Les prompts Higgsfield restent dans l'historique de la conversation si l'accès 
 - `image-photo-batbat.jpg`, `image-photo-rvfleuze.jpg`, `image-photo-bilouki.jpg`, `image-photo-dexterhmc.jpg` — photos plateau. **Câblées** dans Image
 - `image-cover-leto-pessas.jpg`, `image-cover-negrito-stavo.jpg`, `image-cover-fave-five.jpg`, `image-cover-blackd-leto.jpg` — covers DA. **Câblées** dans Image
 - `brk-photo-1.jpg`, `brk-photo-2.jpg`, `brk-photo-3.jpg` — photos réelles de BRK en studio. **Câblées** dans la section BRK (bande "Photos studio")
+- `brk-katimini-highlights.mp4`, `brk-everyday-highlights.mp4`, `brk-flex-highlights.mp4` — compilations montées par Sébastien à partir de rushs de 3 clips BRK (Katimini, Everyday, Flex), centrées sur la direction artistique et l'étalonnage propres à chaque clip (chaud nuit / froid contre-jour / vert néon). **Câblées** dans une bande dédiée dans BRK, avant les photos studio
 
 ## Fichiers annoncés dans une passation précédente mais jamais reçus dans ce dossier
 Ces noms de fichiers apparaissent régulièrement comme "déjà câblés" dans les versions régénérées de ce document, mais ils n'ont jamais été livrés dans `/videos` ou `/images`. Le HTML ne les référence pas (pour éviter des tuiles cassées), sauf comme fond de section avec repli sur le placeholder pellicule :
@@ -64,9 +65,12 @@ Les vidéos de fond ont `preload="none"` ; assigner `.src` en JS seul ne déclen
 ## Refonte visuelle (2026-08-23)
 Une passe de direction artistique a été appliquée sur `index.html` à la demande de Sébastien : fond sombre resté dominant (pas d'image de fond systématique par section), photo de Millau mise en avant comme grande image d'ambiance assombrie avec léger zoom continu, tuiles de preuve légèrement agrandies avec effet de survol doux, emplacement photo dédié pour Générations (photo de Sébastien au montage à venir), et carte de contact réelle et cliquable (mailto:/tel:) dans la section Final. **Cette refonte vit uniquement dans `index.html` — si `avant-la-sortie.html` est régénéré ailleurs, il repart de l'ancienne version sans ces changements ; ne pas l'utiliser pour écraser `index.html` sans vérifier d'abord ce qui serait perdu.**
 
+## Passe mobile-first et lisibilité (2026-08-23, suite)
+Overlay d'Origins largement renforcé (le fond drone lavait le titre) + filtre d'assombrissement sur les vidéos de fond. Image restructurée en 3 blocs nommés (Acteur / Photographe de plateau / Direction artistique) avec 2-3 visuels et une ligne de crédit chacun, au lieu d'un paragraphe et d'une grille dense — sélection éditoriale faite sur les visuels les plus forts (une photo écartée pour son ton peu adapté à un recruteur, quelques autres gardées en texte seul faute de place). Plus aucun texte technique (« EMPLACEMENT VIDÉO », nom de fichier) visible à l'écran nulle part. Mobile testé à 390px : grille 1-2 colonnes, texte et légendes agrandis, capitales minuscules supprimées, blocs alignés à droite repassent en alignement gauche. Navigation et libellés en français partout.
+
 ## Ce qui n'est PAS encore fait
 - Câbler `brk-background-loop.mp4`, `lavar-background-loop.mp4` dès réception
-- Récupérer (si besoin) `scene-rue-groupe.mp4`, `scene-pont-nuit.mp4`, `brk-studio-couch.mp4`, `brk-studio-solo.mp4`, `brk-studio-session.mp4`, `brk-motion-abstract.mp4`
+- Récupérer (si besoin) `scene-rue-groupe.mp4`, `scene-pont-nuit.mp4`, `brk-studio-couch.mp4`, `brk-studio-solo.mp4`, `brk-studio-session.mp4`, `brk-motion-abstract.mp4` — moins urgent maintenant que BRK a des highlights réels et récents
 - Final : remplacer le canvas génératif par une vraie photo/vidéo du studio dès que Sébastien l'envoie
 - Version mobile 9:16 des vidéos scroll-controlled
 - La Var : éventuellement une photo de tournage ou un fond de feed Instagram discret — non fait pour l'instant pour éviter de surcharger une bande déjà riche
