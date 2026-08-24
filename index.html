@@ -26,9 +26,9 @@
     --ink:       #17140F;
     --ink-muted: #6B6459;
     --fg:        #F6F3EC;
-    --fg-muted:  #9C97A6;
-    --accent:    #FF5B3C;
-    --accent-soft: #FFD8CB;
+    --fg-muted:  #96938C;
+    --accent:    #E0653A;
+    --accent-soft: #F4D9C6;
     --line:      #232228;
 
     --font-display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
@@ -411,6 +411,52 @@
     .video-feature{ max-width:100%; }
     .video-feature__detail{ font-size:15px; line-height:1.7; }
   }
+
+  /* ============================================================
+     SÉQUENCE ÉDITORIALE — remplace la logique "portfolio, tout
+     montrer à la fois" par une lecture guidée, un projet à la
+     fois, relié par des flèches comme le Réseau créatif. Chaque
+     média porte sa propre classe .proof-tile (donc cliquable en
+     lightbox) mais réécrit sa taille pour dominer l'écran plutôt
+     que de se fondre dans une grille de vignettes.
+     ============================================================ */
+  .sequence{ margin-top:40px; max-width:340px; margin-left:auto; }
+  .sequence__step{ padding:26px 0; }
+  .sequence__step:first-child{ padding-top:0; }
+  .sequence__media{
+    display:block; width:100%;
+    aspect-ratio:4/5; object-fit:cover;
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    filter:saturate(0.92) brightness(0.97);
+  }
+  /* Étape sans média publiable (Timal) : garde le même gabarit que
+     les autres étapes plutôt qu'un trou dans le rythme vertical. */
+  .sequence__media--placeholder{
+    width:100%; aspect-ratio:4/5;
+    border:1px solid var(--line);
+    background:
+      repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,0.025) 18px 19px),
+      var(--bg-panel);
+  }
+  .sequence__caption{ margin-top:14px; }
+  .sequence__title{
+    font-family:var(--font-display); font-weight:700;
+    font-size:16.5px; color:var(--fg); margin:0;
+  }
+  .sequence__role{
+    display:block; margin-top:3px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--accent);
+  }
+  .sequence__arrow{
+    display:block; text-align:center;
+    font-family:var(--font-mono); color:var(--fg-muted);
+    font-size:15px; opacity:0.5; padding:4px 0;
+  }
+  @media (max-width:820px){
+    .sequence{ max-width:100%; margin-left:0; }
+  }
   .proof-caption{
     display:block; margin-top:10px;
     font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.06em;
@@ -606,6 +652,84 @@
   }
 
   /* ============================================================
+     CITATION — une seule, réservée à la conclusion de BRK. Sert
+     de charnière entre le cas concret et le principe général.
+     ============================================================ */
+  .pull-quote{
+    margin-top:36px;
+    padding-left:18px;
+    border-left:2px solid var(--accent);
+    max-width:520px;
+  }
+  .pull-quote p{
+    margin:0;
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(18px,2.2vw,23px);
+    line-height:1.4;
+    color:var(--fg);
+  }
+  .on-media .pull-quote p{ text-shadow:0 1px 6px rgba(11,11,15,0.7); }
+
+  /* ============================================================
+     BADGE — précise une donnée sans qu'elle prenne toute la place
+     du titre. Utilisé une seule fois : "La Var, 1 an".
+     ============================================================ */
+  .badge{
+    display:inline-block;
+    margin-left:10px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    border-radius:99px;
+    padding:3px 10px;
+    vertical-align:middle;
+  }
+
+  /* ============================================================
+     RÉSEAU CRÉATIF — l'écosystème autour d'un artiste, en flux
+     vertical plutôt qu'en organigramme chargé.
+     ============================================================ */
+  .network{ margin-top:36px; max-width:600px; }
+  .network__node{
+    display:inline-block;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--fg);
+    padding:9px 18px;
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+  }
+  .network__arrow{
+    display:block;
+    font-family:var(--font-mono); color:var(--accent);
+    margin:10px 0; font-size:14px;
+  }
+  .network__chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .network__chip{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.04em;
+    color:var(--fg-muted);
+    padding:7px 12px;
+    border:1px solid var(--line);
+  }
+
+  /* ============================================================
+     LISTE DE CONVICTIONS — réservée à "Pourquoi A&R Studios",
+     dans le chapitre papier : couleurs ink, pas fg.
+     ============================================================ */
+  .belief-list{ margin-top:26px; display:flex; flex-direction:column; gap:11px; }
+  .belief-list__item{
+    display:flex; align-items:baseline; gap:13px;
+    font-family:var(--font-body); font-size:16.5px; color:var(--ink);
+  }
+  .belief-list__index{ font-family:var(--font-mono); font-size:12px; color:var(--accent); flex-shrink:0; }
+
+  @media (max-width:600px){
+    .network__chips{ gap:6px; }
+    .network__chip{ font-size:11px; padding:6px 10px; }
+  }
+
+  /* ============================================================
      CONTACT — dernière étape, sobre, dans le langage du reste
      du site (mono, accent chaud, pas de bouton voyant).
      ============================================================ */
@@ -718,10 +842,41 @@
     <div class="chapter-content">
       <span class="eyebrow">Avant la sortie</span>
       <h1>Je n'ai pas commencé par un poste.<br>J'ai commencé par un studio.</h1>
-      <p class="lede">Du studio aux projets d'artistes, j'ai appris à suivre une idée, une image et une équipe jusqu'à sa sortie.</p>
+      <p class="lede">Du studio au développement d'artistes, j'ai appris à comprendre un talent, construire son environnement créatif et faire avancer un projet jusqu'à sa sortie.</p>
       <p class="credits">Candidature Talent Manager<br>A&amp;R Studios, Universal Music France</p>
     </div>
     <div class="scroll-cue">Défiler</div>
+  </section>
+
+  <!-- ============================================================
+       01B — MÉTHODE
+       Pas de média : chapitre court, texte seul, sert à poser la
+       façon de penser avant les preuves qui suivent.
+       ============================================================ -->
+  <section class="chapter" id="method" data-chapter="Méthode" style="min-height:70vh; background:var(--bg-panel);">
+    <div class="chapter-content">
+      <span class="eyebrow">Méthode</span>
+      <h2>Construire avant de sortir.</h2>
+      <p class="lede">Je viens de l'image et de la production. J'ai progressivement appris à comprendre les artistes, construire leur environnement créatif et développer leur présence entre les sorties. Aujourd'hui, je veux mettre cette expérience au service du développement de talents.</p>
+      <div class="case-grid">
+        <div class="case-grid__item">
+          <span class="case-grid__label">01 &middot; Identifier</span>
+          <p>Repérer ce qui rend un artiste intéressant, et ce qui peut encore être développé.</p>
+        </div>
+        <div class="case-grid__item">
+          <span class="case-grid__label">02 &middot; Comprendre</span>
+          <p>Son identité, ses ambitions, son public, son environnement et ses limites.</p>
+        </div>
+        <div class="case-grid__item">
+          <span class="case-grid__label">03 &middot; Connecter</span>
+          <p>Trouver les bons réalisateurs, beatmakers, photographes, stylistes, producteurs ou médias selon le projet.</p>
+        </div>
+        <div class="case-grid__item">
+          <span class="case-grid__label">04 &middot; Déployer</span>
+          <p>Transformer la réflexion en calendrier, contenus, collaborations et sorties concrètes.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ============================================================
@@ -760,65 +915,79 @@
     <div class="chapter-content align-right">
       <span class="eyebrow">Image</span>
       <h2>De l'autre côté de la caméra, puis derrière elle.</h2>
-      <p class="lede">La rencontre avec Nocolor change tout. D'abord devant la caméra. Puis derrière : photographe de plateau, direction artistique, réalisation.</p>
+      <p class="lede">La rencontre avec Nocolor change tout.</p>
 
-      <div class="image-block">
-        <h3 class="image-block__title">Clips</h3>
-        <div class="proof-row">
-          <video class="proof-tile proof-tile--wide" src="videos/l2b-noir-cuts.mp4" autoplay muted loop playsinline></video>
-          <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" autoplay muted loop playsinline></video>
-          <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" autoplay muted loop playsinline></video>
+      <div class="sequence">
+        <div class="sequence__step">
+          <video class="proof-tile sequence__media" src="videos/l2b-noir-cuts.mp4" autoplay muted loop playsinline></video>
+          <div class="sequence__caption">
+            <p class="sequence__title">"Noir", L2B</p>
+            <span class="sequence__role">Acteur principal</span>
+          </div>
         </div>
-        <p class="image-block__credit">Clips : "Noir" de L2B, "Maybach" de Landy feat. Gazo et "Afro Trap Part. 11" de MHD.</p>
+        <span class="sequence__arrow">&darr;</span>
+        <div class="sequence__step">
+          <img class="proof-tile sequence__media" src="images/image-photo-batbat.jpg" alt="Photo plateau, Batbat" loading="lazy">
+          <div class="sequence__caption">
+            <p class="sequence__title">Nocolor</p>
+            <span class="sequence__role">Photographie plateau</span>
+          </div>
+        </div>
+        <span class="sequence__arrow">&darr;</span>
+        <div class="sequence__step">
+          <img class="proof-tile sequence__media" src="images/image-cover-leto-pessas.jpg" alt="Cover, Leto, Enlève tes Pessas" loading="lazy">
+          <div class="sequence__caption">
+            <p class="sequence__title">Leto, "Enlève tes Pessas"</p>
+            <span class="sequence__role">Photographie / DA image</span>
+          </div>
+        </div>
+        <span class="sequence__arrow">&darr;</span>
+        <div class="sequence__step">
+          <div class="sequence__media--placeholder"></div>
+          <div class="sequence__caption">
+            <p class="sequence__title">Timal, "760"</p>
+            <span class="sequence__role">Synopsis / moodboard</span>
+          </div>
+        </div>
+        <span class="sequence__arrow">&darr;</span>
+        <div class="sequence__step">
+          <video class="proof-tile sequence__media" src="videos/scene-rue-groupe.mp4" autoplay muted loop playsinline></video>
+          <div class="sequence__caption">
+            <p class="sequence__title">V2V, "Crapuleux"</p>
+            <span class="sequence__role">Co-réalisation</span>
+          </div>
+        </div>
       </div>
 
-      <div class="image-block">
-        <h3 class="image-block__title">Photographe de plateau</h3>
-        <div class="proof-row">
+      <p class="lede" style="margin-top:36px; max-width:520px;">Cette période m'a surtout appris à lire un projet : comprendre ce qu'un artiste veut dire avant de décider comment le montrer.</p>
+
+      <div style="margin-top:56px;">
+        <span class="proof-caption" style="margin-top:0;">Aussi, sur d'autres tournages et projets</span>
+        <div class="proof-row" style="margin-top:14px;">
+          <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" autoplay muted loop playsinline></video>
+          <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" autoplay muted loop playsinline></video>
           <video class="proof-tile proof-tile--wide" src="videos/dexter-lahasba-bts.mp4" autoplay muted loop playsinline></video>
-          <img class="proof-tile proof-tile--post" src="images/image-photo-batbat.jpg" alt="Photo plateau, Batbat" loading="lazy">
+        </div>
+        <div class="proof-row">
           <img class="proof-tile proof-tile--post" src="images/image-photo-rvfleuze.jpg" alt="Photo plateau, Rvfleuze" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/image-photo-bilouki.jpg" alt="Photo plateau, Bilouki, Paire Assortie" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/image-photo-bilouki-2.jpg" alt="Photo plateau, Bilouki, Paire Assortie" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/hld-photo-presse.jpg" alt="Photo de presse, HLD" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/klm-100k-photo.jpg" alt="Photo plateau, KLM, 100K" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/concert-photo-nono-lagrinta.jpg" alt="Photo de concert, Nono La Grinta, Arte Club" loading="lazy">
-        </div>
-        <div class="proof-row">
           <img class="proof-tile proof-tile--post" src="images/photo-bianca-costa.jpg" alt="Photo de concert, Bianca Costa" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/photo-duo-bahysa.jpg" alt="Photo, le duo Bahysa" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/photo-koba-lad.jpg" alt="Photo, Koba LaD" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/photo-leto-presse.jpg" alt="Photo de presse, Leto" loading="lazy">
-        </div>
-        <div class="proof-row">
           <img class="proof-tile proof-tile--post" src="images/photo-mig.jpg" alt="Photo, MIG" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/photo-gazo-2.jpg" alt="Photo, Gazo" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/photo-landy.jpg" alt="Photo, Landy" loading="lazy">
           <img class="proof-tile proof-tile--post" src="images/photo-jolagreen.jpg" alt="Photo, Jolagreen" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-blackd-leto.jpg" alt="Cover, Black D feat. Leto, Sauvage" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-negrito-stavo.jpg" alt="Cover, Negrito feat. Stavo, Bala Bala" loading="lazy">
+          <img class="proof-tile proof-tile--post" src="images/image-cover-fave-five.jpg" alt="Cover, Favé, J'aime pas perdre" loading="lazy">
         </div>
-        <p class="image-block__credit">Sur les tournages de Batbat, Rvfleuze, Bilouki et Dexter HMC ft. La Hasba ("91022").</p>
-        <p class="image-block__credit">Et pour HLD, une photo de presse. Pour KLM, sur le tournage de "100K". Nono La Grinta, photographié à l'Arte Club.</p>
-        <p class="image-block__credit">Aussi : Bianca Costa, le duo Bahysa, Koba LaD, MIG, Gazo et Jolagreen.</p>
-      </div>
-
-      <div class="image-block">
-        <h3 class="image-block__title">Direction artistique</h3>
-        <div class="proof-row">
-          <img class="proof-tile proof-tile--post proof-tile--feature" src="images/image-cover-leto-pessas.jpg" alt="Cover, Leto, Enlève tes Pessas" loading="lazy">
-          <img class="proof-tile proof-tile--post proof-tile--feature" src="images/image-cover-blackd-leto.jpg" alt="Cover, Black D feat. Leto, Sauvage" loading="lazy">
-          <img class="proof-tile proof-tile--post proof-tile--feature" src="images/image-cover-negrito-stavo.jpg" alt="Cover, Negrito feat. Stavo, Bala Bala" loading="lazy">
-          <img class="proof-tile proof-tile--post proof-tile--feature" src="images/image-cover-fave-five.jpg" alt="Cover, Favé, J'aime pas perdre" loading="lazy">
-        </div>
-        <div class="proof-row">
-          <video class="proof-tile proof-tile--wide" src="videos/scene-rue-groupe.mp4" autoplay muted loop playsinline></video>
-        </div>
-        <p class="image-block__credit">Covers : Leto, "Enlève tes Pessas" ; Dexter HMC feat. La Hasba, "91022" ; Negrito feat. Stavo, "Bala Bala" ; Favé, "J'aime pas perdre" ; Black D feat. Leto, "Sauvage".</p>
-        <p class="image-block__credit">Timal, "760" : co-réalisation avec Nocolor Films. Road trip Champs-sur-Marne → Marseille, VHS, caméra 360, cinq univers. Synopsis et moodboard.</p>
-        <p class="image-block__credit">V2V, "Crapuleux" : co-réalisation. Contenus réseaux pour Fascoflex.</p>
-      </div>
-
-      <div class="image-block">
-        <h3 class="image-block__title">Production</h3>
+        <p class="image-block__credit">"Maybach" de Landy feat. Gazo ; "Afro Trap Part. 11" de MHD ; tournages de Rvfleuze, Bilouki et Dexter HMC ft. La Hasba ("91022") ; photo de presse HLD ; KLM sur "100K" ; Nono La Grinta à l'Arte Club ; Bianca Costa, le duo Bahysa, Koba LaD, MIG, Gazo, Landy, Jolagreen ; covers Black D feat. Leto, Negrito feat. Stavo, Favé.</p>
         <p class="image-block__credit">Sur les tournages Nocolor : coordination avec les boîtes de location, les cadreurs et les monteurs.</p>
       </div>
     </div>
@@ -864,19 +1033,31 @@
     <div class="chapter-content on-media">
       <span class="eyebrow">Développement d'artiste</span>
       <h2>BRK</h2>
-      <p class="lede">Mon travail ne se limite pas à publier du contenu. Je développe l'artiste avant, pendant et entre les sorties.</p>
+      <p class="lede">BRK avait déjà son identité. Mais son environnement créatif commençait à se répéter : même réalisateur, mêmes décors de tournage, des visuels qui se ressemblaient, certaines sonorités qui revenaient. Un risque de saturation dans un flux de sorties de plus en plus dense.</p>
 
       <div class="case-grid">
         <div class="case-grid__item">
-          <span class="case-grid__label">Stratégie</span>
-          <p>Image et branding, choix des réalisateurs, des beatmakers et des stylistes, stratégie de contenu, playlists et médias, calendrier entre studio et sorties, recherche de label.</p>
+          <span class="case-grid__label">Problème</span>
+          <p>Saturation visuelle et sonore, dans un contexte où les artistes multiplient les sorties et les contenus.</p>
+        </div>
+        <div class="case-grid__item">
+          <span class="case-grid__label">Réflexion</span>
+          <p>Faire évoluer l'environnement créatif sans dénaturer l'identité de l'artiste.</p>
+        </div>
+        <div class="case-grid__item">
+          <span class="case-grid__label">Décision</span>
+          <p>Plutôt que de modifier l'identité de BRK, renouveler son environnement créatif.</p>
+        </div>
+        <div class="case-grid__item case-grid__item--wide">
+          <span class="case-grid__label">Action</span>
+          <p>Diversification des réalisateurs, des équipes, des références visuelles et des beatmakers. Pour "Flex", Sponge, puis Neweyes Production sur les deux réalisations suivantes.</p>
         </div>
         <div class="case-grid__item">
           <span class="case-grid__label">Collaborations</span>
           <p>Beatmakers <b>ABL</b> (Sexy Nana) et <b>Achille GX</b> (Covid-19, Mouss et Alonzo).</p>
         </div>
-        <div class="case-grid__item case-grid__item--wide">
-          <span class="case-grid__label">Résultats</span>
+        <div class="case-grid__item">
+          <span class="case-grid__label">Résultat</span>
           <div class="growth">
             <div class="growth__bar"><span style="width:76%"></span></div>
             <div class="growth__figures">
@@ -901,6 +1082,41 @@
         <img class="proof-tile proof-tile--post" src="images/brk-photo-3.jpg" alt="Photo, BRK et dnhoo.8 en studio" loading="lazy">
       </div>
       <span class="proof-caption">Photos studio</span>
+
+      <div class="pull-quote">
+        <p>J'ai appris à comprendre un artiste en travaillant avec eux, pas seulement en travaillant pour eux.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       05B — CREATIVE NETWORK
+       Pas de média : généralise le principe démontré par BRK avant
+       de passer à La Var.
+       ============================================================ -->
+  <section class="chapter" id="network" data-chapter="Réseau créatif" style="min-height:70vh;">
+    <div class="chapter-content">
+      <span class="eyebrow">Réseau créatif</span>
+      <h2>Un talent ne se développe jamais seul.</h2>
+      <p class="lede">Au fil de mes projets, j'ai appris à identifier les profils capables d'apporter quelque chose de différent à un artiste, et à créer les bonnes connexions autour d'un projet.</p>
+
+      <div class="network">
+        <span class="network__node">Artiste</span>
+        <span class="network__arrow">&darr;</span>
+        <span class="network__node">Management / A&amp;R</span>
+        <span class="network__arrow">&darr;</span>
+        <div class="network__chips">
+          <span class="network__chip">Réalisateur</span>
+          <span class="network__chip">Photographe</span>
+          <span class="network__chip">Styliste</span>
+          <span class="network__chip">Beatmaker</span>
+          <span class="network__chip">Production</span>
+          <span class="network__chip">Média</span>
+          <span class="network__chip">Créatifs</span>
+        </div>
+      </div>
+
+      <p class="lede" style="margin-top:32px; max-width:520px;">Je viens de l'exécution. Mon évolution m'a progressivement amené vers la compréhension, la stratégie et le développement des talents.</p>
     </div>
   </section>
 
@@ -916,7 +1132,7 @@
       <div class="media-placeholder"></div>
     </div>
     <div class="chapter-content on-media">
-      <span class="eyebrow"><img class="brand-mark" src="images/lavar-logo.png" alt="" loading="lazy"> La Var</span>
+      <span class="eyebrow"><img class="brand-mark" src="images/lavar-logo.png" alt="" loading="lazy"> La Var<span class="badge">1 an</span></span>
       <h2>Un média qui devient un système.</h2>
       <p class="lede">Média rap et culture urbaine. Veille éditoriale, sourcing d'artistes, prospection.</p>
 
@@ -939,6 +1155,36 @@
         <img class="proof-tile proof-tile--post" src="images/lavar-post-creamy.jpg" alt="Post La Var, Creamy G à Marsatac" loading="lazy">
       </div>
       <span class="proof-caption">Contenu réel publié par La Var</span>
+
+      <p class="credits" style="margin-top:28px;">Je prospecte les artistes, leurs équipes et les partenaires éditoriaux, puis je construis les échanges jusqu'à leur mise en avant sur La Var.</p>
+
+      <div style="margin-top:40px;">
+        <h3 class="image-block__title">Observer avant d'agir</h3>
+        <p class="lede">La Var m'a appris à observer quotidiennement ce qui bouge dans le rap : artistes émergents, formats, communautés, esthétique, plateformes et nouveaux usages.</p>
+        <div class="case-grid">
+          <div class="case-grid__item">
+            <span class="case-grid__label">Communautés</span>
+            <p>Comment les artistes créent du lien entre deux sorties.</p>
+          </div>
+          <div class="case-grid__item">
+            <span class="case-grid__label">Image</span>
+            <p>Comment faire évoluer une identité sans la rendre incohérente.</p>
+          </div>
+          <div class="case-grid__item">
+            <span class="case-grid__label">Plateformes</span>
+            <p>Comment adapter une idée aux différents formats et usages.</p>
+          </div>
+          <div class="case-grid__item">
+            <span class="case-grid__label">Culture</span>
+            <p>Ce qui vient du rap, mais aussi du sport, de la mode, du lifestyle et de l'entertainment.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:40px;">
+        <h3 class="image-block__title">L'artiste ne s'arrête plus à sa musique.</h3>
+        <p class="credits" style="max-width:480px;">Aujourd'hui, un artiste peut construire une communauté autour de bien plus que ses sorties musicales. Le sport, le mindset, la discipline, la mode ou le lifestyle peuvent devenir des extensions de son territoire artistique.</p>
+      </div>
     </div>
   </section>
 
@@ -947,16 +1193,23 @@
        Pas de vidéo dédiée — section texte, contraste volontaire
        avec le rythme visuel des chapitres précédents.
        ============================================================ -->
-  <section class="chapter chapter--paper" id="vision" data-chapter="Vision" style="min-height:80vh;">
+  <section class="chapter chapter--paper" id="vision" data-chapter="Pourquoi A&amp;R Studios" style="min-height:80vh;">
     <div class="chapter-content">
-      <span class="eyebrow">Vision</span>
-      <h2>Un artiste se construit avant la sortie.</h2>
-      <p class="lede">
-        Identité, communauté, image, univers, entre deux projets, pas seulement au moment d'une sortie.
-        Les labels gagneraient à être plus proches des communautés, à montrer les métiers et les personnes
-        qui les font vivre. Une réflexion plus longue, aussi, sur des lieux qui réuniraient artistes,
-        beatmakers, ingénieurs son et créateurs visuels : une pensée en construction, née du terrain.
-      </p>
+      <span class="eyebrow">Pourquoi A&amp;R Studios</span>
+      <h2>Pourquoi A&amp;R Studios ?</h2>
+      <p class="lede">Ce qui m'attire chez A&amp;R Studios n'est pas uniquement l'échelle d'Universal. C'est la possibilité de travailler à l'intersection de plusieurs mondes : artistes, labels, marques, création, image, contenu et innovation.</p>
+      <p class="lede" style="margin-top:16px;">Mon parcours s'est construit exactement à cette intersection, mais à une échelle indépendante.</p>
+
+      <div class="belief-list">
+        <div class="belief-list__item"><span class="belief-list__index">01</span><span>Comprendre un artiste.</span></div>
+        <div class="belief-list__item"><span class="belief-list__index">02</span><span>Construire son image.</span></div>
+        <div class="belief-list__item"><span class="belief-list__index">03</span><span>Développer sa communauté.</span></div>
+        <div class="belief-list__item"><span class="belief-list__index">04</span><span>Trouver les bons profils créatifs.</span></div>
+        <div class="belief-list__item"><span class="belief-list__index">05</span><span>Construire un média.</span></div>
+      </div>
+
+      <p class="lede" style="margin-top:28px;">Je possède déjà certains réflexes du métier grâce au terrain, mais je veux maintenant les appliquer à une autre échelle.</p>
+      <p class="lede" style="margin-top:16px; color:var(--ink); font-weight:600;">Aujourd'hui, je veux comprendre comment cette logique fonctionne à une autre échelle.</p>
     </div>
   </section>
 
@@ -1170,8 +1423,8 @@
         // lueur vive et fraîche, décentrée
         var gx = w*0.72, gy = h*0.38;
         var glow = ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(w,h)*0.55);
-        glow.addColorStop(0,'rgba(255,91,60,0.20)');
-        glow.addColorStop(0.4,'rgba(255,91,60,0.07)');
+        glow.addColorStop(0,'rgba(224,101,58,0.20)');
+        glow.addColorStop(0.4,'rgba(224,101,58,0.07)');
         glow.addColorStop(1,'rgba(11,11,15,0)');
         ctx.fillStyle = glow;
         ctx.fillRect(0,0,w,h);
@@ -1221,7 +1474,7 @@
         ctx.fillRect(0,0,w,h);
         var gx = w*0.5, gy = h*0.25;
         var glow = ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(w,h)*0.6);
-        glow.addColorStop(0,'rgba(255,216,203,0.07)');
+        glow.addColorStop(0,'rgba(244,217,198,0.07)');
         glow.addColorStop(1,'rgba(11,11,15,0)');
         ctx.fillStyle = glow;
         ctx.fillRect(0,0,w,h);
@@ -1314,6 +1567,21 @@
           stagger: 0.05,
           ease: 'power2.out',
           scrollTrigger: { trigger: row, start: 'top 92%' }
+        });
+      });
+
+      /* Séquence éditoriale d'Image : chaque étape (et sa flèche)
+         arrive à son tour plutôt que tout le récit d'un coup.
+         Opacité seule, jamais de y : superposer un décalage
+         vertical à celui déjà appliqué par le fondu de bloc
+         ci-dessus laisse parfois un vestige de transform figé. */
+      document.querySelectorAll('.sequence').forEach(function(seq){
+        gsap.from(seq.children, {
+          opacity: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: seq, start: 'top 85%' }
         });
       });
     }
