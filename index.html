@@ -687,26 +687,39 @@
   }
 
   /* ============================================================
-     ÉTUDE DE CAS — BRK présenté comme une stratégie, pas comme
-     une simple bande de preuves. Deux colonnes qui redeviennent
-     une seule en dessous de 820px.
+     ÉTUDE DE CAS — BRK présenté comme une timeline graphique
+     (Problème → Décision → Action → Résultat) plutôt qu'une grille
+     de paragraphes : ligne verticale + point par étape, se lit en
+     un coup d'œil avant même de lire le texte.
      ============================================================ */
-  .case-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:28px 40px;
-    margin-top:32px; max-width:640px;
+  .case-timeline{
+    position:relative;
+    margin-top:32px; max-width:460px;
+    padding-left:24px;
   }
-  .case-grid__item--wide{ grid-column:1 / -1; }
-  .case-grid__label{
-    display:block; margin-bottom:8px;
+  .case-timeline::before{
+    content:"";
+    position:absolute; left:4px; top:6px; bottom:6px;
+    width:1px; background:var(--line);
+  }
+  .case-timeline__step{ position:relative; padding-bottom:26px; }
+  .case-timeline__step:last-child{ padding-bottom:0; }
+  .case-timeline__step::before{
+    content:"";
+    position:absolute; left:-24px; top:3px;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 3px var(--bg);
+  }
+  .case-timeline__label{
+    display:block; margin-bottom:6px;
     font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em;
     color:var(--accent); text-transform:uppercase;
   }
-  .case-grid__item p{ margin:0; font-size:14.5px; line-height:1.6; color:var(--fg-muted); }
-  .on-media .case-grid__item p{ color:var(--fg); text-shadow:0 1px 6px rgba(11,11,15,0.7); }
-  .on-media .case-grid__item p b{ color:var(--fg); }
-  @media (max-width:600px){
-    .case-grid{ grid-template-columns:1fr; }
-  }
+  .case-timeline__text{ margin:0; font-size:14.5px; line-height:1.6; color:var(--fg-muted); }
+  .on-media .case-timeline__text{ color:var(--fg); text-shadow:0 1px 6px rgba(11,11,15,0.7); }
+  .on-media .case-timeline__text b{ color:var(--fg); }
+  .case-timeline__step--result .growth{ margin-top:2px; }
 
   .growth{ max-width:420px; }
   .growth__bar{
@@ -800,6 +813,40 @@
     padding:3px 10px;
     vertical-align:middle;
   }
+
+  /* ============================================================
+     CAREER MAP — le parcours entier en un seul visuel, juste après
+     le Hero. Remplace l'ancien chapitre Méthode : au lieu de décrire
+     une façon de penser avant d'avoir montré une preuve, ça montre
+     directement la trajectoire. Se lit en quelques secondes.
+     ============================================================ */
+  .career-map{ margin-top:28px; display:flex; flex-direction:column; align-items:center; }
+  .career-map__node{
+    display:inline-flex; flex-direction:column; align-items:center;
+    padding:12px 20px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    min-width:200px;
+  }
+  .career-map__label{
+    font-family:var(--font-display); font-weight:700;
+    font-size:14.5px; color:var(--fg); letter-spacing:-0.01em;
+  }
+  .career-map__detail{
+    margin-top:4px;
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.04em;
+    color:var(--fg-muted);
+  }
+  .career-map__arrow{
+    display:block;
+    font-family:var(--font-mono); color:var(--accent);
+    font-size:13px; margin:6px 0; opacity:0.7;
+  }
+  .career-map__node--target{ border-color:var(--accent); }
+  .career-map__node--final{
+    border-color:var(--accent); background:var(--accent);
+  }
+  .career-map__node--final .career-map__label{ color:var(--bg); }
 
   /* ============================================================
      RÉSEAU CRÉATIF — l'écosystème autour d'un artiste, en flux
@@ -973,6 +1020,53 @@
   </section>
 
   <!-- ============================================================
+       01B — CAREER MAP
+       Remplace l'ancien chapitre Méthode (texte) par un seul visuel :
+       le parcours entier, lisible en quelques secondes, avant que le
+       détail commence. Pas de nouveau chapitre plein écran — un
+       passage court entre Hero et Origines.
+       ============================================================ -->
+  <section class="chapter chapter--map" id="map" data-chapter="Parcours" style="min-height:auto; background:var(--bg-panel); align-items:center; padding-top:calc(var(--edge) * 1.6); padding-bottom:calc(var(--edge) * 1.6);">
+    <div class="chapter-content" style="max-width:360px; margin:0 auto; text-align:center;">
+      <span class="eyebrow" style="text-align:center;">Le parcours</span>
+      <div class="career-map">
+        <div class="career-map__node">
+          <span class="career-map__label">Studio</span>
+          <span class="career-map__detail">2021 &middot; Bois-l'Abbé (94)</span>
+        </div>
+        <span class="career-map__arrow">&darr;</span>
+        <div class="career-map__node">
+          <span class="career-map__label">Image / Production</span>
+          <span class="career-map__detail">L2B, Gazo, Landy&hellip;</span>
+        </div>
+        <span class="career-map__arrow">&darr;</span>
+        <div class="career-map__node">
+          <span class="career-map__label">Direction artistique</span>
+          <span class="career-map__detail">Nocolor</span>
+        </div>
+        <span class="career-map__arrow">&darr;</span>
+        <div class="career-map__node">
+          <span class="career-map__label">Développement d'artiste</span>
+          <span class="career-map__detail">BRK</span>
+        </div>
+        <span class="career-map__arrow">&darr;</span>
+        <div class="career-map__node">
+          <span class="career-map__label">Média / Scouting</span>
+          <span class="career-map__detail">La Var</span>
+        </div>
+        <span class="career-map__arrow">&darr;</span>
+        <div class="career-map__node career-map__node--target">
+          <span class="career-map__label">Talent Management</span>
+        </div>
+        <span class="career-map__arrow">&darr;</span>
+        <div class="career-map__node career-map__node--final">
+          <span class="career-map__label">Universal</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
        02 — ORIGINS
        Video: videos/origins-drone-quartier.mp4 | Poster: posters/origins.jpg
        Plans drone réels, cadrés par Sébastien. Photo réelle de Millau
@@ -1075,29 +1169,21 @@
       <h2>BRK</h2>
       <p class="lede">BRK avait déjà son identité. Mais son environnement créatif commençait à se répéter : même réalisateur, mêmes décors de tournage, des visuels qui se ressemblaient, certaines sonorités qui revenaient. Un risque de saturation dans un flux de sorties de plus en plus dense.</p>
 
-      <div class="case-grid">
-        <div class="case-grid__item">
-          <span class="case-grid__label">Problème</span>
-          <p>Saturation visuelle et sonore, dans un contexte où les artistes multiplient les sorties et les contenus.</p>
+      <div class="case-timeline">
+        <div class="case-timeline__step">
+          <span class="case-timeline__label">Problème</span>
+          <p class="case-timeline__text">Saturation visuelle et sonore : même réalisateur, mêmes décors, des sonorités qui reviennent.</p>
         </div>
-        <div class="case-grid__item">
-          <span class="case-grid__label">Réflexion</span>
-          <p>Faire évoluer l'environnement créatif sans dénaturer l'identité de l'artiste.</p>
+        <div class="case-timeline__step">
+          <span class="case-timeline__label">Décision</span>
+          <p class="case-timeline__text">Renouveler l'environnement créatif, pas l'identité de l'artiste.</p>
         </div>
-        <div class="case-grid__item">
-          <span class="case-grid__label">Décision</span>
-          <p>Plutôt que de modifier l'identité de BRK, renouveler son environnement créatif.</p>
+        <div class="case-timeline__step">
+          <span class="case-timeline__label">Action</span>
+          <p class="case-timeline__text">Sponge &rarr; Neweyes Production sur les réalisations suivantes &middot; nouveaux beatmakers, <b>ABL</b> et <b>Achille GX</b>.</p>
         </div>
-        <div class="case-grid__item case-grid__item--wide">
-          <span class="case-grid__label">Action</span>
-          <p>Diversification des réalisateurs, des équipes, des références visuelles et des beatmakers. Pour "Flex", Sponge, puis Neweyes Production sur les deux réalisations suivantes.</p>
-        </div>
-        <div class="case-grid__item">
-          <span class="case-grid__label">Collaborations</span>
-          <p>Beatmakers <b>ABL</b> (Sexy Nana) et <b>Achille GX</b> (Covid-19, Mouss et Alonzo).</p>
-        </div>
-        <div class="case-grid__item">
-          <span class="case-grid__label">Résultat</span>
+        <div class="case-timeline__step case-timeline__step--result">
+          <span class="case-timeline__label">Résultat</span>
           <div class="growth">
             <div class="growth__bar"><span style="width:76%"></span></div>
             <div class="growth__figures">
