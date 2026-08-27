@@ -285,6 +285,27 @@
   .stat{ font-family:var(--font-mono); font-size:12px; color:var(--fg-muted); }
   .stat b{ display:block; font-family:var(--font-display); font-size:26px; color:var(--fg); font-weight:700; }
 
+  /* CARTES STAT — La Var : les chiffres et la durée deviennent des
+     cartes scannables plutôt qu'une ligne de texte à lire. */
+  .stat-cards{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; }
+  .stat-card{
+    padding:13px 18px;
+    border:1px solid var(--line);
+    background:rgba(11,11,15,0.4);
+    min-width:100px;
+  }
+  .stat-card b{
+    display:block; font-family:var(--font-display); font-weight:700;
+    font-size:23px; color:var(--fg);
+  }
+  .stat-card span{
+    display:block; margin-top:3px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em;
+    color:var(--fg-muted); text-transform:uppercase;
+  }
+  .on-media .stat-card{ border-color:rgba(255,255,255,0.18); }
+  .on-media .stat-card span{ color:var(--fg); opacity:0.75; }
+
   #hero{ align-items:center; padding-top:var(--edge); }
   #hero .chapter-content{ max-width:820px; }
   .scroll-cue{
@@ -921,15 +942,39 @@
   }
 
   /* ============================================================
-     LISTE DE CONVICTIONS — réservée à "Pourquoi A&R Studios",
-     dans le chapitre papier : couleurs ink, pas fg.
+     CARTES DE CONVICTIONS — réservées à "Pourquoi A&R Studios",
+     dans le chapitre papier : couleurs ink, pas fg. Un glyphe
+     géométrique sobre par carte (pas d'emoji couleur, hors du
+     langage visuel du reste du site).
      ============================================================ */
-  .belief-list{ margin-top:26px; display:flex; flex-direction:column; gap:11px; }
-  .belief-list__item{
-    display:flex; align-items:baseline; gap:13px;
-    font-family:var(--font-body); font-size:16.5px; color:var(--ink);
+  .belief-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;
+    margin-top:28px;
   }
-  .belief-list__index{ font-family:var(--font-mono); font-size:12px; color:var(--accent); flex-shrink:0; }
+  .belief-card{
+    padding:16px 16px 14px;
+    border:1px solid rgba(23,20,15,0.15);
+    background:rgba(23,20,15,0.02);
+  }
+  .belief-card__index{
+    display:block;
+    font-family:var(--font-mono); font-size:11px; color:var(--accent);
+  }
+  .belief-card__icon{
+    display:block; margin:8px 0 10px;
+    font-size:20px; color:var(--accent); line-height:1;
+  }
+  .belief-card__label{
+    display:block;
+    font-family:var(--font-body); font-size:14.5px; line-height:1.4;
+    color:var(--ink);
+  }
+  @media (max-width:700px){
+    .belief-grid{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:460px){
+    .belief-grid{ grid-template-columns:1fr; }
+  }
 
   @media (max-width:600px){
     .network__chips{ gap:6px; }
@@ -1322,22 +1367,25 @@
       <div class="media-placeholder"></div>
     </div>
     <div class="chapter-content on-media">
-      <span class="eyebrow"><img class="brand-mark" src="images/lavar-logo.png" alt="" loading="lazy"> La Var<span class="badge">1 an</span></span>
+      <span class="eyebrow"><img class="brand-mark" src="images/lavar-logo.png" alt="" loading="lazy"> La Var</span>
       <h2>Un média qui devient un système.</h2>
-      <p class="lede">Média rap et culture urbaine. Veille éditoriale, sourcing d'artistes, prospection.</p>
+      <p class="lede">Média rap et culture urbaine.</p>
 
-      <div class="stage-flow">
-        <span class="stage-flow__step">Média</span>
-        <span class="stage-flow__step">Découverte</span>
-        <span class="stage-flow__step">Développement</span>
-        <span class="stage-flow__step">Écosystème d'artistes</span>
+      <div class="stat-cards">
+        <div class="stat-card"><b>1 an</b><span>D'existence</span></div>
+        <div class="stat-card"><b>11K+</b><span>Abonnés</span></div>
+        <div class="stat-card"><b>7</b><span>Artistes mis en avant</span></div>
+        <div class="stat-card"><b>~2K</b><span>Vues en moyenne</span></div>
       </div>
 
-      <p class="credits">Artistes mis en avant : <b>Rvfleuze, LMT, KLM, Darlingchouchou, Shippeur, Supremenova, Eliah ZS</b></p>
-      <div class="stat-row">
-        <div class="stat"><b>11 000+</b>abonnés</div>
-        <div class="stat"><b>~2 000</b>vues en moyenne sur certains formats</div>
+      <div class="stage-flow" style="margin-top:22px;">
+        <span class="stage-flow__step">Prospection</span>
+        <span class="stage-flow__step">Sourcing</span>
+        <span class="stage-flow__step">Contact</span>
+        <span class="stage-flow__step">Mise en avant</span>
       </div>
+
+      <p class="credits" style="margin-top:22px;">Artistes mis en avant : <b>Rvfleuze, LMT, KLM, Darlingchouchou, Shippeur, Supremenova, Eliah ZS</b></p>
       <div class="proof-row">
         <video class="proof-tile" src="videos/lavar-rnboi-preview.mp4" muted loop playsinline preload="none"></video>
         <video class="proof-tile" src="videos/lavar-rvfleuze-preview.mp4" muted loop playsinline preload="none"></video>
@@ -1345,8 +1393,6 @@
         <img class="proof-tile proof-tile--post" src="images/lavar-post-creamy.jpg" alt="Post La Var, Creamy G à Marsatac" loading="lazy">
       </div>
       <span class="proof-caption">Contenu réel publié par La Var</span>
-
-      <p class="credits" style="margin-top:28px;">Je prospecte les artistes, leurs équipes et les partenaires éditoriaux, puis je construis les échanges jusqu'à leur mise en avant sur La Var.</p>
     </div>
   </section>
 
@@ -1362,12 +1408,32 @@
       <p class="lede">Ce qui m'attire chez A&amp;R Studios n'est pas uniquement l'échelle d'Universal. C'est la possibilité de travailler à l'intersection de plusieurs mondes : artistes, labels, marques, création, image, contenu et innovation.</p>
       <p class="lede" style="margin-top:16px;">Mon parcours s'est construit exactement à cette intersection, mais à une échelle indépendante.</p>
 
-      <div class="belief-list">
-        <div class="belief-list__item"><span class="belief-list__index">01</span><span>Comprendre un artiste.</span></div>
-        <div class="belief-list__item"><span class="belief-list__index">02</span><span>Construire son image.</span></div>
-        <div class="belief-list__item"><span class="belief-list__index">03</span><span>Développer sa communauté.</span></div>
-        <div class="belief-list__item"><span class="belief-list__index">04</span><span>Trouver les bons profils créatifs.</span></div>
-        <div class="belief-list__item"><span class="belief-list__index">05</span><span>Construire un média.</span></div>
+      <div class="belief-grid">
+        <div class="belief-card">
+          <span class="belief-card__index">01</span>
+          <span class="belief-card__icon">&#9678;</span>
+          <span class="belief-card__label">Comprendre<br>un artiste</span>
+        </div>
+        <div class="belief-card">
+          <span class="belief-card__index">02</span>
+          <span class="belief-card__icon">&#9670;</span>
+          <span class="belief-card__label">Construire<br>son image</span>
+        </div>
+        <div class="belief-card">
+          <span class="belief-card__index">03</span>
+          <span class="belief-card__icon">&#8599;</span>
+          <span class="belief-card__label">Développer<br>sa communauté</span>
+        </div>
+        <div class="belief-card">
+          <span class="belief-card__index">04</span>
+          <span class="belief-card__icon">&#10022;</span>
+          <span class="belief-card__label">Trouver les bons<br>profils créatifs</span>
+        </div>
+        <div class="belief-card">
+          <span class="belief-card__index">05</span>
+          <span class="belief-card__icon">&#9675;</span>
+          <span class="belief-card__label">Construire<br>un média</span>
+        </div>
       </div>
 
       <p class="lede" style="margin-top:28px;">Je possède déjà certains réflexes du métier grâce au terrain, mais je veux maintenant les appliquer à une autre échelle.</p>
