@@ -1854,6 +1854,15 @@
       a.href = '#' + s.id;
       a.title = s.dataset.chapter || s.id;
       a.setAttribute('data-index', String(i + 1).padStart(2, '0'));
+      // Défilement fluide au clic plutôt que le saut instantané du
+      // navigateur (html a scroll-behavior:auto, pas smooth, pour ne
+      // pas interférer avec le scrub vidéo ailleurs sur le site) —
+      // même pattern que la navigation clavier plus bas.
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        s.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+        history.pushState(null, '', '#' + s.id);
+      });
       nav.appendChild(a);
       return a;
     });
