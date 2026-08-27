@@ -885,6 +885,12 @@
     font-family:var(--font-mono); color:var(--accent);
     font-size:13px; margin:6px 0; opacity:0.7;
   }
+  /* Point de départ : le nom de la personne, pas une étape du
+     parcours — pas de cadre, juste plus de poids typographique. */
+  .career-map__node--start{
+    border:none; padding:0; background:none; min-width:0;
+  }
+  .career-map__node--start .career-map__label{ font-size:17px; }
   .career-map__node--target{ border-color:var(--accent); }
   .career-map__node--final{
     border-color:var(--accent); background:var(--accent);
@@ -1120,6 +1126,10 @@
     <div class="chapter-content" style="max-width:360px; margin:0 auto; text-align:center;">
       <span class="eyebrow" style="text-align:center;">Le parcours</span>
       <div class="career-map">
+        <div class="career-map__node career-map__node--start">
+          <span class="career-map__label">Sébastien</span>
+        </div>
+        <span class="career-map__arrow">&darr;</span>
         <div class="career-map__node">
           <span class="career-map__label">Studio</span>
           <span class="career-map__detail">2021 &middot; Bois-l'Abbé (94)</span>
