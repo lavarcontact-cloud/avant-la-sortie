@@ -871,6 +871,15 @@
     background:var(--bg);
     min-width:200px;
   }
+  /* Chaque étape (sauf le nom de départ) mène à son chapitre : le
+     clic doit se voir avant même d'être tenté. */
+  a.career-map__node{
+    text-decoration:none; cursor:pointer;
+    transition:border-color .25s ease, background-color .25s ease;
+  }
+  a.career-map__node:hover,
+  a.career-map__node:focus-visible{ border-color:var(--accent); }
+  a.career-map__node:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
   .career-map__label{
     font-family:var(--font-display); font-weight:700;
     font-size:14.5px; color:var(--fg); letter-spacing:-0.01em;
@@ -1130,38 +1139,38 @@
           <span class="career-map__label">Sébastien</span>
         </div>
         <span class="career-map__arrow">&darr;</span>
-        <div class="career-map__node">
+        <a class="career-map__node" href="#origins">
           <span class="career-map__label">Studio</span>
           <span class="career-map__detail">2021 &middot; Bois-l'Abbé (94)</span>
-        </div>
+        </a>
         <span class="career-map__arrow">&darr;</span>
-        <div class="career-map__node">
+        <a class="career-map__node" href="#image">
           <span class="career-map__label">Image / Production</span>
           <span class="career-map__detail">L2B, Gazo, Landy&hellip;</span>
-        </div>
+        </a>
         <span class="career-map__arrow">&darr;</span>
-        <div class="career-map__node">
+        <a class="career-map__node" href="#image">
           <span class="career-map__label">Direction artistique</span>
           <span class="career-map__detail">Nocolor</span>
-        </div>
+        </a>
         <span class="career-map__arrow">&darr;</span>
-        <div class="career-map__node">
+        <a class="career-map__node" href="#brk">
           <span class="career-map__label">Développement d'artiste</span>
           <span class="career-map__detail">BRK</span>
-        </div>
+        </a>
         <span class="career-map__arrow">&darr;</span>
-        <div class="career-map__node">
+        <a class="career-map__node" href="#lavar">
           <span class="career-map__label">Média / Scouting</span>
           <span class="career-map__detail">La Var</span>
-        </div>
+        </a>
         <span class="career-map__arrow">&darr;</span>
-        <div class="career-map__node career-map__node--target">
+        <a class="career-map__node career-map__node--target" href="#network">
           <span class="career-map__label">Talent Management</span>
-        </div>
+        </a>
         <span class="career-map__arrow">&darr;</span>
-        <div class="career-map__node career-map__node--final">
+        <a class="career-map__node career-map__node--final" href="#final">
           <span class="career-map__label">Universal</span>
-        </div>
+        </a>
       </div>
     </div>
   </section>
@@ -1855,6 +1864,21 @@
     }
 
     /* ----------------------------------------------------------
+       Défilement fluide vers une section au clic, partagé par les
+       points de nav ET les nœuds cliquables de la career map —
+       plutôt que le saut instantané du navigateur (html garde
+       scroll-behavior:auto pour ne pas interférer avec le scrub
+       vidéo ailleurs sur le site). Même pattern que la navigation
+       clavier plus bas.
+       ---------------------------------------------------------- */
+    function smoothScrollToId(id){
+      var target = document.getElementById(id);
+      if(!target) return;
+      target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+      history.pushState(null, '', '#' + id);
+    }
+
+    /* ----------------------------------------------------------
        Signature element — running timecode + chapter nav dots
        ---------------------------------------------------------- */
     var sections = Array.from(document.querySelectorAll('.chapter'));
@@ -1864,17 +1888,22 @@
       a.href = '#' + s.id;
       a.title = s.dataset.chapter || s.id;
       a.setAttribute('data-index', String(i + 1).padStart(2, '0'));
-      // Défilement fluide au clic plutôt que le saut instantané du
-      // navigateur (html a scroll-behavior:auto, pas smooth, pour ne
-      // pas interférer avec le scrub vidéo ailleurs sur le site) —
-      // même pattern que la navigation clavier plus bas.
       a.addEventListener('click', function(e){
         e.preventDefault();
-        s.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
-        history.pushState(null, '', '#' + s.id);
+        smoothScrollToId(s.id);
       });
       nav.appendChild(a);
       return a;
+    });
+
+    /* ----------------------------------------------------------
+       Career map — chaque étape mène à son chapitre au clic.
+       ---------------------------------------------------------- */
+    document.querySelectorAll('a.career-map__node').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        smoothScrollToId(a.getAttribute('href').slice(1));
+      });
     });
 
     // Own span for the running number: the REC dot sits next to it
