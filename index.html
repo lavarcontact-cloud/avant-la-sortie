@@ -537,6 +537,19 @@
     padding:1px 5px;
   }
   .sequence__caption{ margin-top:14px; }
+
+  /* Le synopsis Timal vit hors de la colonne étroite de la séquence
+     (340px) : plus large, comme .video-feature pour Générations —
+     une pièce qui mérite d'être vue en grand plutôt que réduite à
+     une vignette parmi d'autres. */
+  .moodboard-feature{
+    margin-top:40px;
+    margin-left:auto;
+    max-width:520px;
+  }
+  @media (max-width:820px){
+    .moodboard-feature{ max-width:100%; margin-left:0; }
+  }
   .sequence__title{
     font-family:var(--font-display); font-weight:700;
     font-size:16.5px; color:var(--fg); margin:0;
@@ -1033,35 +1046,10 @@
         </div>
         <span class="sequence__arrow">&darr;</span>
         <div class="sequence__step">
-          <img class="proof-tile sequence__media" src="images/image-photo-batbat.jpg" alt="Photo plateau, Batbat" loading="lazy">
-          <div class="sequence__caption">
-            <p class="sequence__title">Nocolor</p>
-            <span class="sequence__role">Photographie plateau</span>
-          </div>
-        </div>
-        <span class="sequence__arrow">&darr;</span>
-        <div class="sequence__step">
           <img class="proof-tile sequence__media" src="images/image-cover-leto-pessas.jpg" alt="Cover, Leto, Enlève tes Pessas" loading="lazy">
           <div class="sequence__caption">
             <p class="sequence__title">Leto, "Enlève tes Pessas"</p>
             <span class="sequence__role">Photographie / DA image</span>
-          </div>
-        </div>
-        <span class="sequence__arrow">&darr;</span>
-        <div class="sequence__step">
-          <div class="sequence__moodboard">
-            <div class="sequence__page">
-              <img class="proof-tile sequence__media" src="images/timal-synopsis-01.jpg" alt="Synopsis Timal, page de titre" loading="lazy">
-              <span class="sequence__page-num">01</span>
-            </div>
-            <div class="sequence__page">
-              <img class="proof-tile sequence__media" src="images/timal-synopsis-02.jpg" alt="Synopsis Timal, texte du concept" loading="lazy">
-              <span class="sequence__page-num">02</span>
-            </div>
-          </div>
-          <div class="sequence__caption">
-            <p class="sequence__title">Timal, "760"</p>
-            <span class="sequence__role">Synopsis / moodboard</span>
           </div>
         </div>
         <span class="sequence__arrow">&darr;</span>
@@ -1071,6 +1059,26 @@
             <p class="sequence__title">V2V, "Crapuleux"</p>
             <span class="sequence__role">Co-réalisation</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Le synopsis Timal est sorti de la séquence étroite (340px)
+           et agrandi : c'est un vrai document de travail, pas une
+           vignette parmi d'autres. -->
+      <div class="moodboard-feature">
+        <div class="sequence__moodboard">
+          <div class="sequence__page">
+            <img class="proof-tile sequence__media" src="images/timal-synopsis-01.jpg" alt="Synopsis Timal, page de titre" loading="lazy">
+            <span class="sequence__page-num">01</span>
+          </div>
+          <div class="sequence__page">
+            <img class="proof-tile sequence__media" src="images/timal-synopsis-02.jpg" alt="Synopsis Timal, texte du concept" loading="lazy">
+            <span class="sequence__page-num">02</span>
+          </div>
+        </div>
+        <div class="sequence__caption">
+          <p class="sequence__title">Timal, "760"</p>
+          <span class="sequence__role">Synopsis / moodboard</span>
         </div>
       </div>
 
