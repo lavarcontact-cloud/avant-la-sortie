@@ -74,12 +74,20 @@
 
   .chapter-nav{
     position:fixed;
-    left:var(--edge); top:50%;
+    /* Ancré près du bord réel de la fenêtre, pas de l'edge du texte :
+       le rail ne doit jamais tomber dans la colonne de lecture, même
+       sur les chapitres longs (Image, BRK, La Var) où le contenu
+       dépasse largement 100vh. */
+    left:16px; top:50%;
     transform:translateY(-50%);
     z-index:50;
     display:flex; flex-direction:column; gap:13px;
     mix-blend-mode:difference;
+    opacity:0.4;
+    transition:opacity .35s ease;
   }
+  .chapter-nav:hover,
+  .chapter-nav:focus-within{ opacity:1; }
   .chapter-nav a{
     display:flex; align-items:center; gap:9px;
     text-decoration:none;
@@ -107,6 +115,74 @@
   @media (max-width:820px){
     .chapter-nav{ display:none; }
     .tc-counter{ top:16px; right:16px; font-size:10px; }
+  }
+
+  .rec-dot{
+    display:inline-block;
+    width:6px; height:6px; margin-right:7px;
+    border-radius:50%;
+    background:#E04B3A;
+    vertical-align:1px;
+    animation:rec-blink 2s ease-in-out infinite;
+  }
+  @keyframes rec-blink{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
+  @media (prefers-reduced-motion: reduce){ .rec-dot{ animation:none; opacity:1; } }
+
+  /* ============================================================
+     SLATE — un clap de cinéma bref à chaque changement de chapitre.
+     Renforce la métaphore du montage sans ajouter de bruit visuel
+     permanent : disparaît de lui-même, jamais interactif.
+     ============================================================ */
+  .slate{
+    position:fixed;
+    left:50%; bottom:28px;
+    z-index:55;
+    transform:translate(-50%, 10px) scale(0.97);
+    display:flex; align-items:baseline; gap:10px;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    padding:9px 16px;
+    font-family:var(--font-mono);
+    font-size:11px; letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--fg-muted);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .4s ease, transform .4s ease;
+  }
+  .slate.is-visible{ opacity:1; transform:translate(-50%, 0) scale(1); }
+  .slate__scene{ color:var(--accent); }
+  .slate__title{ color:var(--fg); font-weight:500; letter-spacing:0.02em; }
+  @media (max-width:820px){ .slate{ display:none; } }
+  @media (prefers-reduced-motion: reduce){
+    .slate{ transition:opacity .2s ease; transform:translate(-50%,0) scale(1); }
+  }
+
+  /* ============================================================
+     SON D'AMBIANCE — souffle de bande, généré (pas de fichier),
+     coupé par défaut. Un seul bouton, discret, langage "badge".
+     ============================================================ */
+  .sound-toggle{
+    position:fixed; right:var(--edge); bottom:22px; z-index:50;
+    display:flex; align-items:center; gap:7px;
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.1em;
+    color:var(--fg-muted); background:var(--bg);
+    border:1px solid var(--line); border-radius:99px;
+    padding:8px 14px; cursor:pointer;
+    transition:color .3s, border-color .3s;
+  }
+  .sound-toggle:hover{ color:var(--fg); border-color:var(--accent); }
+  .sound-toggle:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .sound-toggle__dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--fg-muted);
+    transition:background .3s;
+  }
+  .sound-toggle.is-on{ color:var(--fg); border-color:var(--accent); }
+  .sound-toggle.is-on .sound-toggle__dot{ background:var(--accent); animation:rec-blink 1.6s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .sound-toggle.is-on .sound-toggle__dot{ animation:none; } }
+  @media (max-width:820px){
+    .sound-toggle{ right:16px; bottom:16px; padding:7px 12px; font-size:9.5px; }
   }
 
   /* ============================================================
@@ -438,6 +514,19 @@
     background:
       repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,0.025) 18px 19px),
       var(--bg-panel);
+  }
+  /* Le moodboard Timal est un document à deux pages, pas une seule
+     vignette : on le montre comme un spread plutôt que comme un
+     unique cadre vide. Toujours un placeholder tant qu'aucune vraie
+     page n'a été reçue. */
+  .sequence__moodboard{
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  }
+  .sequence__moodboard .sequence__media--placeholder{ position:relative; }
+  .sequence__page-num{
+    position:absolute; right:10px; bottom:8px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em;
+    color:var(--fg-muted); opacity:0.55;
   }
   .sequence__caption{ margin-top:14px; }
   .sequence__title{
@@ -825,8 +914,17 @@
   <div class="grain"></div>
   <div class="viewfinder" id="viewfinder"></div>
 
-  <div class="tc-counter" id="tcCounter">00:00 <b>/</b> 06:00</div>
+  <div class="tc-counter" id="tcCounter"><span class="rec-dot" aria-hidden="true"></span><span id="tcTime">00:00</span> <b>/</b> 06:00</div>
   <nav class="chapter-nav" id="chapterNav"></nav>
+
+  <div class="slate" id="slate" aria-hidden="true">
+    <span class="slate__scene">Scène <span id="slateNum">01</span></span>
+    <span class="slate__title" id="slateTitle">Avant la sortie</span>
+  </div>
+
+  <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" aria-label="Activer l'ambiance sonore du studio">
+    <span class="sound-toggle__dot" aria-hidden="true"></span><span id="soundToggleLabel">Son</span>
+  </button>
 
   <!-- ============================================================
        01 — HERO
@@ -845,7 +943,7 @@
       <p class="lede">Du studio au développement d'artistes, j'ai appris à comprendre un talent, construire son environnement créatif et faire avancer un projet jusqu'à sa sortie.</p>
       <p class="credits">Candidature Talent Manager<br>A&amp;R Studios, Universal Music France</p>
     </div>
-    <div class="scroll-cue">Défiler</div>
+    <div class="scroll-cue">Défiler <span style="opacity:.55;">&middot; &uarr;&darr;</span></div>
   </section>
 
   <!-- ============================================================
@@ -919,7 +1017,7 @@
 
       <div class="sequence">
         <div class="sequence__step">
-          <video class="proof-tile sequence__media" src="videos/l2b-noir-cuts.mp4" autoplay muted loop playsinline></video>
+          <video class="proof-tile sequence__media" src="videos/l2b-noir-cuts.mp4" muted loop playsinline preload="none"></video>
           <div class="sequence__caption">
             <p class="sequence__title">"Noir", L2B</p>
             <span class="sequence__role">Acteur principal</span>
@@ -943,7 +1041,10 @@
         </div>
         <span class="sequence__arrow">&darr;</span>
         <div class="sequence__step">
-          <div class="sequence__media--placeholder"></div>
+          <div class="sequence__moodboard">
+            <div class="sequence__media--placeholder"><span class="sequence__page-num">01</span></div>
+            <div class="sequence__media--placeholder"><span class="sequence__page-num">02</span></div>
+          </div>
           <div class="sequence__caption">
             <p class="sequence__title">Timal, "760"</p>
             <span class="sequence__role">Synopsis / moodboard</span>
@@ -951,7 +1052,7 @@
         </div>
         <span class="sequence__arrow">&darr;</span>
         <div class="sequence__step">
-          <video class="proof-tile sequence__media" src="videos/scene-rue-groupe.mp4" autoplay muted loop playsinline></video>
+          <video class="proof-tile sequence__media" src="videos/scene-rue-groupe.mp4" muted loop playsinline preload="none"></video>
           <div class="sequence__caption">
             <p class="sequence__title">V2V, "Crapuleux"</p>
             <span class="sequence__role">Co-réalisation</span>
@@ -964,9 +1065,9 @@
       <div style="margin-top:56px;">
         <span class="proof-caption" style="margin-top:0;">Aussi, sur d'autres tournages et projets</span>
         <div class="proof-row" style="margin-top:14px;">
-          <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" autoplay muted loop playsinline></video>
-          <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" autoplay muted loop playsinline></video>
-          <video class="proof-tile proof-tile--wide" src="videos/dexter-lahasba-bts.mp4" autoplay muted loop playsinline></video>
+          <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" muted loop playsinline preload="none"></video>
+          <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" muted loop playsinline preload="none"></video>
+          <video class="proof-tile proof-tile--wide" src="videos/dexter-lahasba-bts.mp4" muted loop playsinline preload="none"></video>
         </div>
         <div class="proof-row">
           <img class="proof-tile proof-tile--post" src="images/image-photo-rvfleuze.jpg" alt="Photo plateau, Rvfleuze" loading="lazy">
@@ -1005,7 +1106,7 @@
       <p class="lede">Montage et cadrage d'interviews, contenus éditoriaux, intros et habillages, au studio.</p>
 
       <div class="video-feature">
-        <video class="proof-tile" src="videos/generations-my-g-avec-jeff.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile" src="videos/generations-my-g-avec-jeff.mp4" muted loop playsinline preload="none"></video>
         <div class="video-feature__caption">
           <span class="video-feature__title">My G avec Jeff</span>
           <span class="video-feature__detail">Générique et un extrait des 4 interviews : Nahir, Kulturr, Tarik Azzouz, Jyeuhair. Cadre, montage et habillage.</span>
@@ -1014,7 +1115,7 @@
 
       <p class="credits">Photographe accrédité pour <b>Générations</b>, au festival <b>FCNY</b>, sur l'apparition de <b>La Mano</b>.</p>
       <div class="proof-row">
-        <video class="proof-tile proof-tile--wide" src="videos/festival-fcny-lamano.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile proof-tile--wide" src="videos/festival-fcny-lamano.mp4" muted loop playsinline preload="none"></video>
       </div>
       <span class="proof-caption">Festival FCNY, apparition de La Mano.</span>
     </div>
@@ -1070,9 +1171,9 @@
       </div>
 
       <div class="proof-row">
-        <video class="proof-tile proof-tile--wide" src="videos/brk-katimini-highlights.mp4" autoplay muted loop playsinline></video>
-        <video class="proof-tile proof-tile--wide" src="videos/brk-everyday-highlights.mp4" autoplay muted loop playsinline></video>
-        <video class="proof-tile proof-tile--wide" src="videos/brk-flex-highlights.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile proof-tile--wide" src="videos/brk-katimini-highlights.mp4" muted loop playsinline preload="none"></video>
+        <video class="proof-tile proof-tile--wide" src="videos/brk-everyday-highlights.mp4" muted loop playsinline preload="none"></video>
+        <video class="proof-tile proof-tile--wide" src="videos/brk-flex-highlights.mp4" muted loop playsinline preload="none"></video>
       </div>
       <span class="proof-caption">Direction artistique et étalonnage : Katimini, Everyday, Flex</span>
 
@@ -1149,8 +1250,8 @@
         <div class="stat"><b>~2 000</b>vues en moyenne sur certains formats</div>
       </div>
       <div class="proof-row">
-        <video class="proof-tile" src="videos/lavar-rnboi-preview.mp4" autoplay muted loop playsinline></video>
-        <video class="proof-tile" src="videos/lavar-rvfleuze-preview.mp4" autoplay muted loop playsinline></video>
+        <video class="proof-tile" src="videos/lavar-rnboi-preview.mp4" muted loop playsinline preload="none"></video>
+        <video class="proof-tile" src="videos/lavar-rvfleuze-preview.mp4" muted loop playsinline preload="none"></video>
         <img class="proof-tile proof-tile--post" src="images/lavar-post-klm.jpg" alt="Post La Var, KLM" loading="lazy">
         <img class="proof-tile proof-tile--post" src="images/lavar-post-creamy.jpg" alt="Post La Var, Creamy G à Marsatac" loading="lazy">
       </div>
@@ -1492,6 +1593,37 @@
     })();
 
     /* ----------------------------------------------------------
+       Lazy proof-tile playback — every real clip (sequence, proof
+       rows, video-feature) used to carry `autoplay`, which made the
+       browser fetch and decode all ~13 files at once on load no
+       matter where they sat on a ~17-screen page. Now they carry
+       preload="none" instead, and only play while their tile is
+       actually on screen; scrolling them away pauses them again.
+       ---------------------------------------------------------- */
+    (function(){
+      var lazyVideos = Array.prototype.slice.call(document.querySelectorAll('video.proof-tile'));
+      if(!lazyVideos.length) return;
+
+      if(reduced || !('IntersectionObserver' in window)){
+        // No scroll-driven motion under reduced-motion, and no
+        // observer support: fall back to the old always-on behavior
+        // rather than leaving every tile permanently blank.
+        if(!reduced){ lazyVideos.forEach(function(v){ v.play().catch(function(){}); }); }
+        return;
+      }
+
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          var v = entry.target;
+          if(entry.isIntersecting){ v.play().catch(function(){}); }
+          else { v.pause(); }
+        });
+      }, { rootMargin: '200px 0px', threshold: 0.15 });
+
+      lazyVideos.forEach(function(v){ io.observe(v); });
+    })();
+
+    /* ----------------------------------------------------------
        Media slot detail — corner brackets + scanline injected
        once here, so every placeholder gets them without
        duplicating markup eight times in the HTML.
@@ -1600,7 +1732,11 @@
       return a;
     });
 
-    var tcEl = document.getElementById('tcCounter');
+    // Own span for the running number: the REC dot sits next to it
+    // in the same fixed element, so the counter must never blow away
+    // the rest of that markup on every scroll tick the way a single
+    // innerHTML rewrite would.
+    var tcTimeEl = document.getElementById('tcTime');
     var NOMINAL_SECONDS = 360; // 06:00 — purely a design device, not a real duration
 
     function fmt(sec){
@@ -1608,20 +1744,132 @@
       return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
     }
 
+    /* ----------------------------------------------------------
+       Slate — brief clapperboard card on chapter change, echoing
+       the film-edit conceit with an actual cut rather than just
+       describing one. Fires once per transition, not per pixel.
+       ---------------------------------------------------------- */
+    var slateEl = document.getElementById('slate');
+    var slateNumEl = document.getElementById('slateNum');
+    var slateTitleEl = document.getElementById('slateTitle');
+    var slateTimer = null;
+    var lastActiveIndex = -1;
+
+    function showSlate(i){
+      if(!slateEl) return;
+      slateNumEl.textContent = String(i + 1).padStart(2, '0');
+      slateTitleEl.textContent = sections[i].dataset.chapter || sections[i].id;
+      slateEl.classList.add('is-visible');
+      clearTimeout(slateTimer);
+      slateTimer = setTimeout(function(){ slateEl.classList.remove('is-visible'); }, 1400);
+    }
+
     function onScroll(){
       var doc = document.documentElement;
       var progress = window.scrollY / (doc.scrollHeight - window.innerHeight);
       progress = Math.max(0, Math.min(1, progress || 0));
-      tcEl.innerHTML = fmt(progress*NOMINAL_SECONDS) + ' <b>/</b> 06:00';
+      if(tcTimeEl){ tcTimeEl.textContent = fmt(progress*NOMINAL_SECONDS); }
 
       var mid = window.scrollY + window.innerHeight*0.5;
+      var activeIndex = lastActiveIndex;
       sections.forEach(function(s, i){
         var active = mid >= s.offsetTop && mid < s.offsetTop + s.offsetHeight;
         dots[i].classList.toggle('active', active);
+        if(active){ activeIndex = i; }
       });
+      if(activeIndex !== lastActiveIndex){
+        lastActiveIndex = activeIndex;
+        showSlate(activeIndex);
+      }
     }
     window.addEventListener('scroll', onScroll, { passive:true });
     onScroll();
+
+    /* ----------------------------------------------------------
+       Keyboard scrubbing — ↑/↓ (or j/k, editor-style) jump exactly
+       one chapter at a time, like stepping through cuts rather than
+       a generic page scroll. Ignored while a modifier key is held,
+       so browser/OS shortcuts on the same keys keep working.
+       ---------------------------------------------------------- */
+    window.addEventListener('keydown', function(e){
+      if(e.metaKey || e.ctrlKey || e.altKey) return;
+      var target = null;
+      if(e.key === 'ArrowDown' || e.key === 'j' || e.key === 'J'){
+        target = Math.min(sections.length - 1, lastActiveIndex + 1);
+      } else if(e.key === 'ArrowUp' || e.key === 'k' || e.key === 'K'){
+        target = Math.max(0, lastActiveIndex - 1);
+      }
+      if(target !== null){
+        e.preventDefault();
+        sections[target].scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+      }
+    });
+
+    /* ----------------------------------------------------------
+       Ambient studio hiss — generated in-browser (no audio file to
+       ship), off by default, one click to enable. Filtered noise
+       with a slow LFO on the cutoff so it breathes instead of
+       sitting static, kept very quiet by design.
+       ---------------------------------------------------------- */
+    (function(){
+      var btn = document.getElementById('soundToggle');
+      var label = document.getElementById('soundToggleLabel');
+      if(!btn) return;
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtx){ btn.style.display = 'none'; return; }
+
+      var ctx, gainNode, playing = false;
+
+      function ensureGraph(){
+        if(ctx) return;
+        ctx = new AudioCtx();
+
+        var bufferSize = 2 * ctx.sampleRate;
+        var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for(var i = 0; i < bufferSize; i++){ data[i] = (Math.random() * 2 - 1) * 0.5; }
+
+        var noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+
+        var filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 700;
+        filter.Q.value = 0.4;
+
+        var lfo = ctx.createOscillator();
+        lfo.frequency.value = 0.07;
+        var lfoGain = ctx.createGain();
+        lfoGain.gain.value = 120;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+
+        gainNode = ctx.createGain();
+        gainNode.gain.value = 0;
+
+        noise.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        noise.start();
+        lfo.start();
+      }
+
+      btn.addEventListener('click', function(){
+        ensureGraph();
+        if(ctx.state === 'suspended'){ ctx.resume(); }
+        playing = !playing;
+        var now = ctx.currentTime;
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setTargetAtTime(playing ? 0.05 : 0, now, 0.6);
+        btn.classList.toggle('is-on', playing);
+        btn.setAttribute('aria-pressed', String(playing));
+        var text = playing ? 'Couper' : 'Son';
+        label.textContent = text;
+        btn.setAttribute('aria-label', playing ? "Couper l'ambiance sonore du studio" : "Activer l'ambiance sonore du studio");
+      });
+    })();
   })();
   </script>
 </body>
