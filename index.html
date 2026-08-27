@@ -500,9 +500,23 @@
      lightbox) mais réécrit sa taille pour dominer l'écran plutôt
      que de se fondre dans une grille de vignettes.
      ============================================================ */
-  .sequence{ margin-top:40px; max-width:340px; margin-left:auto; }
-  .sequence__step{ padding:26px 0; }
-  .sequence__step:first-child{ padding-top:0; }
+  /* Frise horizontale sur desktop (2021 → aujourd'hui, un métier par
+     étape) plutôt qu'une colonne étroite de 340px : le trajet se lit
+     d'un balayage au lieu d'un défilement. Redevient une colonne
+     verticale — la mise en page d'origine — sous 820px. */
+  .sequence__dates{
+    display:flex; justify-content:space-between;
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.08em;
+    color:var(--fg-muted); text-transform:uppercase;
+    margin-bottom:12px;
+  }
+  .sequence{
+    margin-top:8px; max-width:100%; margin-left:0;
+    display:flex; align-items:center; gap:2px;
+  }
+  .sequence__step{ flex:1; min-width:0; padding:0 10px; text-align:center; }
+  .sequence__step:first-child{ padding-left:0; }
+  .sequence__step:last-child{ padding-right:0; }
   .sequence__media{
     display:block; width:100%;
     aspect-ratio:4/5; object-fit:cover;
@@ -567,9 +581,17 @@
     display:block; text-align:center;
     font-family:var(--font-mono); color:var(--fg-muted);
     font-size:15px; opacity:0.5; padding:4px 0;
+    transform:rotate(-90deg); flex-shrink:0;
   }
   @media (max-width:820px){
-    .sequence{ max-width:100%; margin-left:0; }
+    .sequence__dates{ display:none; }
+    .sequence{
+      flex-direction:column; align-items:stretch;
+      max-width:100%; margin-left:0; margin-top:24px;
+    }
+    .sequence__step{ padding:26px 0; text-align:left; }
+    .sequence__step:first-child{ padding-top:0; }
+    .sequence__arrow{ transform:none; padding:4px 0; }
   }
   .proof-caption{
     display:block; margin-top:10px;
@@ -874,6 +896,29 @@
     padding:7px 12px;
     border:1px solid var(--line);
   }
+  /* Trois branches plutôt qu'un tas de chips à plat : ça montre la
+     ramification (A&R vers 3 familles de métiers), pas juste une
+     liste. */
+  .network__branches{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:10px 20px;
+    margin-top:14px; padding-top:16px;
+    border-top:1px solid var(--line);
+  }
+  .network__branch-label{
+    display:block; margin-bottom:8px;
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.08em;
+    color:var(--accent); text-transform:uppercase;
+  }
+  .network__branch .network__chips{ flex-direction:column; align-items:flex-start; }
+  .network__proof{
+    margin:20px 0 0;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.02em;
+    color:var(--fg-muted);
+  }
+  .network__proof b{ color:var(--fg); font-weight:500; }
+  @media (max-width:600px){
+    .network__branches{ grid-template-columns:1fr; gap:16px; }
+  }
 
   /* ============================================================
      LISTE DE CONVICTIONS — réservée à "Pourquoi A&R Studios",
@@ -1104,6 +1149,10 @@
       <h2>De l'autre côté de la caméra, puis derrière elle.</h2>
       <p class="lede">La rencontre avec Nocolor change tout.</p>
 
+      <div class="sequence__dates">
+        <span>2021</span>
+        <span>Aujourd'hui</span>
+      </div>
       <div class="sequence">
         <div class="sequence__step">
           <video class="proof-tile sequence__media" src="videos/l2b-noir-cuts.mp4" muted loop playsinline preload="none"></video>
@@ -1230,16 +1279,31 @@
         <span class="network__node">Artiste</span>
         <span class="network__arrow">&darr;</span>
         <span class="network__node">Management / A&amp;R</span>
-        <span class="network__arrow">&darr;</span>
-        <div class="network__chips">
-          <span class="network__chip">Réalisateur</span>
-          <span class="network__chip">Photographe</span>
-          <span class="network__chip">Styliste</span>
-          <span class="network__chip">Beatmaker</span>
-          <span class="network__chip">Production</span>
-          <span class="network__chip">Média</span>
-          <span class="network__chip">Créatifs</span>
+        <div class="network__branches">
+          <div class="network__branch">
+            <span class="network__branch-label">Image</span>
+            <div class="network__chips">
+              <span class="network__chip">Réalisateur</span>
+              <span class="network__chip">Photographe</span>
+              <span class="network__chip">Styliste</span>
+            </div>
+          </div>
+          <div class="network__branch">
+            <span class="network__branch-label">Musique</span>
+            <div class="network__chips">
+              <span class="network__chip">Beatmaker</span>
+              <span class="network__chip">Production</span>
+            </div>
+          </div>
+          <div class="network__branch">
+            <span class="network__branch-label">Contenu</span>
+            <div class="network__chips">
+              <span class="network__chip">Média</span>
+              <span class="network__chip">Créatifs</span>
+            </div>
+          </div>
         </div>
+        <p class="network__proof">BRK &rarr; <b>Sponge</b>, <b>Neweyes Production</b>, <b>ABL</b>, <b>Achille GX</b></p>
       </div>
 
       <p class="lede" style="margin-top:32px; max-width:520px;">Je viens de l'exécution. Mon évolution m'a progressivement amené vers la compréhension, la stratégie et le développement des talents.</p>
