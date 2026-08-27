@@ -458,6 +458,10 @@
   /* Les covers sont la preuve la plus forte de goût artistique :
      on leur donne plus de place qu'aux photos de tournage. */
   .proof-tile--feature{ width:156px; }
+  /* Plus que 2 clips dans cette rangée (au lieu de 3) : ils gagnent
+     la place laissée libre plutôt que de rester à la même taille
+     avec un vide à droite. */
+  .proof-row--duo .proof-tile--wide{ width:230px; }
 
   /* ============================================================
      VIDÉO EN AVANT — pour une pièce qui mérite d'être vue en
@@ -603,6 +607,7 @@
     .proof-row{ gap:12px; }
     .proof-tile{ width:calc(50% - 6px); }
     .proof-tile--wide{ width:100%; }
+    .proof-row--duo .proof-tile--wide{ width:100%; }
   }
 
   /* ============================================================
@@ -1055,12 +1060,11 @@
 
       <div style="margin-top:56px;">
         <span class="proof-caption" style="margin-top:0;">Aussi, sur d'autres tournages</span>
-        <div class="proof-row" style="margin-top:14px;">
+        <div class="proof-row proof-row--duo" style="margin-top:14px;">
           <video class="proof-tile proof-tile--wide" src="videos/landy-gazo-maybach-cuts.mp4" muted loop playsinline preload="none"></video>
           <video class="proof-tile proof-tile--wide" src="videos/mhd-afrotrap11-cuts.mp4" muted loop playsinline preload="none"></video>
-          <video class="proof-tile proof-tile--wide" src="videos/dexter-lahasba-bts.mp4" muted loop playsinline preload="none"></video>
         </div>
-        <p class="image-block__credit">"Maybach" de Landy feat. Gazo &middot; "Afro Trap Part. 11" de MHD &middot; Dexter HMC ft. La Hasba, "91022"</p>
+        <p class="image-block__credit">"Maybach" de Landy feat. Gazo &middot; "Afro Trap Part. 11" de MHD</p>
         <p class="image-block__credit">Sur les tournages Nocolor : coordination avec les boîtes de location, les cadreurs et les monteurs.</p>
       </div>
     </div>
