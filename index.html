@@ -515,18 +515,26 @@
       repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,0.025) 18px 19px),
       var(--bg-panel);
   }
-  /* Le moodboard Timal est un document à deux pages, pas une seule
-     vignette : on le montre comme un spread plutôt que comme un
-     unique cadre vide. Toujours un placeholder tant qu'aucune vraie
-     page n'a été reçue. */
+  /* Le moodboard Timal est un document à deux pages (le vrai PDF de
+     synopsis), pas une seule vignette : spread plutôt qu'un cadre
+     unique. Les pages sont au format du document d'origine (16/9),
+     jamais recadrées en 4/5 comme les autres médias de la séquence —
+     sinon le titre "TIMAL" et le texte du concept sortent du cadre. */
   .sequence__moodboard{
     display:grid; grid-template-columns:1fr 1fr; gap:8px;
   }
-  .sequence__moodboard .sequence__media--placeholder{ position:relative; }
+  .sequence__page{ position:relative; }
+  .sequence__moodboard .sequence__media{
+    aspect-ratio:16/9;
+    object-fit:contain;
+    background:var(--bg-panel);
+  }
   .sequence__page-num{
-    position:absolute; right:10px; bottom:8px;
+    position:absolute; right:8px; bottom:6px;
     font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em;
-    color:var(--fg-muted); opacity:0.55;
+    color:var(--fg); opacity:0.7;
+    background:rgba(11,11,15,0.55);
+    padding:1px 5px;
   }
   .sequence__caption{ margin-top:14px; }
   .sequence__title{
@@ -1042,8 +1050,14 @@
         <span class="sequence__arrow">&darr;</span>
         <div class="sequence__step">
           <div class="sequence__moodboard">
-            <div class="sequence__media--placeholder"><span class="sequence__page-num">01</span></div>
-            <div class="sequence__media--placeholder"><span class="sequence__page-num">02</span></div>
+            <div class="sequence__page">
+              <img class="proof-tile sequence__media" src="images/timal-synopsis-01.jpg" alt="Synopsis Timal, page de titre" loading="lazy">
+              <span class="sequence__page-num">01</span>
+            </div>
+            <div class="sequence__page">
+              <img class="proof-tile sequence__media" src="images/timal-synopsis-02.jpg" alt="Synopsis Timal, texte du concept" loading="lazy">
+              <span class="sequence__page-num">02</span>
+            </div>
           </div>
           <div class="sequence__caption">
             <p class="sequence__title">Timal, "760"</p>
