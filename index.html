@@ -290,10 +290,12 @@
      cartes scannables plutôt qu'une ligne de texte à lire. */
   .stat-cards{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; }
   .stat-card{
-    padding:13px 18px;
+    position:relative;
+    padding:13px 18px 20px;
     border:1px solid var(--line);
     background:rgba(11,11,15,0.4);
     min-width:100px;
+    overflow:hidden;
   }
   .stat-card b{
     display:block; font-family:var(--font-display); font-weight:700;
@@ -306,6 +308,21 @@
   }
   .on-media .stat-card{ border-color:rgba(255,255,255,0.18); }
   .on-media .stat-card span{ color:var(--fg); opacity:0.75; }
+  /* Jauge décorative : se remplit au scroll (GSAP plus bas), pas une
+     comparaison entre cartes — chaque stat est une unité différente,
+     donc toutes vont au même niveau plutôt que des hauteurs qui
+     laisseraient croire à un classement entre elles. */
+  .stat-card__bar{
+    position:absolute; left:16px; right:16px; bottom:11px;
+    display:block; height:2px;
+    background:var(--accent);
+    transform-origin:left center;
+    transform:scaleX(0);
+    opacity:0.8;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .stat-card__bar{ transform:scaleX(1); }
+  }
 
   #hero{ align-items:center; padding-top:var(--edge); }
   #hero .chapter-content{ max-width:820px; }
@@ -1392,10 +1409,10 @@
       <p class="lede">Média rap et culture urbaine.</p>
 
       <div class="stat-cards">
-        <div class="stat-card"><b>1 an</b><span>D'existence</span></div>
-        <div class="stat-card"><b>11 365</b><span>Abonnés</span></div>
-        <div class="stat-card"><b>7</b><span>Artistes mis en avant</span></div>
-        <div class="stat-card"><b>105 979</b><span>Spectateurs (90 j)</span></div>
+        <div class="stat-card"><b>1 an</b><span>D'existence</span><i class="stat-card__bar"></i></div>
+        <div class="stat-card"><b>11 365</b><span>Abonnés</span><i class="stat-card__bar"></i></div>
+        <div class="stat-card"><b>100+</b><span>Artistes mis en avant</span><i class="stat-card__bar"></i></div>
+        <div class="stat-card"><b>105 979</b><span>Spectateurs (90 j)</span><i class="stat-card__bar"></i></div>
       </div>
 
       <div class="stage-flow" style="margin-top:22px;">
@@ -1862,6 +1879,20 @@
           scrollTrigger: { trigger: seq, start: 'top 85%' }
         });
       });
+
+      /* Cartes stat La Var : les jauges se remplissent l'une après
+         l'autre à l'arrivée, comme un tableau de bord qui charge ses
+         données plutôt que du texte statique. */
+      var statBars = document.querySelectorAll('.stat-card__bar');
+      if(statBars.length){
+        gsap.to(statBars, {
+          scaleX: 1,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: '.stat-cards', start: 'top 88%' }
+        });
+      }
     }
 
     /* ----------------------------------------------------------
