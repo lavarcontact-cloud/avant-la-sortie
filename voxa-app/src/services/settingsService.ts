@@ -1,6 +1,6 @@
 import type { Settings } from '../types'
 
-const STORAGE_KEY = 'voxa.settings.v1'
+const STORAGE_KEY = 'loba.settings.v1'
 
 export const DEFAULT_SETTINGS: Settings = {
   primaryLanguage: 'fr',

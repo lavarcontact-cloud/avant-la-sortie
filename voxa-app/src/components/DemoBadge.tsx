@@ -8,7 +8,7 @@ export default function DemoBadge({ isReal, label }: { isReal: boolean; label: s
       }`}
       title={isReal ? `${label} — API réelle du navigateur` : `${label} — mode démo simulé`}
     >
-      {isReal ? 'RÉEL' : 'DEMO'} · {label}
+      {isReal ? 'LIVE' : 'DEMO'} · {label}
     </span>
   )
 }

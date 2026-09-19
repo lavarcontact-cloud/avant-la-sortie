@@ -30,7 +30,7 @@ export class DemoTranslationProvider implements TranslationProvider {
       detectedLang: req.sourceLang,
       confidence: 0.55,
       providerUsed: this.name,
-      debug: 'naive fallback — configure VITE_TRANSLATION_API_KEY for real translation',
+      debug: 'naive fallback — configure TRANSLATION_API_KEY (server-side, in Vercel project settings) for real translation',
     }
   }
 }

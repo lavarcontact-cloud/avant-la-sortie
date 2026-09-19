@@ -1,6 +1,6 @@
-# VOXA — Interprète bilingue en direct (prototype)
+# LOBA — Interprète bilingue en direct (prototype)
 
-VOXA simule un interprète de conversation en temps réel : on pose le téléphone
+LOBA simule un interprète de conversation en temps réel : on pose le téléphone
 entre deux personnes, l'application écoute, détecte la langue parlée, traduit
 et lit la traduction à voix haute — en alternant automatiquement entre les
 deux langues configurées.
@@ -46,7 +46,8 @@ interactive and always demonstrable end to end (see below).
   hardcoded phrase table proves the "slang mode" intent (e.g.
   *"Vas-y frérot, t'es chaud ou quoi ?"* → *"Yo bro, you down or what?"* in
   SLANG mode, with different output per register), and a naive bracketed
-  fallback for anything else.
+  fallback for anything else. Used automatically whenever the real AI path
+  (below) is unavailable or fails.
 - **History** — localStorage-backed, list/rename/delete, text/metadata only
   (no audio ever stored).
 - **Settings** — persisted to localStorage: primary language, favorites,
@@ -55,23 +56,56 @@ interactive and always demonstrable end to end (see below).
   failure, etc. each show a dismissible banner with a retry action; the UI
   never gets stuck in an infinite spinner.
 
-Every place a feature is simulated, the UI shows an honest `DEMO` badge
-(`components/DemoBadge.tsx`) rather than pretending a demo output is a real
-AI call — see `providers/index.ts`'s `providerFlags`.
+Every place a feature is simulated, or was actually served by DEMO on the
+last call, the UI shows an honest `DEMO` badge next to a `LIVE` one when the
+real path served it (`components/DemoBadge.tsx`) — never a real-looking badge
+for a simulated call. See `providers/index.ts`'s `providerFlags` and
+`isLiveTranslationProviderName`, and each `ConversationTurn.providerUsed`.
 
-## What needs a real API key to become "real"
+## Real AI translation — server-side only, secret never shipped to the browser
 
-| Feature | Env var | Notes |
-|---|---|---|
-| High-quality, context-aware, slang-aware translation | `VITE_TRANSLATION_API_KEY` (+ optional `VITE_TRANSLATION_API_URL`, `VITE_TRANSLATION_MODEL`) | `providers/OpenAITranslationProvider.ts` calls an OpenAI-compatible chat completion endpoint. Any failure (missing key, network, bad response) transparently falls back to `DemoTranslationProvider` — the UI never breaks. |
-| Better / non-Chromium speech-to-text | `VITE_STT_API_KEY` (reserved) | Currently STT is 100% free via the browser's own `SpeechRecognition`; this var is a placeholder for wiring in a cloud STT provider (e.g. Whisper) as a higher-quality or cross-browser fallback path in `providers/`. |
-| Higher quality / more expressive voices | `VITE_TTS_PROVIDER=cloud`, `VITE_TTS_API_KEY` (reserved) | TTS currently uses the browser's own `speechSynthesis`, which is free but has variable voice quality per OS/browser. These vars are placeholders for a cloud TTS provider (ElevenLabs, Azure, etc.) implementing the same `VoiceProvider` interface. |
+Translation can be backed by a real LLM call through a **Vercel serverless
+function**, `api/translate.ts`. This is the only place a translation API key
+is ever read:
 
-See `.env.example` for the full list with comments.
+- `TRANSLATION_API_KEY` / `TRANSLATION_API_URL` / `TRANSLATION_MODEL` are
+  **server-only** env vars (no `VITE_` prefix), set in the Vercel project
+  settings. Vite never bundles them into client JS, so they can never leak
+  through devtools or the built bundle.
+- The frontend's `providers/AITranslationProvider.ts` never touches an API
+  key — it only does a same-origin `fetch('/api/translate', ...)`.
+- `providers/index.ts`'s `FallbackTranslationProvider` always tries the real
+  AI path first and transparently falls back to `DemoTranslationProvider` on
+  ANY failure (endpoint not configured — e.g. `TRANSLATION_API_KEY` unset,
+  which the function reports as a clean JSON error — network error, upstream
+  error, timeout, malformed response). The UI never breaks, and it never
+  claims LIVE when a call actually fell back to DEMO: the badge reflects
+  `ConversationTurn.providerUsed` from the call that actually happened, not
+  whether an env var merely exists.
+- The `/api/translate` request/response contract: the frontend sends
+  `{ text, sourceLanguage, targetLanguage, conversationContext (last ~6
+  turns), translationMode }`; the function returns
+  `{ translatedText, detectedLang, confidence }` on success, or
+  `{ error: string }` with a non-200 status on failure.
+- The chosen backend is an **OpenAI-compatible chat completions endpoint**
+  (default `https://api.openai.com/v1/chat/completions`), so any compatible
+  provider (Azure OpenAI, OpenRouter, Groq, etc.) works by overriding
+  `TRANSLATION_API_URL` / `TRANSLATION_MODEL`.
+
+| Feature | Env var | Side | Notes |
+|---|---|---|---|
+| High-quality, context-aware, slang-aware translation | `TRANSLATION_API_KEY` (+ optional `TRANSLATION_API_URL`, `TRANSLATION_MODEL`) | **server-only** | See above. |
+| Better / non-Chromium speech-to-text | `VITE_STT_API_KEY` (reserved) | client | Currently STT is 100% free via the browser's own `SpeechRecognition`; this var is a placeholder for wiring in a cloud STT provider (e.g. Whisper) as a higher-quality or cross-browser fallback path in `providers/`. |
+| Higher quality / more expressive voices | `VITE_TTS_PROVIDER=cloud`, `VITE_TTS_API_KEY` (reserved) | client | TTS currently uses the browser's own `speechSynthesis`, which is free but has variable voice quality per OS/browser. These vars are placeholders for a cloud TTS provider (ElevenLabs, Azure, etc.) implementing the same `VoiceProvider` interface. |
+
+See `.env.example` for the full list with comments, including which vars are
+client-visible vs. server-only.
 
 ## Architecture
 
 ```
+api/
+  translate.ts  Vercel serverless function — the ONLY place the translation API key is read
 src/
   components/   UI building blocks (Waveform, ConversationBubble, DemoBadge, ErrorBanner, BackHeader)
   pages/        Home, ConversationSetup, LiveConversation, History, Settings
@@ -79,8 +113,8 @@ src/
   providers/    SpeechProvider / TranslationProvider / VoiceProvider interfaces
                 + Demo* implementations (always available, zero config)
                 + WebSpeechProvider / WebSpeechSynthesisProvider (real browser APIs)
-                + OpenAITranslationProvider (real, key-gated, safe fallback)
-                + index.ts factory that picks real vs demo per feature
+                + AITranslationProvider (calls /api/translate — never touches a key)
+                + index.ts factory (FallbackTranslationProvider: AI first, Demo on any failure)
   hooks/        useMicrophone, useSpeechRecognition, useTextToSpeech, useConversation (orchestrates the whole turn cycle)
   lib/          languages.ts (single source of truth for the language list), languageDetection.ts,
                 slang.ts (phrase table + level metadata), translationEngine.ts (the one entry point
@@ -124,9 +158,9 @@ pronouns and maintain continuity across turns.
   simple heuristic (alternates when the detected language doesn't clearly
   match either configured language) and can misattribute turns in genuinely
   ambiguous cases.
-- No backend: everything (history, settings) lives in the browser's
-  localStorage, per device, per browser profile. There is no sync across
-  devices.
+- History and settings still live only in the browser's localStorage, per
+  device, per browser profile — there is no account sync across devices
+  (only the translation call itself now goes through a backend, `api/translate.ts`).
 - No automated test suite yet.
 
 ## Next steps toward a native mobile app
@@ -142,7 +176,5 @@ pronouns and maintain continuity across turns.
   provider implementations, which would be swapped for
   `react-native-voice` / `expo-speech` equivalents behind the same
   `SpeechProvider`/`VoiceProvider` interfaces).
-- Add a small backend (or a serverless proxy) once a real translation API key
-  is used in production, so the key is never shipped to the client bundle.
 - Add push-to-talk with automatic voice-activity detection (VAD) instead of
   manual per-side mic buttons, for a more hands-free "just talk" experience.

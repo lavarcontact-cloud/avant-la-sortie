@@ -4,7 +4,6 @@ import { settingsService, DEFAULT_SETTINGS } from '../services/settingsService'
 import { LANGUAGES } from '../lib/languages'
 import { SLANG_LEVEL_LABELS, SLANG_LEVEL_DESCRIPTIONS } from '../lib/slang'
 import type { LanguageCode, SlangLevel } from '../types'
-import { providerFlags } from '../providers'
 
 export default function Settings() {
   const [settings, setSettings] = useState(() => settingsService.load())
@@ -116,15 +115,24 @@ export default function Settings() {
         <section className="rounded-xl border border-border bg-elevated p-4">
           <h2 className="text-sm font-semibold mb-2">Confidentialité</h2>
           <p className="text-xs text-muted leading-relaxed">
-            En mode démo (aucune clé API configurée), tout reste sur cet appareil : les transcriptions et
-            traductions sont stockées uniquement dans le stockage local (localStorage) de votre navigateur.
-            Aucun audio n'est jamais enregistré ni envoyé.
+            L'audio de votre micro n'est jamais enregistré ni sauvegardé, ni en mode DEMO ni en mode LIVE — il
+            n'existe que le temps de la reconnaissance vocale, faite localement par votre navigateur.
           </p>
           <p className="text-xs text-muted leading-relaxed mt-2">
-            Si des API réelles sont configurées (traduction: {providerFlags.translationIsReal ? 'activée' : 'non configurée'}),
-            le texte transcrit de vos échanges quitterait l'appareil pour être envoyé au fournisseur de traduction
-            configuré, afin de générer la traduction. La reconnaissance vocale et la synthèse vocale utilisées ici
-            restent, elles, exécutées localement par le navigateur.
+            <strong>Mode DEMO</strong> (aucune clé de traduction configurée côté serveur) : tout reste sur cet
+            appareil. Les transcriptions et traductions sont stockées uniquement dans le stockage local
+            (localStorage) de votre navigateur, rien n'est envoyé à un service externe.
+          </p>
+          <p className="text-xs text-muted leading-relaxed mt-2">
+            <strong>Mode LIVE</strong> (une clé de traduction est configurée côté serveur) : le texte transcrit de
+            ce que vous dites quitte l'appareil et est envoyé, avec quelques échanges récents pour le contexte, au
+            service de traduction configuré (traité côté serveur, jamais avec une clé exposée au navigateur) afin
+            de générer la traduction. La reconnaissance vocale et la synthèse vocale, elles, restent toujours
+            exécutées localement par le navigateur, dans les deux modes.
+          </p>
+          <p className="text-xs text-muted leading-relaxed mt-2">
+            Chaque bulle de conversation indique honnêtement quel moteur a servi cette traduction précise
+            (badge DEMO/LIVE en haut de l'écran de conversation, et mention du fournisseur sous chaque bulle).
           </p>
           <button
             onClick={() => update('slangLevel' as any, settings.slangLevel)}

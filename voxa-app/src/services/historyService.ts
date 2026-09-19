@@ -1,6 +1,6 @@
 import type { Conversation } from '../types'
 
-const STORAGE_KEY = 'voxa.history.v1'
+const STORAGE_KEY = 'loba.history.v1'
 
 function readAll(): Conversation[] {
   try {

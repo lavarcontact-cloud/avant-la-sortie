@@ -7,9 +7,9 @@ export default function Home() {
       <div />
       <div className="flex flex-col items-center text-center gap-4">
         <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/30 to-accentB/20 border border-border flex items-center justify-center text-3xl font-bold text-primary shadow-soft">
-          V
+          L
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight">VOXA</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight">LOBA</h1>
         <p className="text-muted text-base max-w-xs">Parlez. L'application s'occupe du reste.</p>
       </div>
       <div className="flex flex-col gap-3">

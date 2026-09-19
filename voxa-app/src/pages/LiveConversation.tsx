@@ -8,7 +8,7 @@ import ErrorBanner from '../components/ErrorBanner'
 import { useConversation } from '../hooks/useConversation'
 import { createConversation } from '../services/conversationService'
 import { getLanguage } from '../lib/languages'
-import { providerFlags } from '../providers'
+import { providerFlags, isLiveTranslationProviderName } from '../providers'
 import type { LanguageCode, Speaker } from '../types'
 
 const STATE_LABEL: Record<string, string> = {
@@ -47,6 +47,11 @@ export default function LiveConversation() {
 
   const busy = state === 'listening' || state === 'processing' || state === 'speaking'
 
+  // Honest LIVE/DEMO badge for translation: reflects which provider actually
+  // served the LAST translation, never just whether an API key exists.
+  const lastTurn = conversation.turns[conversation.turns.length - 1]
+  const lastTranslationWasLive = lastTurn ? isLiveTranslationProviderName(lastTurn.providerUsed) : null
+
   const handleMicPress = (side: Speaker) => {
     if (isListening) {
       stopListening()
@@ -66,6 +71,9 @@ export default function LiveConversation() {
         </span>
         <div className="flex gap-1.5">
           <DemoBadge isReal={providerFlags.speechIsReal} label="Voix→texte" />
+          {lastTranslationWasLive !== null && (
+            <DemoBadge isReal={lastTranslationWasLive} label="Traduction" />
+          )}
         </div>
       </div>
 
