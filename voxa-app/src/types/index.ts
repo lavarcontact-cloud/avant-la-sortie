@@ -39,6 +39,7 @@ export type EngineState =
   | 'idle'
   | 'listening'
   | 'processing'
+  | 'translating'
   | 'translated'
   | 'speaking'
   | 'error'

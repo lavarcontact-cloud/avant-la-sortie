@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import BackHeader from '../components/BackHeader'
 import Waveform from '../components/Waveform'
 import ConversationBubble from '../components/ConversationBubble'
@@ -9,20 +9,28 @@ import { useConversation } from '../hooks/useConversation'
 import { createConversation } from '../services/conversationService'
 import { getLanguage } from '../lib/languages'
 import { providerFlags, isLiveTranslationProviderName } from '../providers'
-import type { LanguageCode, Speaker } from '../types'
+import type { EngineState, LanguageCode, Speaker } from '../types'
 
-const STATE_LABEL: Record<string, string> = {
-  idle: 'Prêt',
-  listening: 'Écoute...',
-  processing: 'Traduction...',
-  translated: 'Traduit',
-  speaking: 'Lecture...',
-  error: 'Erreur',
+function stateIndicator(state: EngineState, speaker: Speaker): { label: string; sub: string } {
+  switch (state) {
+    case 'listening':
+      return speaker === 'A'
+        ? { label: '🎙️ À VOUS', sub: 'Parlez naturellement' }
+        : { label: '🎙️ À l’autre personne', sub: 'Speak now' }
+    case 'processing':
+    case 'translating':
+      return { label: '◉ LOBA traduit', sub: 'Un instant...' }
+    case 'speaking':
+      return { label: '🔊 LOBA parle', sub: '' }
+    case 'error':
+      return { label: '⚠️ Pause', sub: '' }
+    default:
+      return { label: 'LOBA', sub: 'Appuyez pour démarrer' }
+  }
 }
 
 export default function LiveConversation() {
   const location = useLocation() as { state?: { langA: LanguageCode; langB: LanguageCode } }
-  const navigate = useNavigate()
   const langA = location.state?.langA ?? 'fr'
   const langB = location.state?.langB ?? 'en'
 
@@ -32,12 +40,15 @@ export default function LiveConversation() {
     state,
     error,
     activeSpeaker,
+    sessionActive,
+    awaitingManualResume,
     amplitude,
     interimText,
     isListening,
-    listenFor,
-    stopListening,
-    clearError,
+    startSession,
+    stopSession,
+    resumeAfterError,
+    continuousSttUnreliable,
   } = useConversation(conversationRef.current)
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -45,25 +56,18 @@ export default function LiveConversation() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [conversation.turns.length, interimText])
 
-  const busy = state === 'listening' || state === 'processing' || state === 'speaking'
-
   // Honest LIVE/DEMO badge for translation: reflects which provider actually
   // served the LAST translation, never just whether an API key exists.
   const lastTurn = conversation.turns[conversation.turns.length - 1]
   const lastTranslationWasLive = lastTurn ? isLiveTranslationProviderName(lastTurn.providerUsed) : null
 
-  const handleMicPress = (side: Speaker) => {
-    if (isListening) {
-      stopListening()
-      return
-    }
-    if (busy) return
-    listenFor(side)
-  }
+  const indicator = stateIndicator(state, activeSpeaker)
+  const speaking = state === 'speaking'
+  const processing = state === 'processing' || state === 'translating'
 
   return (
     <div className="flex-1 flex flex-col safe-top safe-bottom">
-      <BackHeader title="Conversation en direct" to="/" />
+      <BackHeader title="LOBA" to="/" />
 
       <div className="px-4 flex items-center justify-between text-xs text-muted mb-2">
         <span>
@@ -77,10 +81,18 @@ export default function LiveConversation() {
         </div>
       </div>
 
+      {continuousSttUnreliable && (
+        <div className="mx-4 mb-2 rounded-lg bg-elevated/60 border border-border/60 px-3 py-2 text-[11px] text-muted">
+          L'écoute continue peut être limitée sur ce navigateur (Safari iOS). Si LOBA
+          s'arrête d'écouter de façon inattendue, appuyez sur "Reprendre".
+        </div>
+      )}
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3">
-        {conversation.turns.length === 0 && (
+        {conversation.turns.length === 0 && !sessionActive && (
           <div className="text-center text-muted text-sm mt-10 px-6">
-            Posez le téléphone entre vous deux et appuyez sur le micro du côté qui parle.
+            Posez le téléphone entre vous deux et appuyez sur Démarrer. LOBA écoute,
+            traduit et parle automatiquement, à tour de rôle, sans autre geste.
           </div>
         )}
         {conversation.turns.map((turn) => (
@@ -95,59 +107,54 @@ export default function LiveConversation() {
         )}
       </div>
 
-      {error && <ErrorBanner error={error} onRetry={() => { clearError(); handleMicPress(activeSpeaker) }} onDismiss={clearError} />}
+      {error && (
+        <ErrorBanner
+          error={error}
+          onRetry={resumeAfterError}
+          onDismiss={() => (awaitingManualResume ? stopSession() : resumeAfterError())}
+        />
+      )}
 
       <div className="px-4 pb-2">
-        <Waveform amplitude={amplitude} active={isListening} color={activeSpeaker === 'A' ? '#7dd3c0' : '#e8a87c'} />
+        <Waveform
+          amplitude={amplitude}
+          active={isListening || speaking}
+          color={
+            speaking
+              ? '#c084fc'
+              : processing
+              ? '#e8a87c'
+              : activeSpeaker === 'A'
+              ? '#7dd3c0'
+              : '#e8a87c'
+          }
+        />
       </div>
 
       <div className="px-4 pb-8">
-        <p className="text-center text-sm text-muted mb-4 h-4">{STATE_LABEL[state]}</p>
-        <div className="flex items-center justify-center gap-6">
-          <MicButton
-            side="A"
-            active={activeSpeaker === 'A' && isListening}
-            disabled={busy && activeSpeaker !== 'A'}
-            onPress={() => handleMicPress('A')}
-          />
-          <MicButton
-            side="B"
-            active={activeSpeaker === 'B' && isListening}
-            disabled={busy && activeSpeaker !== 'B'}
-            onPress={() => handleMicPress('B')}
-          />
+        <div className="text-center mb-6">
+          <p className="text-xl font-bold text-ink">{indicator.label}</p>
+          {indicator.sub && <p className="text-sm text-muted mt-1">{indicator.sub}</p>}
+        </div>
+
+        <div className="flex items-center justify-center">
+          {!sessionActive ? (
+            <button
+              onClick={() => startSession('A')}
+              className="px-8 py-4 rounded-full bg-primary text-void font-bold text-base shadow-soft"
+            >
+              ▶ Démarrer
+            </button>
+          ) : (
+            <button
+              onClick={stopSession}
+              className="px-8 py-4 rounded-full bg-elevated border border-border text-ink font-bold text-base shadow-soft"
+            >
+              ⏹ Arrêter
+            </button>
+          )}
         </div>
       </div>
     </div>
-  )
-}
-
-function MicButton({
-  side,
-  active,
-  disabled,
-  onPress,
-}: {
-  side: Speaker
-  active: boolean
-  disabled: boolean
-  onPress: () => void
-}) {
-  const color = side === 'A' ? 'bg-primary text-void' : 'bg-accentB text-void'
-  return (
-    <button
-      onClick={onPress}
-      disabled={disabled}
-      className={`flex flex-col items-center gap-2 ${disabled ? 'opacity-40' : ''}`}
-    >
-      <div
-        className={`w-20 h-20 rounded-full flex items-center justify-center text-xl font-bold shadow-soft transition ${
-          active ? `${color} animate-pulseSoft scale-105` : 'bg-elevated border border-border text-ink'
-        }`}
-      >
-        🎙️
-      </div>
-      <span className="text-xs text-muted font-medium">Personne {side}</span>
-    </button>
   )
 }
