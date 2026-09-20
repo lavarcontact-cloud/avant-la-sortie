@@ -12,6 +12,13 @@ export function useTextToSpeech() {
   }, [])
 
   const stop = useCallback(() => providerRef.current.stop(), [])
+  const primeForUserGesture = useCallback(() => providerRef.current.primeForUserGesture(), [])
 
-  return { speak, stop, isReal: providerRef.current.isReal, providerName: providerRef.current.name }
+  return {
+    speak,
+    stop,
+    primeForUserGesture,
+    isReal: providerRef.current.isReal,
+    providerName: providerRef.current.name,
+  }
 }

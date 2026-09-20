@@ -222,12 +222,15 @@ export function useConversation(initial: Conversation) {
 
   const startSession = useCallback(
     (firstSpeaker: Speaker = 'A') => {
+      // Must run synchronously inside the tap handler, before any await —
+      // see VoiceProvider.primeForUserGesture for why.
+      tts.primeForUserGesture()
       sessionActiveRef.current = true
       setSessionActive(true)
       cycleRunningRef.current = false
       runTurnCycle(firstSpeaker)
     },
-    [runTurnCycle]
+    [runTurnCycle, tts]
   )
 
   const stopSession = useCallback(() => {
@@ -247,12 +250,13 @@ export function useConversation(initial: Conversation) {
   // mic-denied once permission has been re-granted). Restarts the session
   // for the speaker whose turn was interrupted.
   const resumeAfterError = useCallback(() => {
+    tts.primeForUserGesture()
     setError(null)
     setAwaitingManualResume(false)
     sessionActiveRef.current = true
     setSessionActive(true)
     runTurnCycle(activeSpeaker)
-  }, [runTurnCycle, activeSpeaker])
+  }, [runTurnCycle, activeSpeaker, tts])
 
   const clearError = useCallback(() => {
     resumeAfterError()

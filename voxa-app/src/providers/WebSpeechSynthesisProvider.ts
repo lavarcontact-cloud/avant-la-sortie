@@ -35,4 +35,16 @@ export class WebSpeechSynthesisProvider implements VoiceProvider {
   stop(): void {
     if (this.isSupported()) window.speechSynthesis.cancel()
   }
+
+  primeForUserGesture(): void {
+    if (!this.isSupported()) return
+    // A near-silent, near-instant real utterance — must be spoken (not just
+    // constructed) synchronously inside the tap for iOS Safari to grant this
+    // page audio-output permission for subsequent speak() calls made later,
+    // after awaits, in the same session.
+    const unlock = new SpeechSynthesisUtterance(' ')
+    unlock.volume = 0.01
+    unlock.rate = 10
+    window.speechSynthesis.speak(unlock)
+  }
 }
