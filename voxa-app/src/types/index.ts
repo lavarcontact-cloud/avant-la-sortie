@@ -22,6 +22,7 @@ export interface ConversationTurn {
   timestamp: number
   confidence: number
   providerUsed: string
+  debug?: string
 }
 
 export interface Conversation {

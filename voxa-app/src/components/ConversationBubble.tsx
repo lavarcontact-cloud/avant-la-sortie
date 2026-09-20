@@ -34,6 +34,9 @@ export default function ConversationBubble({ turn }: { turn: ConversationTurn })
         <div className="mt-1 text-[10px] text-muted/70">
           {turn.providerUsed} · confiance {Math.round(turn.confidence * 100)}%
         </div>
+        {turn.debug ? (
+          <div className="mt-1 text-[10px] text-red-400/80 break-words">{turn.debug}</div>
+        ) : null}
       </div>
     </div>
   )

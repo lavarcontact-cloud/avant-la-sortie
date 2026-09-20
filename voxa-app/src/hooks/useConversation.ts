@@ -94,6 +94,7 @@ export function useConversation(initial: Conversation) {
           timestamp: Date.now(),
           confidence: translation.confidence,
           providerUsed: translation.providerUsed,
+          debug: translation.debug,
         }
 
         lastSpeakerRef.current = resolvedSpeaker
