@@ -53,6 +53,7 @@ export class AITranslationProvider implements TranslationProvider {
       detectedLang: (data.detectedLang as TranslationResult['detectedLang']) || req.sourceLang,
       confidence: typeof data.confidence === 'number' ? data.confidence : 0.9,
       providerUsed: this.name,
+      debug: data.note || undefined,
     }
   }
 }
