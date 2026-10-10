@@ -141,3 +141,25 @@ Un relecteur distinct, qui n'avait pas écrit le code, a audité l'application s
 | Faible | consentement daté dans le futur, clé d'idempotence de remboursement figée 24 h | date future rejetée ; clé renouvelée toutes les 10 min |
 
 **Non corrigé, documenté** : la limitation de débit du login repose sur `x-forwarded-for`, fiable derrière Vercel mais pas en auto-hébergement sans proxy de confiance. Le paramètre `?erreur=` de l'admin affiche un texte libre (échappé, donc sans risque d'injection). L'action n'est accessible qu'une fois connecté.
+
+## 11. Aperçu déployé (Vercel)
+
+| Élément | Valeur |
+|---|---|
+| URL | https://sfp-portfolio-zeta.vercel.app |
+| Accès | protégé par la connexion Vercel du compte `lavarcontact-cloud` sur **toutes** les URL, y compris les médias (vérifié depuis Internet : un visiteur anonyme voit "Log in to Vercel") |
+| Projet Vercel | `sfp-portfolio` (prj_qbWUxfESlswZZYvzyB9hAsXDvDca), séparé d'`avant-la-sortie` |
+| Source | dépôt `lavarcontact-cloud/avant-la-sortie`, branche `claude/portfolio-v1`, répertoire racine `portfolio`, Next.js, région `cdg1` |
+| Variables d'environnement | aucune : pas de base de données, pas de secret, pas de Stripe |
+| Coût | offre Hobby (gratuite), aucune option payante |
+
+**Comportement sans base de données** (vérifié par `e2e/apercu.spec.ts` sur un build de production sans aucune variable, 13 tests réussis) :
+- devis : un message indique que le formulaire n'est pas activé et renvoie vers l'e-mail ; aucun faux succès, et la saisie est conservée ;
+- espace privé : la connexion répond "pas activé sur cette version d'aperçu" ; toutes les pages `/admin/*` redirigent vers la connexion, même avec un cookie falsifié ;
+- paiement : `/paiement/*` renvoie 404, le webhook Stripe renvoie 503 ;
+- rétractation : message et e-mail à la place du formulaire ;
+- consentement : le choix est mémorisé dans le navigateur, mais aucune preuve n'est journalisée et aucune statistique n'est stockée.
+
+**Ce qui n'a pas pu être testé sur l'URL déployée elle-même** : le réseau de l'environnement de travail bloque `*.vercel.app`, et les outils Vercel de contournement temporaire de la protection, comme la lecture des journaux de build, renvoient 403 avec ce connecteur. Le contenu a été testé sur un build de production du même commit, depuis un clone vierge ; l'URL déployée a été contrôlée de l'extérieur (en ligne et protégée).
+
+**Isolation** : aucun réglage d'`avant-la-sortie` n'a été modifié (date de dernière modification des réglages, domaines et protection identiques avant et après). Comme ce projet est relié au dépôt, Vercel y crée automatiquement des déploiements d'**aperçu** de la branche `claude/portfolio-v1`. Ils n'ont aucun effet sur sa production ni sur ses domaines, et restent derrière la connexion Vercel. Pour les éviter, il faudrait modifier un réglage d'`avant-la-sortie` ("Ignored Build Step"), ce qui n'a pas été fait sans votre accord.
