@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { clearSessionCookie, requireAdmin, setSessionCookie, verifyPassword } from "@/lib/admin-auth";
 import { POLICY_VERSION } from "@/lib/consent";
-import { one, query } from "@/lib/db";
+import { dbConfigured, one, query } from "@/lib/db";
 import { serverEnv } from "@/lib/env";
 import { closeOpenSessions, createOrder, refundPayment } from "@/lib/payments";
 import { rateLimit } from "@/lib/server-utils";
@@ -19,6 +19,7 @@ async function clientKey() {
 }
 
 export async function login(_: unknown, formData: FormData): Promise<{ error?: string }> {
+  if (!dbConfigured()) return { error: "L'espace privé n'est pas activé sur cette version d'aperçu (aucune base de données)." };
   // 5 tentatives par quart d'heure et par IP, puis blocage temporaire.
   if (!(await rateLimit(`login:${await clientKey()}`, 5, 900))) return { error: "Trop de tentatives. Réessayez dans 15 minutes." };
   const password = String(formData.get("password") ?? "");

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { site } from "@/lib/content";
+import { dbConfigured } from "@/lib/db";
 import { rateLimit } from "@/lib/server-utils";
 import { ORDER_STATUS_LABEL, PAYMENT_STATUS_LABEL, createCheckout, formatEuros, getOrderByToken, getPayments, nextDue, paidCents, stripeConfigured } from "@/lib/payments";
 
@@ -27,7 +28,7 @@ async function pay(formData: FormData) {
 export default async function PaymentPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { token } = await params;
   const sp = await searchParams;
-  if (!/^[A-Za-z0-9_-]{20,64}$/.test(token)) notFound();
+  if (!/^[A-Za-z0-9_-]{20,64}$/.test(token) || !dbConfigured()) notFound();
   const order = await getOrderByToken(token);
   if (!order) notFound();
   const payments = await getPayments(order.id);

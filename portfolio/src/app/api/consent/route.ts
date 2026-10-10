@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { query } from "@/lib/db";
+import { dbConfigured, query } from "@/lib/db";
 import { ipKey, json, rateLimit, sameOrigin } from "@/lib/server-utils";
 
 const body = z.object({
@@ -12,6 +12,8 @@ const body = z.object({
 /** Journal de preuve des choix de consentement (sans IP, sans identité). */
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return json({ error: "origin" }, 403);
+  // Aperçu sans base : le choix reste mémorisé dans le navigateur, la preuve n'est pas journalisée.
+  if (!dbConfigured()) return json({ ok: false, reason: "no-db" }, 202);
   if (!(await rateLimit(`consent:${ipKey(req)}`, 30, 3600))) return json({ error: "rate" }, 429);
   const parsed = body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return json({ error: "schema" }, 400);

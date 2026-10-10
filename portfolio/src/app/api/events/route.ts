@@ -1,5 +1,5 @@
 import { CONSENT_COOKIE, parseConsent } from "@/lib/consent";
-import { query } from "@/lib/db";
+import { dbConfigured, query } from "@/lib/db";
 import { ingestBatch, isBot, validateEvent } from "@/lib/analytics/events";
 import { ipKey, json, rateLimit, sameOrigin } from "@/lib/server-utils";
 import { readAdminSession } from "@/lib/admin-auth";
@@ -14,6 +14,7 @@ import { readAdminSession } from "@/lib/admin-auth";
  */
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return json({ error: "origin" }, 403);
+  if (!dbConfigured()) return json({ stored: 0, reason: "no-db" }, 202); // aperçu sans base
   const cookie = req.headers.get("cookie") ?? "";
   const raw = cookie.split(/;\s*/).find((c) => c.startsWith(CONSENT_COOKIE + "="))?.slice(CONSENT_COOKIE.length + 1);
   if (!parseConsent(raw)?.choices.audience) return json({ stored: 0, reason: "no-consent" }, 202);

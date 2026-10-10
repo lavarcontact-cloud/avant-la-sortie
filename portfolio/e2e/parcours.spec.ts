@@ -8,6 +8,8 @@ import Stripe from "stripe";
  * PostgreSQL (DATABASE_URL de .env.local). Les vérifications portent sur ce
  * qui est réellement écrit en base, pas seulement sur l'affichage.
  */
+test.skip(!!process.env.E2E_PREVIEW, "suite complète : nécessite la base de données locale");
+
 const sql = postgres(process.env.E2E_DATABASE_URL ?? "postgres://portfolio:portfolio@localhost:5432/portfolio", { onnotice: () => {} });
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? "e2e-test-password-123";
 const WEBHOOK_SECRET = process.env.E2E_WEBHOOK_SECRET ?? "whsec_e2e_local_secret";

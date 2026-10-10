@@ -49,6 +49,15 @@ async function create(): Promise<Driver> {
   return drv;
 }
 
+/**
+ * Vrai si une base est utilisable : DATABASE_URL défini, ou hors production
+ * (PGlite). Faux sur un aperçu déployé sans base : les fonctions qui en
+ * dépendent affichent alors un message clair au lieu d'échouer.
+ */
+export function dbConfigured(): boolean {
+  return !!process.env.DATABASE_URL || process.env.NODE_ENV !== "production" || !!process.env.ALLOW_PGLITE;
+}
+
 export function db(): Promise<Driver> {
   if (!driver) driver = create().catch((e) => { driver = null; throw e; });
   return driver;

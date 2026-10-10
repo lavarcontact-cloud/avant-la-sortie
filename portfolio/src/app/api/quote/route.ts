@@ -1,13 +1,13 @@
 import crypto from "node:crypto";
 import { site } from "@/lib/content";
-import { query } from "@/lib/db";
+import { dbConfigured, query } from "@/lib/db";
 import { MIN_FILL_MS, quoteInput } from "@/lib/quote";
 import { ipKey, json, makeRef, notify, rateLimit, recordServerEvent, sameOrigin } from "@/lib/server-utils";
 
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return json({ error: "Origine refusée." }, 403);
   // Aperçu sans base de données : message clair plutôt qu'une erreur serveur.
-  if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
+  if (!dbConfigured()) {
     return json({ error: `Le formulaire n'est pas encore activé sur cette version d'aperçu. Écrivez directement à ${site.contact.email}.` }, 503);
   }
   if (!(await rateLimit(`quote:${ipKey(req)}`, 5, 3600))) {

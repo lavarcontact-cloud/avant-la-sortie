@@ -3,7 +3,8 @@ import crypto from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { query } from "@/lib/db";
+import { dbConfigured, query } from "@/lib/db";
+import { site } from "@/lib/content";
 import { makeRef, notify, rateLimit } from "@/lib/server-utils";
 
 export const metadata: Metadata = { title: "Rétractation", alternates: { canonical: "/retractation" } };
@@ -36,6 +37,16 @@ async function submit(formData: FormData) {
  */
 export default async function RetractationPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
+  if (!dbConfigured()) {
+    return (
+      <div className="mx-auto max-w-xl px-5 pb-10 pt-20 sm:pt-24">
+        <h1 className="t-display text-4xl">Se rétracter</h1>
+        <p role="status" className="mt-6 rounded-2xl border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 p-4">
+          Le formulaire en ligne n'est pas activé sur cette version d'aperçu. Pour toute rétractation, écrivez à <a className="underline" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="mx-auto max-w-xl px-5 pb-10 pt-20 sm:pt-24">
       <p className="t-eyebrow">Consommateurs</p>
