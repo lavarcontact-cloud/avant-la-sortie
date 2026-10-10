@@ -64,11 +64,18 @@ test("images et vidéos se chargent, la vidéo du flux joue", async ({ page, req
   await refuseCookies(page);
   const v = page.locator("article.feed-item").first().locator("video");
   await expect.poll(() => v.evaluate((el: HTMLVideoElement) => el.currentTime), { timeout: 15_000 }).toBeGreaterThan(0.2);
-  const imgs = await page.goto("/photo").then(() => page.locator("img").evaluateAll((els) => els.slice(0, 8).map((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0)));
-  expect(imgs.every(Boolean)).toBe(true);
+  // Images visibles à l'écran (les autres se chargent au défilement, c'est voulu).
+  await page.goto("/photo");
+  await page.waitForLoadState("networkidle");
+  const visible = await page.locator("main img").evaluateAll((els) =>
+    els.filter((e) => e.getBoundingClientRect().top < innerHeight).map((e) => (e as HTMLImageElement).complete && (e as HTMLImageElement).naturalWidth > 0),
+  );
+  expect(visible.length).toBeGreaterThan(1);
+  expect(visible.every(Boolean)).toBe(true);
 });
 
-test("navigation tactile : dock, bulle, projet, devis pré-rempli", async ({ page }) => {
+test("navigation tactile : dock, bulle, projet, devis pré-rempli", async ({ page }, info) => {
+  test.skip(info.project.name !== "mobile", "écran tactile : profil mobile uniquement");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await refuseCookies(page);
