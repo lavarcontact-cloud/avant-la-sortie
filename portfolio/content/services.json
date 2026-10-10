@@ -1,0 +1,70 @@
+[
+  {
+    "slug": "clip",
+    "title": "Réalisation de clip",
+    "pitch": "Du synopsis à l'étalonnage : écriture, préparation, tournage, montage.",
+    "deliverables": [
+      "Synopsis et moodboard",
+      "Repérages et préparation",
+      "Tournage",
+      "Montage et étalonnage",
+      "Déclinaisons formats réseaux (9:16, 1:1)"
+    ],
+    "priceFromCents": null,
+    "depositPercent": 30,
+    "relatedProjects": [
+      "v2v-crapuleux",
+      "timal-760",
+      "leto-enleve-tes-pessas"
+    ]
+  },
+  {
+    "slug": "photo",
+    "title": "Photographie",
+    "pitch": "Portraits, photos presse, photos de plateau, covers.",
+    "deliverables": [
+      "Shooting",
+      "Sélection et retouche",
+      "Fichiers HD et formats réseaux"
+    ],
+    "priceFromCents": null,
+    "depositPercent": 30,
+    "relatedProjects": [
+      "photographie-plateau",
+      "portraits",
+      "covers"
+    ]
+  },
+  {
+    "slug": "direction-artistique",
+    "title": "Direction artistique",
+    "pitch": "Une identité visuelle cohérente d'une sortie à l'autre : univers, références, équipe créative.",
+    "deliverables": [
+      "Analyse de l'univers existant",
+      "Moodboard et références",
+      "Choix des profils créatifs",
+      "Suivi de production"
+    ],
+    "priceFromCents": null,
+    "depositPercent": 30,
+    "relatedProjects": [
+      "brk-developpement"
+    ]
+  },
+  {
+    "slug": "contenu",
+    "title": "Contenus réseaux et making-of",
+    "pitch": "Coulisses, extraits, formats verticaux pour accompagner une sortie.",
+    "deliverables": [
+      "Captation coulisses",
+      "Montage formats courts",
+      "Déclinaisons 9:16"
+    ],
+    "priceFromCents": null,
+    "depositPercent": 30,
+    "relatedProjects": [
+      "dexter-hmc-91022",
+      "la-var"
+    ]
+  }
+]

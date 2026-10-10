@@ -1,0 +1,103 @@
+{
+  "name": "Sébastien Fula-Pitu",
+  "tagline": "Réalisateur, photographe, monteur.",
+  "baseline": "Du studio au plateau : des images pour le rap et la culture urbaine.",
+  "bio": [
+    "Je n'ai pas commencé par un poste. J'ai commencé par un studio.",
+    "Né à Millau, dans l'Aveyron. Premières sessions de production dès le lycée, puis un studio cofondé en 2021 avec l'artiste ZS, au Bois-l'Abbé, à Champigny.",
+    "Devant la caméra d'abord, sur le clip \"Noir\" de L2B, puis derrière : photographie, synopsis, direction artistique, co-réalisation. La rencontre avec Nocolor change tout.",
+    "Aujourd'hui : réalisation, photo, montage, développement d'artistes, et La Var, un média rap et culture urbaine."
+  ],
+  "disciplines": [
+    "Réalisation",
+    "Photographie",
+    "Cadrage",
+    "Montage",
+    "Direction artistique",
+    "Développement d'artiste"
+  ],
+  "tools": [
+    "Premiere Pro",
+    "After Effects",
+    "Photoshop",
+    "Lightroom",
+    "Anglais professionnel"
+  ],
+  "contact": {
+    "email": "sebastienfp@hotmail.com",
+    "phone": "07 53 74 55 00",
+    "phoneE164": "+33753745500",
+    "city": "Champigny-sur-Marne / Paris"
+  },
+  "socials": [],
+  "timeline": [
+    {
+      "year": "Lycée",
+      "title": "Premières sessions",
+      "detail": "Production, notamment avec Bolemvn."
+    },
+    {
+      "year": "2021",
+      "title": "Studio",
+      "detail": "Cofondé avec ZS au Bois-l'Abbé (94)."
+    },
+    {
+      "year": "2021 →",
+      "title": "Image",
+      "detail": "L2B, Leto, V2V, Timal, avec Nocolor."
+    },
+    {
+      "year": "→",
+      "title": "Développement d'artiste",
+      "detail": "BRK."
+    },
+    {
+      "year": "2025 →",
+      "title": "Média",
+      "detail": "La Var."
+    }
+  ],
+  "stats": [
+    {
+      "label": "Abonnés La Var",
+      "value": "11 365",
+      "context": "Instagram",
+      "asOf": "2026-08-28",
+      "source": "Instagram Insights (site Avant la sortie)"
+    },
+    {
+      "label": "Artistes mis en avant",
+      "value": "100+",
+      "context": "par La Var",
+      "asOf": "2026-08-28",
+      "source": "Site Avant la sortie"
+    },
+    {
+      "label": "Spectateurs sur 90 jours",
+      "value": "105 979",
+      "context": "La Var, Instagram",
+      "asOf": "2026-08-28",
+      "source": "Instagram Insights (site Avant la sortie)"
+    },
+    {
+      "label": "Abonnés BRK",
+      "value": "+31 %",
+      "context": "de 8 000 à 10 500",
+      "asOf": "2026",
+      "source": "Site Avant la sortie"
+    }
+  ],
+  "legal": {
+    "publisherName": "Sébastien Fula-Pitu",
+    "status": null,
+    "siret": null,
+    "address": null,
+    "vatNote": null,
+    "host": {
+      "name": "Vercel Inc.",
+      "address": "440 N Barranca Ave #4133, Covina, CA 91723, États-Unis",
+      "contact": "https://vercel.com/contact"
+    },
+    "mediator": null
+  }
+}

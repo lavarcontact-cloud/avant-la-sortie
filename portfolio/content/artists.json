@@ -1,0 +1,347 @@
+[
+  {
+    "slug": "gazo",
+    "name": "Gazo",
+    "relation": "Apparition dans le clip \"Maybach\" de Landy ft. Gazo. Portrait (paternité à confirmer).",
+    "tint": "#C0632A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-gazo-2.jpg"
+  },
+  {
+    "slug": "landy",
+    "name": "Landy",
+    "relation": "Apparition dans son clip \"Maybach\" ft. Gazo.",
+    "tint": "#C9A26B",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-landy.jpg"
+  },
+  {
+    "slug": "l2b",
+    "name": "L2B",
+    "relation": "Acteur principal du clip \"Noir\". Passé par le studio du Bois-l'Abbé.",
+    "tint": "#FF5B3C",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    }
+  },
+  {
+    "slug": "brk",
+    "name": "BRK",
+    "relation": "Développement artistique, DA et étalonnage de Katimini, Everyday, Flex.",
+    "tint": "#D0307A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/brk-photo-1.jpg"
+  },
+  {
+    "slug": "leto",
+    "name": "Leto",
+    "relation": "Photographie, DA image et synopsis de \"Enlève tes Pessas\".",
+    "tint": "#FE6000",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-leto-presse.jpg"
+  },
+  {
+    "slug": "v2v",
+    "name": "V2V",
+    "relation": "Co-réalisation du clip \"Crapuleux\".",
+    "tint": "#7FA7FF",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    }
+  },
+  {
+    "slug": "timal",
+    "name": "Timal",
+    "relation": "Synopsis et moodboard pour \"760\".",
+    "tint": "#E0103F",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/timal-synopsis-01.jpg"
+  },
+  {
+    "slug": "mhd",
+    "name": "MHD",
+    "relation": "Apparition dans un clip.",
+    "tint": "#3FB67A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    }
+  },
+  {
+    "slug": "dexter-hmc",
+    "name": "Dexter HMC",
+    "relation": "Images et photo de plateau de \"91022\".",
+    "tint": "#B9B27A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/image-photo-dexterhmc.jpg"
+  },
+  {
+    "slug": "la-hasba",
+    "name": "La Hasba",
+    "relation": "Featuring sur \"91022\" (Dexter HMC), images de tournage.",
+    "tint": "#9C97A6",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    }
+  },
+  {
+    "slug": "la-mano",
+    "name": "La Mano 1.9",
+    "relation": "Photographe accrédité sur son passage au festival FCNY.",
+    "tint": "#5AC8FA",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    }
+  },
+  {
+    "slug": "klm",
+    "name": "KLM",
+    "relation": "Photo de tournage du clip \"100K\". Mis en avant par La Var.",
+    "tint": "#B07A5E",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/klm-100k-photo.jpg"
+  },
+  {
+    "slug": "hld",
+    "name": "HLD",
+    "relation": "Photo presse.",
+    "tint": "#C9A27A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/hld-photo-presse.jpg"
+  },
+  {
+    "slug": "bilouki",
+    "name": "Bilouki",
+    "relation": "Shoot photo \"Paire Assortie\".",
+    "tint": "#E06A1A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/image-photo-bilouki.jpg"
+  },
+  {
+    "slug": "batbat",
+    "name": "Batbat",
+    "relation": "Photo de plateau.",
+    "tint": "#6B8F6B",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/image-photo-batbat.jpg"
+  },
+  {
+    "slug": "rvfleuze",
+    "name": "Rvfleuze",
+    "relation": "Photo de plateau. Mis en avant par La Var.",
+    "tint": "#D9B79C",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/image-photo-rvfleuze.jpg"
+  },
+  {
+    "slug": "koba-lad",
+    "name": "Koba LaD",
+    "relation": "Portrait (paternité à confirmer).",
+    "tint": "#E09040",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-koba-lad.jpg"
+  },
+  {
+    "slug": "bianca-costa",
+    "name": "Bianca Costa",
+    "relation": "Photo de scène (paternité à confirmer).",
+    "tint": "#4A90A8",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-bianca-costa.jpg"
+  },
+  {
+    "slug": "jolagreen",
+    "name": "Jolagreen",
+    "relation": "Portrait (paternité à confirmer).",
+    "tint": "#B8402A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-jolagreen.jpg"
+  },
+  {
+    "slug": "mig",
+    "name": "MIG",
+    "relation": "Portrait (paternité à confirmer).",
+    "tint": "#B0601A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-mig.jpg"
+  },
+  {
+    "slug": "duo-bahysa",
+    "name": "Duo Bahysa",
+    "relation": "Portrait (paternité à confirmer).",
+    "tint": "#5ACACD",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/photo-duo-bahysa.jpg"
+  },
+  {
+    "slug": "nono-la-grinta",
+    "name": "Concert",
+    "relation": "Photo de concert (artiste et paternité à confirmer).",
+    "tint": "#2A8AA0",
+    "links": [],
+    "published": false,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/concert-photo-nono-lagrinta.jpg"
+  },
+  {
+    "slug": "negrito",
+    "name": "Negrito",
+    "relation": "Cover \"Stavo\" (rôle à préciser).",
+    "tint": "#29A4B2",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/image-cover-negrito-stavo.jpg"
+  },
+  {
+    "slug": "blackd",
+    "name": "BlackD",
+    "relation": "Cover (rôle à préciser).",
+    "tint": "#9A969A",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/image-cover-blackd-leto.jpg"
+  },
+  {
+    "slug": "fave-five",
+    "name": "Fave Five",
+    "relation": "Cover (rôle à préciser).",
+    "tint": "#E0A030",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/image-cover-fave-five.jpg"
+  },
+  {
+    "slug": "la-var",
+    "name": "La Var",
+    "relation": "Média rap et culture urbaine fondé par Sébastien.",
+    "tint": "#FF5B3C",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "portrait": "/media/photos/lavar-post-klm.jpg"
+  },
+  {
+    "slug": "studio-bois-labbe",
+    "name": "Studio du Bois-l'Abbé",
+    "relation": "Studio cofondé en 2021 avec ZS, à Champigny.",
+    "tint": "#FF5B3C",
+    "links": [],
+    "published": true,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    }
+  }
+]

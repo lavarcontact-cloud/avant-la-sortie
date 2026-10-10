@@ -1,0 +1,949 @@
+[
+  {
+    "slug": "l2b-noir",
+    "title": "\"Noir\"",
+    "work": "Noir",
+    "artists": [
+      "l2b"
+    ],
+    "type": "clip",
+    "roles": [
+      "Acteur principal"
+    ],
+    "summary": "Premier rôle dans le clip \"Noir\" de L2B : le point de départ, devant la caméra, avant de passer derrière.",
+    "body": [
+      "Le clip qui ouvre le parcours : Sébastien y tient le rôle principal. C'est aussi là que commence la rencontre avec l'équipe Nocolor, qui va tout changer pour la suite.",
+      "Extrait : compilation des passages où il apparaît à l'écran."
+    ],
+    "cover": "/media/posters/l2b-noir-cuts.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "l2b-noir-cuts",
+        "src": "/media/videos/l2b-noir-cuts.mp4",
+        "poster": "/media/posters/l2b-noir-cuts.jpg",
+        "width": 640,
+        "height": 360,
+        "durationSec": 76,
+        "hasAudio": false,
+        "alt": "Extraits du clip Noir de L2B, Sébastien à l'écran"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artiste",
+        "name": "L2B"
+      },
+      {
+        "role": "Acteur principal",
+        "name": "Sébastien Fula-Pitu"
+      }
+    ],
+    "inFeed": true,
+    "order": 10,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Année exacte et réalisateur à préciser."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "landy-gazo-maybach",
+    "title": "\"Maybach\"",
+    "work": "Maybach",
+    "artists": [
+      "landy",
+      "gazo"
+    ],
+    "type": "clip",
+    "roles": [
+      "Apparition à l'écran"
+    ],
+    "summary": "Apparition dans le clip \"Maybach\" de Landy ft. Gazo.",
+    "body": [
+      "Passages du clip officiel où Sébastien apparaît à l'écran."
+    ],
+    "cover": "/media/posters/landy-gazo-maybach-cuts.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "landy-gazo-maybach-cuts",
+        "src": "/media/videos/landy-gazo-maybach-cuts.mp4",
+        "poster": "/media/posters/landy-gazo-maybach-cuts.jpg",
+        "width": 640,
+        "height": 360,
+        "durationSec": 14,
+        "hasAudio": false,
+        "alt": "Extraits du clip Maybach de Landy et Gazo"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artistes",
+        "name": "Landy ft. Gazo"
+      }
+    ],
+    "inFeed": true,
+    "order": 20,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "HANDOFF : \"passages précis où il apparaît comme acteur\". Rôle exact (figuration, rôle) à préciser."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "mhd-afro-trap-11",
+    "title": "\"Afro Trap 11\"",
+    "work": "Afro Trap 11",
+    "artists": [
+      "mhd"
+    ],
+    "type": "clip",
+    "roles": [
+      "Apparition à l'écran"
+    ],
+    "summary": "Apparition dans un clip de MHD.",
+    "body": [
+      "Court passage du clip officiel où Sébastien apparaît à l'écran."
+    ],
+    "cover": "/media/posters/mhd-afrotrap11-cuts.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "mhd-afrotrap11-cuts",
+        "src": "/media/videos/mhd-afrotrap11-cuts.mp4",
+        "poster": "/media/posters/mhd-afrotrap11-cuts.jpg",
+        "width": 640,
+        "height": 360,
+        "durationSec": 5,
+        "hasAudio": false,
+        "alt": "Extrait d'un clip de MHD"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artiste",
+        "name": "MHD"
+      }
+    ],
+    "inFeed": false,
+    "order": 30,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Titre déduit du nom de fichier (mhd-afrotrap11) : titre officiel exact à confirmer."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "leto-enleve-tes-pessas",
+    "title": "\"Enlève tes Pessas\"",
+    "work": "Enlève tes Pessas",
+    "artists": [
+      "leto"
+    ],
+    "type": "direction-artistique",
+    "roles": [
+      "Photographie",
+      "DA image",
+      "Synopsis"
+    ],
+    "summary": "Leto ft. Kaaris, Jksn et La Mano 1.9 : photographie, DA image et synopsis du clip, écrit pour Nocolor.",
+    "body": [
+      "Le synopsis pose l'intention avant le tournage : un studio photo, des plans caméra de surveillance, des effets VHS, une caméra thermique et de la photo en rafale pour dynamiser chaque séquence.",
+      "Il a été écrit pour la réalisation de Cherif Nocolor."
+    ],
+    "cover": "/media/photos/image-cover-leto-pessas.jpg",
+    "media": [
+      {
+        "kind": "image",
+        "id": "image-cover-leto-pessas",
+        "src": "/media/photos/image-cover-leto-pessas.jpg",
+        "width": 700,
+        "height": 700,
+        "alt": "Cover Enlève tes Pessas, Leto ft. Kaaris, Jksn, La Mano 1.9"
+      },
+      {
+        "kind": "image",
+        "id": "leto-pessas-synopsis-01",
+        "src": "/media/photos/leto-pessas-synopsis-01.jpg",
+        "width": 1200,
+        "height": 675,
+        "alt": "Synopsis du clip, page 1 : Leto ft. Kaaris, Jksn ft. La Mano"
+      },
+      {
+        "kind": "image",
+        "id": "leto-pessas-synopsis-02",
+        "src": "/media/photos/leto-pessas-synopsis-02.jpg",
+        "width": 1200,
+        "height": 675,
+        "alt": "Synopsis du clip, page 2 : le pitch"
+      },
+      {
+        "kind": "image",
+        "id": "photo-leto-presse",
+        "src": "/media/photos/photo-leto-presse.jpg",
+        "width": 800,
+        "height": 1184,
+        "alt": "Portrait de Leto en sweat orange"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artistes",
+        "name": "Leto ft. Kaaris, Jksn, La Mano 1.9"
+      },
+      {
+        "role": "Réalisation",
+        "name": "Cherif Nocolor"
+      },
+      {
+        "role": "Photographie, DA image, synopsis",
+        "name": "Sébastien Fula-Pitu"
+      }
+    ],
+    "inFeed": false,
+    "order": 15,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Crédits du synopsis visibles sur le document (\"Directed by Cherif Nocolor\"). Paternité du portrait presse à confirmer."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "v2v-crapuleux",
+    "title": "\"Crapuleux\"",
+    "work": "Crapuleux",
+    "artists": [
+      "v2v"
+    ],
+    "type": "making-of",
+    "roles": [
+      "Co-réalisation",
+      "Cadrage"
+    ],
+    "summary": "Co-réalisation du clip \"Crapuleux\" de V2V. Images du tournage, Sébastien à la caméra.",
+    "body": [
+      "Coulisses du tournage : la scène de groupe en pleine rue, caméra en main."
+    ],
+    "cover": "/media/posters/scene-rue-groupe.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "scene-rue-groupe",
+        "src": "/media/videos/scene-rue-groupe.mp4",
+        "poster": "/media/posters/scene-rue-groupe.jpg",
+        "width": 480,
+        "height": 854,
+        "durationSec": 14,
+        "hasAudio": false,
+        "alt": "Coulisses du tournage de Crapuleux, scène de groupe dans la rue"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artiste",
+        "name": "V2V"
+      },
+      {
+        "role": "Co-réalisation",
+        "name": "Sébastien Fula-Pitu"
+      }
+    ],
+    "inFeed": true,
+    "order": 12,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Co-réalisateur(s) à créditer."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "timal-760",
+    "title": "\"760\"",
+    "work": "760",
+    "artists": [
+      "timal"
+    ],
+    "type": "direction-artistique",
+    "roles": [
+      "Synopsis",
+      "Moodboard"
+    ],
+    "summary": "Synopsis et moodboard pour un projet de clip de Timal, réalisation Cherif Nocolor.",
+    "body": [
+      "Un document de deux pages : l'univers, le lifestyle de l'artiste, les lieux, les effets (VHS, quadrillage) et le rythme du montage, posés avant le tournage."
+    ],
+    "cover": "/media/photos/timal-synopsis-01.jpg",
+    "media": [
+      {
+        "kind": "image",
+        "id": "timal-synopsis-01",
+        "src": "/media/photos/timal-synopsis-01.jpg",
+        "width": 1200,
+        "height": 675,
+        "alt": "Synopsis Timal, page 1 : portrait de Timal et titre"
+      },
+      {
+        "kind": "image",
+        "id": "timal-synopsis-02",
+        "src": "/media/photos/timal-synopsis-02.jpg",
+        "width": 1200,
+        "height": 675,
+        "alt": "Synopsis Timal, page 2 : texte du concept"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artiste",
+        "name": "Timal"
+      },
+      {
+        "role": "Réalisation",
+        "name": "Cherif Nocolor"
+      },
+      {
+        "role": "Synopsis / moodboard",
+        "name": "Sébastien Fula-Pitu"
+      }
+    ],
+    "inFeed": false,
+    "order": 40,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Préciser si le clip a été tourné sur cette base."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "brk-developpement",
+    "title": "BRK, développement artistique",
+    "artists": [
+      "brk"
+    ],
+    "type": "developpement-artiste",
+    "roles": [
+      "Développement d'artiste",
+      "Direction artistique",
+      "Étalonnage (DA)"
+    ],
+    "summary": "Renouveler l'environnement créatif d'un artiste sans toucher à son identité : nouvelle production, nouveaux beatmakers, nouvelles images.",
+    "body": [
+      "Problème : même réalisateur, mêmes décors, des sonorités qui reviennent. Un risque de saturation dans un flux de sorties dense.",
+      "Décision : renouveler l'environnement créatif, pas l'identité de l'artiste.",
+      "Action : passage de Sponge à Neweyes Production sur les réalisations suivantes, nouveaux beatmakers (ABL, Achille GX).",
+      "Résultat : de 8 000 à 10 500 abonnés (+31 %).",
+      "Trois clips, trois directions d'image : Katimini (chaud, nuit), Everyday (froid, contre-jour), Flex (vert néon)."
+    ],
+    "cover": "/media/posters/brk-katimini-highlights.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "brk-katimini-highlights",
+        "src": "/media/videos/brk-katimini-highlights.mp4",
+        "poster": "/media/posters/brk-katimini-highlights.jpg",
+        "width": 640,
+        "height": 432,
+        "durationSec": 19,
+        "hasAudio": false,
+        "alt": "Highlights du clip Katimini de BRK, étalonnage chaud de nuit",
+        "caption": "Katimini"
+      },
+      {
+        "kind": "video",
+        "id": "brk-everyday-highlights",
+        "src": "/media/videos/brk-everyday-highlights.mp4",
+        "poster": "/media/posters/brk-everyday-highlights.jpg",
+        "width": 640,
+        "height": 460,
+        "durationSec": 18,
+        "hasAudio": false,
+        "alt": "Highlights du clip Everyday de BRK, contre-jour froid",
+        "caption": "Everyday"
+      },
+      {
+        "kind": "video",
+        "id": "brk-flex-highlights",
+        "src": "/media/videos/brk-flex-highlights.mp4",
+        "poster": "/media/posters/brk-flex-highlights.jpg",
+        "width": 640,
+        "height": 360,
+        "durationSec": 19,
+        "hasAudio": false,
+        "alt": "Highlights du clip Flex de BRK, ambiance vert néon",
+        "caption": "Flex"
+      },
+      {
+        "kind": "image",
+        "id": "brk-photo-1",
+        "src": "/media/photos/brk-photo-1.jpg",
+        "width": 360,
+        "height": 640,
+        "alt": "BRK en studio, canapé sous lumière rose"
+      },
+      {
+        "kind": "image",
+        "id": "brk-photo-2",
+        "src": "/media/photos/brk-photo-2.jpg",
+        "width": 360,
+        "height": 640,
+        "alt": "BRK en studio"
+      },
+      {
+        "kind": "image",
+        "id": "brk-photo-3",
+        "src": "/media/photos/brk-photo-3.jpg",
+        "width": 360,
+        "height": 640,
+        "alt": "Session studio avec BRK"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artiste",
+        "name": "BRK"
+      },
+      {
+        "role": "Production vidéo",
+        "name": "Sponge, puis Neweyes Production"
+      },
+      {
+        "role": "Beatmakers",
+        "name": "ABL, Achille GX"
+      }
+    ],
+    "inFeed": true,
+    "order": 5,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Chiffres d'abonnés issus du site de candidature : préciser plateforme et dates."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "dexter-hmc-91022",
+    "title": "\"91022\"",
+    "work": "91022",
+    "artists": [
+      "dexter-hmc",
+      "la-hasba"
+    ],
+    "type": "making-of",
+    "roles": [
+      "Images de tournage",
+      "Photographe de plateau"
+    ],
+    "summary": "Dexter HMC ft. La Hasba : images et photos du tournage.",
+    "body": [
+      "Rushs filmés par Sébastien sur le plateau, et photo de plateau du groupe."
+    ],
+    "cover": "/media/posters/dexter-lahasba-bts.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "dexter-lahasba-bts",
+        "src": "/media/videos/dexter-lahasba-bts.mp4",
+        "poster": "/media/posters/dexter-lahasba-bts.jpg",
+        "width": 480,
+        "height": 854,
+        "durationSec": 28,
+        "hasAudio": false,
+        "alt": "Images de tournage du clip 91022 de Dexter HMC et La Hasba"
+      },
+      {
+        "kind": "image",
+        "id": "image-photo-dexterhmc",
+        "src": "/media/photos/image-photo-dexterhmc.jpg",
+        "width": 800,
+        "height": 1000,
+        "alt": "Photo de plateau, Dexter HMC et son groupe"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Artistes",
+        "name": "Dexter HMC ft. La Hasba"
+      }
+    ],
+    "inFeed": true,
+    "order": 25,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Visages floutés sur la photo d'origine : conserver tel quel."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "fcny-la-mano",
+    "title": "Festival FCNY",
+    "artists": [
+      "la-mano"
+    ],
+    "type": "evenement",
+    "roles": [
+      "Photographe accrédité"
+    ],
+    "summary": "Accréditation photo pour Générations au festival FCNY, sur l'apparition de La Mano 1.9.",
+    "body": [
+      "Images captées depuis la fosse et la scène pendant le passage de La Mano 1.9."
+    ],
+    "cover": "/media/posters/festival-fcny-lamano.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "festival-fcny-lamano",
+        "src": "/media/videos/festival-fcny-lamano.mp4",
+        "poster": "/media/posters/festival-fcny-lamano.jpg",
+        "width": 480,
+        "height": 854,
+        "durationSec": 27.3,
+        "hasAudio": false,
+        "alt": "Images du festival FCNY pendant le passage de La Mano 1.9"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Pour",
+        "name": "Générations"
+      }
+    ],
+    "inFeed": true,
+    "order": 35,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Année du festival à préciser."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "la-var",
+    "title": "La Var",
+    "artists": [
+      "la-var"
+    ],
+    "type": "media",
+    "roles": [
+      "Création du média",
+      "Ligne éditoriale",
+      "Scouting"
+    ],
+    "summary": "Un média rap et culture urbaine : prospection, sourcing, contact, mise en avant.",
+    "body": [
+      "Un an d'existence, plus de 100 artistes mis en avant.",
+      "Artistes mis en avant, entre autres : Rvfleuze, LMT, KLM, Darlingchouchou, Shippeur, Supremenova, Eliah ZS."
+    ],
+    "cover": "/media/photos/lavar-post-klm.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "lavar-rnboi-preview",
+        "src": "/media/videos/lavar-rnboi-preview.mp4",
+        "poster": "/media/posters/lavar-rnboi-preview.jpg",
+        "width": 480,
+        "height": 854,
+        "durationSec": 7,
+        "hasAudio": false,
+        "alt": "Extrait de contenu publié par La Var"
+      },
+      {
+        "kind": "video",
+        "id": "lavar-rvfleuze-preview",
+        "src": "/media/videos/lavar-rvfleuze-preview.mp4",
+        "poster": "/media/posters/lavar-rvfleuze-preview.jpg",
+        "width": 480,
+        "height": 854,
+        "durationSec": 7,
+        "hasAudio": false,
+        "alt": "Extrait La Var avec Rvfleuze"
+      },
+      {
+        "kind": "image",
+        "id": "lavar-post-klm",
+        "src": "/media/photos/lavar-post-klm.jpg",
+        "width": 900,
+        "height": 1125,
+        "alt": "Post La Var : KLM"
+      },
+      {
+        "kind": "image",
+        "id": "lavar-post-creamy",
+        "src": "/media/photos/lavar-post-creamy.jpg",
+        "width": 900,
+        "height": 1125,
+        "alt": "Post La Var : Creamy G débarque à Marsatac"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Fondateur",
+        "name": "Sébastien Fula-Pitu"
+      }
+    ],
+    "inFeed": true,
+    "order": 8,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Chiffres au 28/08/2026 (Instagram Insights) : à mettre à jour."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Contenus publiés par La Var : vérifier les droits sur les extraits musicaux."
+    },
+    "published": true
+  },
+  {
+    "slug": "photographie-plateau",
+    "title": "Photographie de plateau",
+    "artists": [
+      "klm",
+      "hld",
+      "bilouki",
+      "batbat",
+      "rvfleuze"
+    ],
+    "type": "photo",
+    "roles": [
+      "Photographie"
+    ],
+    "summary": "Photos de tournage et de presse : KLM, HLD, Bilouki, Batbat, Rvfleuze.",
+    "body": [],
+    "cover": "/media/photos/klm-100k-photo.jpg",
+    "media": [
+      {
+        "kind": "image",
+        "id": "klm-100k-photo",
+        "src": "/media/photos/klm-100k-photo.jpg",
+        "width": 800,
+        "height": 1183,
+        "alt": "Tournage du clip 100K de KLM devant une épicerie",
+        "caption": "KLM, \"100K\""
+      },
+      {
+        "kind": "image",
+        "id": "hld-photo-presse",
+        "src": "/media/photos/hld-photo-presse.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Photo presse de HLD avec son chien",
+        "caption": "HLD, photo presse"
+      },
+      {
+        "kind": "image",
+        "id": "image-photo-bilouki",
+        "src": "/media/photos/image-photo-bilouki.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Shoot Bilouki \"Paire Assortie\", lumière orange",
+        "caption": "Bilouki, \"Paire Assortie\""
+      },
+      {
+        "kind": "image",
+        "id": "image-photo-bilouki-2",
+        "src": "/media/photos/image-photo-bilouki-2.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Shoot Bilouki, groupe dans un parc",
+        "caption": "Bilouki, \"Paire Assortie\""
+      },
+      {
+        "kind": "image",
+        "id": "image-photo-rvfleuze",
+        "src": "/media/photos/image-photo-rvfleuze.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Rvfleuze sur un scooter entouré de son équipe",
+        "caption": "Rvfleuze"
+      },
+      {
+        "kind": "image",
+        "id": "image-photo-batbat",
+        "src": "/media/photos/image-photo-batbat.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Batbat dans la nuit",
+        "caption": "Batbat"
+      }
+    ],
+    "credits": [],
+    "inFeed": false,
+    "order": 50,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "covers",
+    "title": "Covers",
+    "artists": [
+      "leto",
+      "negrito",
+      "blackd",
+      "fave-five"
+    ],
+    "type": "direction-artistique",
+    "roles": [],
+    "summary": "Pochettes : Leto, Negrito, BlackD, Fave Five.",
+    "body": [],
+    "cover": "/media/photos/image-cover-negrito-stavo.jpg",
+    "media": [
+      {
+        "kind": "image",
+        "id": "image-cover-negrito-stavo",
+        "src": "/media/photos/image-cover-negrito-stavo.jpg",
+        "width": 640,
+        "height": 640,
+        "alt": "Cover Negrito, \"Stavo\""
+      },
+      {
+        "kind": "image",
+        "id": "image-cover-blackd-leto",
+        "src": "/media/photos/image-cover-blackd-leto.jpg",
+        "width": 700,
+        "height": 700,
+        "alt": "Cover BlackD avec Leto"
+      },
+      {
+        "kind": "image",
+        "id": "image-cover-fave-five",
+        "src": "/media/photos/image-cover-fave-five.jpg",
+        "width": 700,
+        "height": 700,
+        "alt": "Cover Fave Five, foule en concert"
+      },
+      {
+        "kind": "image",
+        "id": "image-cover-leto-pessas",
+        "src": "/media/photos/image-cover-leto-pessas.jpg",
+        "width": 700,
+        "height": 700,
+        "alt": "Cover Enlève tes Pessas"
+      }
+    ],
+    "credits": [],
+    "inFeed": false,
+    "order": 60,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "HANDOFF : \"covers DA\". Rôle exact (photo, DA, design) à préciser pour chaque pochette."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "portraits",
+    "title": "Portraits",
+    "artists": [
+      "gazo",
+      "landy",
+      "koba-lad",
+      "bianca-costa",
+      "jolagreen",
+      "mig",
+      "duo-bahysa",
+      "nono-la-grinta"
+    ],
+    "type": "photo",
+    "roles": [],
+    "summary": "Portraits d'artistes.",
+    "body": [],
+    "cover": "/media/photos/photo-gazo-2.jpg",
+    "media": [
+      {
+        "kind": "image",
+        "id": "photo-gazo-2",
+        "src": "/media/photos/photo-gazo-2.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Portrait de Gazo en capuche violette",
+        "caption": "Gazo"
+      },
+      {
+        "kind": "image",
+        "id": "photo-koba-lad",
+        "src": "/media/photos/photo-koba-lad.jpg",
+        "width": 800,
+        "height": 945,
+        "alt": "Portrait de Koba LaD",
+        "caption": "Koba LaD"
+      },
+      {
+        "kind": "image",
+        "id": "photo-landy",
+        "src": "/media/photos/photo-landy.jpg",
+        "width": 800,
+        "height": 771,
+        "alt": "Portrait de Landy",
+        "caption": "Landy"
+      },
+      {
+        "kind": "image",
+        "id": "photo-bianca-costa",
+        "src": "/media/photos/photo-bianca-costa.jpg",
+        "width": 800,
+        "height": 711,
+        "alt": "Bianca Costa sur scène",
+        "caption": "Bianca Costa"
+      },
+      {
+        "kind": "image",
+        "id": "photo-jolagreen",
+        "src": "/media/photos/photo-jolagreen.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Portrait de Jolagreen en bonnet",
+        "caption": "Jolagreen"
+      },
+      {
+        "kind": "image",
+        "id": "photo-mig",
+        "src": "/media/photos/photo-mig.jpg",
+        "width": 800,
+        "height": 1055,
+        "alt": "Portrait de MIG",
+        "caption": "MIG"
+      },
+      {
+        "kind": "image",
+        "id": "photo-duo-bahysa",
+        "src": "/media/photos/photo-duo-bahysa.jpg",
+        "width": 800,
+        "height": 533,
+        "alt": "Duo Bahysa en bord de mer",
+        "caption": "Duo Bahysa"
+      },
+      {
+        "kind": "image",
+        "id": "concert-photo-nono-lagrinta",
+        "src": "/media/photos/concert-photo-nono-lagrinta.jpg",
+        "width": 800,
+        "height": 1200,
+        "alt": "Concert, artiste au micro devant le public",
+        "caption": "Concert"
+      }
+    ],
+    "credits": [],
+    "inFeed": false,
+    "order": 70,
+    "verification": {
+      "status": "a-verifier",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie",
+      "note": "Fichiers présents dans le dépôt mais non documentés : confirmer que Sébastien est l'auteur de chaque photo, et l'artiste de la photo de concert (fichier nommé nono-lagrinta, HANDOFF mentionne Ashe22)."
+    },
+    "rights": {
+      "status": "a-confirmer",
+      "note": "Autorisation de diffusion des images et de la musique à confirmer auprès de l'artiste / production avant mise en ligne publique."
+    },
+    "published": true
+  },
+  {
+    "slug": "origines",
+    "title": "Origines",
+    "artists": [
+      "studio-bois-labbe"
+    ],
+    "type": "media",
+    "roles": [
+      "Cadrage drone"
+    ],
+    "summary": "Millau, puis un studio cofondé en 2021 au Bois-l'Abbé, à Champigny.",
+    "body": [
+      "Dès le lycée, premières sessions de production, notamment avec Bolemvn.",
+      "En 2021, un studio cofondé avec l'artiste ZS, au Bois-l'Abbé, à deux pas des Mordacs. Sont passés par ce studio : L2B, Rsko, BRK, Didi Trix, Kerchak, ZS.",
+      "Les plans drone du quartier sont cadrés par Sébastien."
+    ],
+    "cover": "/media/posters/origins-drone-quartier.jpg",
+    "media": [
+      {
+        "kind": "video",
+        "id": "origins-drone-quartier",
+        "src": "/media/videos/origins-drone-quartier.mp4",
+        "poster": "/media/posters/origins-drone-quartier.jpg",
+        "width": 640,
+        "height": 1138,
+        "durationSec": 16.45,
+        "hasAudio": false,
+        "alt": "Plans drone du Bois-l'Abbé et des Mordacs"
+      },
+      {
+        "kind": "image",
+        "id": "origins-millau",
+        "src": "/media/photos/origins-millau.jpg",
+        "width": 1100,
+        "height": 570,
+        "alt": "Vue aérienne de Millau, Aveyron"
+      }
+    ],
+    "credits": [
+      {
+        "role": "Cofondateurs du studio",
+        "name": "ZS, Sébastien Fula-Pitu"
+      }
+    ],
+    "inFeed": true,
+    "order": 90,
+    "verification": {
+      "status": "verifie",
+      "source": "Site \"Avant la sortie\" (index.html) et HANDOFF.md, dépôt avant-la-sortie"
+    },
+    "rights": {
+      "status": "autorise",
+      "note": "Images tournées par Sébastien, sans artiste identifiable."
+    },
+    "published": true
+  }
+]

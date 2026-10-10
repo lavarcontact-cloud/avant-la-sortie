@@ -1,0 +1,432 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   DESIGN SYSTEM "PLAN-SÉQUENCE"
+   Continuité avec "Avant la sortie" : même noir neutre, même corail, mêmes
+   familles typographiques. Le verre n'est utilisé que là où il a une
+   fonction : contrôles posés SUR un média (dock, rail du flux, lightbox)
+   et bulles d'artistes (l'objectif photo comme métaphore). Jamais sur un
+   panneau posé sur un fond uni, où il n'apporterait que du coût GPU.
+   ========================================================================== */
+
+@theme {
+  --color-ink: #0b0b0f;
+  --color-panel: #16151a;
+  --color-panel-2: #1d1c22;
+  --color-line: #232228;
+  --color-fg: #f6f3ec;
+  --color-muted: #a39eac; /* éclairci vs V2 (#9C97A6) : contraste 7.4:1 sur ink */
+  --color-accent: #ff5b3c;
+  --color-accent-ink: #1a0802;
+  --color-paper: #f4eee2;
+  --color-paper-ink: #17140f;
+  --color-ok: #3fcf8e;
+  --color-warn: #ffb547;
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-space), ui-monospace, monospace;
+
+  --radius-glass: 22px;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+:root {
+  color-scheme: dark;
+  --dock-h: 64px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --glass-bg: rgba(22, 21, 26, 0.58);
+  --glass-bg-strong: rgba(14, 13, 18, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-hi: rgba(255, 255, 255, 0.22);
+  --glass-blur: 18px;
+}
+
+html {
+  background: var(--color-ink);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+::selection {
+  background: var(--color-accent);
+  color: var(--color-ink);
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------- Typographie ---------- */
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+.t-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.t-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Verre ---------- */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+}
+/* Repli : sans backdrop-filter (ou en mode "réduire la transparence"),
+   on passe à un fond presque opaque pour garantir la lisibilité. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--glass-bg-strong);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--glass-bg-strong);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ---------- Boutons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px; /* cible tactile WCAG 2.5.5 / Apple HIG */
+  padding: 0 1.15rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 15px;
+  transition:
+    transform 0.2s var(--ease-spring),
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  cursor: pointer;
+  user-select: none;
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+.btn-primary:hover {
+  background: #ff7257;
+}
+.btn-ghost {
+  border: 1px solid var(--color-line);
+  color: var(--color-fg);
+}
+.btn-ghost:hover {
+  border-color: var(--color-fg);
+}
+.btn[disabled],
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 36px;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  font-size: 14px;
+  color: var(--color-fg);
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    transform 0.2s var(--ease-spring);
+}
+.chip[aria-pressed="true"],
+.chip[aria-checked="true"],
+.chip[aria-current="page"] {
+  background: var(--color-fg);
+  color: var(--color-ink);
+  border-color: var(--color-fg);
+}
+
+/* ---------- Bulle d'artiste : une lentille ----------
+   Le portrait est vu "à travers l'objectif" : un reflet spéculaire en haut
+   à gauche, une lueur teintée par la photo, un léger vignettage. Le tout en
+   CSS pur, aucune image supplémentaire. */
+.lens {
+  --tint: var(--color-accent);
+  position: relative;
+  border-radius: 999px;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--tint) 45%, #0b0b0f), #0b0b0f 75%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 18px 40px -14px color-mix(in oklab, var(--tint) 70%, transparent),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition:
+    transform 0.45s var(--ease-spring),
+    box-shadow 0.45s var(--ease-out-expo);
+}
+.lens::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 28% 12%, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0) 42%),
+    radial-gradient(100% 100% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.45) 100%);
+  mix-blend-mode: screen;
+  z-index: 2;
+}
+.lens img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease-out-expo);
+}
+.lens-ring {
+  /* Anneau "story" : signale qu'il y a du contenu à voir derrière. */
+  padding: 3px;
+  border-radius: 999px;
+  background: conic-gradient(from 200deg, var(--color-accent), #ffb547, var(--color-accent));
+}
+a:hover > .lens img,
+a:focus-visible > .lens img,
+a:hover .lens img {
+  transform: scale(1.08);
+}
+
+/* ---------- Grain de pellicule (signature héritée) ---------- */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 1.2s steps(4) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 1%); }
+  50% { transform: translate(1%, -2%); }
+  75% { transform: translate(-1%, -1%); }
+}
+
+/* ---------- Entrées ---------- */
+.rise {
+  animation: rise 0.7s var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+/* ---------- Flux vertical ---------- */
+.feed {
+  height: 100svh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+}
+.feed::-webkit-scrollbar { display: none; }
+.feed-item {
+  position: relative;
+  height: 100svh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+}
+
+/* ---------- Transitions de vue (React <ViewTransition>) ---------- */
+::view-transition-group(.morph) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% { filter: blur(3px); }
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+}
+
+/* ---------- Mouvement réduit : tout ce qui bouge s'arrête ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain { display: none; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ---------- Pages légales / prose ---------- */
+.prose-legal h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 2.2rem 0 0.6rem;
+}
+.prose-legal p,
+.prose-legal li {
+  color: #d9d5cc;
+  margin: 0.5rem 0;
+}
+.prose-legal ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.prose-legal a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.placeholder {
+  background: rgba(255, 181, 71, 0.14);
+  color: var(--color-warn);
+  padding: 0 0.3em;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ---------- Constellation d'artistes ---------- */
+.constellation {
+  --sx: 44vw;
+  --sy: 520px;
+}
+@media (min-width: 640px) {
+  .constellation { --sx: 300px; --sy: 420px; }
+}
+@media (min-width: 1024px) {
+  .constellation { --sx: 470px; --sy: 350px; }
+}
+/* Dérive lente : la constellation "respire" sans jamais gêner le clic
+   (amplitude de 6px, et elle s'arrête au survol). */
+.drift {
+  animation: drift 10s ease-in-out infinite alternate;
+}
+.drift:hover,
+.drift:focus-within {
+  animation-play-state: paused;
+}
+@keyframes drift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(4px, -6px); }
+  100% { transform: translate(-3px, 3px); }
+}
+.orbit-node {
+  position: absolute;
+  left: calc(50% + var(--x) * var(--sx));
+  top: calc(50% + var(--y) * var(--sy));
+  transform: translate(-50%, -50%);
+  transition: opacity 0.5s, filter 0.5s;
+}
+.orbit-node[data-dim] {
+  opacity: 0.18;
+  filter: grayscale(1);
+}
+/* Verre "dense" : pour les panneaux qui portent du texte courant
+   (bandeau de consentement, menus). La lisibilité passe avant l'effet. */
+.glass-strong {
+  background: rgba(16, 15, 20, 0.9);
+}
+
+/* Constellation mobile : nid d'abeille (3 colonnes, colonne centrale
+   décalée), bulles plafonnées. La spirale reste à partir de 640px. */
+@media (max-width: 639px) {
+  .constellation {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 18px;
+    height: auto !important;
+    padding-bottom: 48px;
+  }
+  .orbit-node {
+    position: static;
+    transform: none;
+    display: flex;
+    justify-content: center;
+  }
+  .orbit-node:nth-child(3n + 2) {
+    transform: translateY(46px);
+  }
+  .constellation .lens {
+    width: min(var(--lens-size), 84px) !important;
+    height: min(var(--lens-size), 84px) !important;
+  }
+}
+
+/* ---------- Champs de formulaire ---------- */
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-line);
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-size: 16px; /* évite le zoom automatique d'iOS */
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input::placeholder { color: #6f6a78; }
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(255, 91, 60, 0.25);
+}
+.input[aria-invalid="true"] { border-color: #ff7a60; }
+.chip:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: 2px; }
