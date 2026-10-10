@@ -27,7 +27,7 @@ export async function getKpis(days: number) {
     one(
       `SELECT coalesce(sum(amount_cents - refunded_cents) FILTER (WHERE livemode), 0) AS live,
               coalesce(sum(amount_cents - refunded_cents) FILTER (WHERE NOT livemode), 0) AS test
-         FROM payments WHERE status IN ('reussi','rembourse_partiel') AND updated_at >= now() - make_interval(days => $1)`,
+         FROM payments WHERE status IN ('reussi','rembourse_partiel') AND paid_at >= now() - make_interval(days => $1)`,
       p,
     ),
     one(

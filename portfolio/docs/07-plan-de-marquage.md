@@ -43,6 +43,7 @@ Source de vérité du code : `src/lib/analytics/events.ts`. Tout événement abs
 | `payment_succeeded` | webhook signé | `payment`, `kind`, `amount_cents`, `livemode` |
 | `payment_failed` | webhook signé | `payment`, `kind` |
 | `payment_refunded` | webhook signé | `payment`, `refunded_cents` |
+| `payment_anomaly` | webhook ou création de session | `reason` (montant différent, surpaiement, paiement sur commande annulée), détails ; déclenche aussi une notification e-mail si configurée |
 
 Ces événements ne portent aucun identifiant de navigateur : ce sont des faits de gestion, pas des traceurs.
 

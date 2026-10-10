@@ -9,7 +9,7 @@ import { clearSessionCookie, requireAdmin, setSessionCookie, verifyPassword } fr
 import { POLICY_VERSION } from "@/lib/consent";
 import { one, query } from "@/lib/db";
 import { serverEnv } from "@/lib/env";
-import { createOrder, refundPayment } from "@/lib/payments";
+import { closeOpenSessions, createOrder, refundPayment } from "@/lib/payments";
 import { rateLimit } from "@/lib/server-utils";
 
 async function clientKey() {
@@ -88,7 +88,15 @@ export async function cancelOrder(formData: FormData) {
   await requireAdmin();
   const id = z.uuid().parse(formData.get("id"));
   const order = await one<{ status: string }>(`SELECT status FROM orders WHERE id = $1`, [id]);
-  if (order && order.status === "en_attente_acompte") await query(`UPDATE orders SET status = 'annule' WHERE id = $1`, [id]);
+  if (order && order.status === "en_attente_acompte") {
+    // Le lien de paiement ne doit plus pouvoir aboutir : on expire les sessions ouvertes d'abord.
+    try {
+      await closeOpenSessions(id);
+    } catch (e) {
+      redirect(`/admin/commandes?erreur=${encodeURIComponent(e instanceof Error ? e.message : "Annulation impossible")}`);
+    }
+    await query(`UPDATE orders SET status = 'annule' WHERE id = $1`, [id]);
+  }
   revalidatePath("/admin/commandes");
 }
 

@@ -50,6 +50,8 @@ export async function POST(req: Request) {
       delete props.referrer;
     }
     if (path && path.startsWith("/admin")) continue;
+    if (path && path.startsWith("/paiement/")) path = "/paiement/[jeton]"; // jeton = secret
+    if (typeof props.path === "string") props.path = path;
     if (e.name === "outbound_click" && typeof props.url === "string") {
       try { props.url = new URL(props.url).hostname; } catch {}
     }

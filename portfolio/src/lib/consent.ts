@@ -31,6 +31,7 @@ export function parseConsent(raw: string | undefined | null): ConsentRecord | nu
     if (typeof data !== "object" || !data || typeof data.choices?.audience !== "boolean") return null;
     if (data.v !== POLICY_VERSION) return null;
     if (Date.now() - data.ts > CONSENT_MAX_AGE_DAYS * 86400_000) return null;
+    if (data.ts > Date.now() + 86400_000) return null; // date future : cookie altéré
     return data;
   } catch {
     return null;

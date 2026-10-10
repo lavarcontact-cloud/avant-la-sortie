@@ -16,13 +16,13 @@ Branche : `claude/portfolio-v1` · application : `portfolio/` · le site "Avant 
 | Consentement : accord, refus, personnalisation, retrait, preuve serveur, redemande à 6 mois ou au changement de version | `components/consent.tsx`, `lib/consent.ts`, `api/consent` | unitaires + E2E (0 requête au refus, identifiants effacés au retrait) | OK |
 | Mesure d'audience first-party (validation, robots, interne, doublons, sans IP) | `lib/analytics/*`, `api/events` | unitaires + E2E (lignes en base) | OK |
 | Admin : connexion (scrypt, HMAC, quota), demandes, création de commande et de lien de paiement, commandes, contenus à vérifier, KPI | `src/app/admin/*`, `lib/admin-auth.ts`, `lib/analytics/kpi.ts` | unitaires + E2E (session falsifiée refusée) | OK |
-| Logique de paiement : échéancier acompte/solde, webhook idempotent, contrôle du montant, SEPA différé, expiration, remboursements | `lib/payments.ts`, `api/stripe/webhook` | 6 tests d'intégration sur PostgreSQL réel + E2E signature HTTP | OK |
+| Logique de paiement : échéancier acompte/solde, webhook idempotent, contrôle du montant, SEPA différé, expiration, remboursements, une seule session payable à la fois, statuts qui ne reculent pas, anomalies signalées | `lib/payments.ts`, `api/stripe/webhook` | 10 tests d'intégration sur PostgreSQL réel + E2E signature HTTP | OK |
 | Sécurité : CSP, HSTS, contrôle d'origine, limitation de débit, `noindex` de préproduction | `next.config.ts`, `lib/server-utils.ts` | E2E en-têtes + unitaires | OK |
 | Mode développement sans base installée (PGlite) | `lib/db` | test dédié | OK |
 
 **Résultats des tests (10/10/2026, exécutés dans cet environnement)**
 - `tsc --noEmit` : 0 erreur.
-- Vitest : **26/26** (contenu, sécurité, paiements sur PostgreSQL 16, PGlite).
+- Vitest : **30/30** (contenu, sécurité, paiements et intégrité sur PostgreSQL 16, PGlite).
 - Playwright : **44/44** (22 scénarios × mobile Pixel 7 + desktop 1440 px).
 - axe-core WCAG 2.1 AA : **0 violation grave ou critique** sur 7 pages, sur les deux formats.
 - Lighthouse 13.5 (mobile simulé, build de production local) :
@@ -122,3 +122,22 @@ Voir `06-conformite-juridique.md` §15 (CNIL, Légifrance, EUR-Lex, Service-Publ
 | Conformité, analytics, paiement (recherche) | sous-agent dédié (sources officielles) |
 | QA et testeur indépendant | sous-agent relecteur distinct, n'ayant pas écrit le code (§10) + tests automatisés |
 | PM, UX, front, back, motion, vidéo, SEO, responsable technique | session principale, par passes successives |
+
+## 10. Revue indépendante (QA / sécurité) et corrections
+
+Un relecteur distinct, qui n'avait pas écrit le code, a audité l'application sans la modifier. Il n'a trouvé **aucun contournement de l'admin, aucune injection SQL, aucune XSS ni redirection ouverte**. Il a relevé 10 défauts, tous corrigés et testés dans cette passe :
+
+| Sévérité | Défaut | Correction |
+|---|---|---|
+| Élevée | deux sessions Checkout payables pour la même échéance (double clic, deux onglets) | les sessions ouvertes sont expirées chez Stripe avant d'en créer une ; index unique "une échéance ouverte par commande" ; 10 tentatives par heure et par commande ; alerte en cas de surpaiement |
+| Élevée | commande annulée encore payable, et paiement alors invisible | l'annulation expire d'abord les sessions ; un paiement reçu sur une commande annulée lève une anomalie (événement et e-mail) |
+| Moyenne | statut de paiement qui régresse selon l'ordre des webhooks | transitions vers l'avant uniquement (sauf "en cours" vers "échoué") |
+| Moyenne | `page_view` compté deux fois lors de l'acceptation | doublon supprimé |
+| Moyenne | jeton de paiement enregistré dans les statistiques | chemin remplacé par `/paiement/[jeton]`, côté client et côté serveur (vérifié en base) |
+| Faible | remboursements cumulatifs reçus à l'envers | on garde le plus grand montant |
+| Faible | écart de montant ignoré en silence | anomalie enregistrée et notifiée |
+| Faible | bandeau "13 mois" contre une purge à 25 mois | texte aligné : identifiant 13 mois, statistiques 25 mois |
+| Faible | chiffre d'affaires daté par `updated_at` ; entonnoir mêlant test et réel | colonne `paid_at` ; libellé "(test + réel)" |
+| Faible | consentement daté dans le futur, clé d'idempotence de remboursement figée 24 h | date future rejetée ; clé renouvelée toutes les 10 min |
+
+**Non corrigé, documenté** : la limitation de débit du login repose sur `x-forwarded-for`, fiable derrière Vercel mais pas en auto-hébergement sans proxy de confiance. Le paramètre `?erreur=` de l'admin affiche un texte libre (échappé, donc sans risque d'injection). L'action n'est accessible qu'une fois connecté.

@@ -60,6 +60,9 @@ export const PAYMENT_STATUS_LABEL: Record<string, string> = {
   rembourse_partiel: "Remboursé partiellement",
 };
 
+/** Ordre des statuts d'un paiement : seules les transitions vers l'avant sont appliquées. */
+const STATUS_RANK: Record<string, number> = { cree: 0, expire: 1, echoue: 1, en_cours: 2, reussi: 3, rembourse_partiel: 4, rembourse: 5 };
+
 let stripeClient: Stripe | null = null;
 export function getStripe(): Stripe {
   const key = serverEnv().stripeSecretKey;
@@ -138,8 +141,16 @@ export async function createCheckout(order: Order, opts: { waiver: boolean; acce
     await query(`UPDATE orders SET waiver_at = now() WHERE id = $1`, [order.id]);
   }
 
+  // Une seule session payable à la fois : on clôt les sessions encore ouvertes
+  // avant d'en créer une nouvelle (sinon deux onglets = deux encaissements).
+  await closeOpenSessions(order.id);
   const paymentId = crypto.randomUUID();
-  await query(`INSERT INTO payments (id, order_id, kind, amount_cents) VALUES ($1,$2,$3,$4)`, [paymentId, order.id, due.kind, due.amount]);
+  try {
+    await query(`INSERT INTO payments (id, order_id, kind, amount_cents) VALUES ($1,$2,$3,$4)`, [paymentId, order.id, due.kind, due.amount]);
+  } catch {
+    // Index unique "une échéance ouverte par commande" : requête concurrente.
+    throw new Error("Un paiement est déjà en cours de création pour cette commande.");
+  }
 
   const label = { acompte: "Acompte", solde: "Solde", total: "Règlement" }[due.kind];
   const base = siteUrl();
@@ -172,10 +183,40 @@ export async function createCheckout(order: Order, opts: { waiver: boolean; acce
   return session.url!;
 }
 
+/**
+ * Expire chez Stripe les sessions encore ouvertes d'une commande et les
+ * marque "expire". Si Stripe répond qu'une session est déjà payée, on
+ * s'arrête : le webhook va l'enregistrer, il ne faut pas en créer d'autre.
+ */
+export async function closeOpenSessions(orderId: string) {
+  const open = await query<Payment>(`SELECT * FROM payments WHERE order_id = $1 AND status = 'cree'`, [orderId]);
+  for (const p of open) {
+    if (p.stripe_session_id && stripeConfigured()) {
+      const s = await getStripe().checkout.sessions.retrieve(p.stripe_session_id);
+      if (s.status === "complete") throw new Error("Un paiement vient d'aboutir pour cette commande. Actualisez la page.");
+      if (s.status === "open") await getStripe().checkout.sessions.expire(p.stripe_session_id);
+    }
+    await query(`UPDATE payments SET status = 'expire', updated_at = now() WHERE id = $1 AND status = 'cree'`, [p.id]);
+  }
+}
+
+/** Anomalie d'encaissement : enregistrée et signalée, jamais ignorée en silence. */
+async function flagAnomaly(reason: string, details: Record<string, unknown>) {
+  console.error(`[paiement] anomalie : ${reason}`, details);
+  await recordServerEvent("payment_anomaly", { reason, ...details });
+  const { notify } = await import("./server-utils");
+  await notify(`Anomalie de paiement : ${reason}`, JSON.stringify(details, null, 2));
+}
+
 async function refreshOrderStatus(orderId: string) {
   const order = await one<Order>(`SELECT * FROM orders WHERE id = $1`, [orderId]);
-  if (!order || order.status === "annule") return;
+  if (!order) return;
   const payments = await getPayments(orderId);
+  if (order.status === "annule") {
+    // Commande annulée mais argent encaissé : à rembourser ou à réactiver, par un humain.
+    if (payments.some((p) => p.status === "reussi")) await flagAnomaly("paiement reçu sur une commande annulée", { order: order.ref });
+    return;
+  }
   const gross = payments.filter((p) => p.status === "reussi" || p.status.startsWith("rembourse")).reduce((s, p) => s + p.amount_cents, 0);
   const refunded = payments.reduce((s, p) => s + p.refunded_cents, 0);
   let status = order.status;
@@ -184,6 +225,7 @@ async function refreshOrderStatus(orderId: string) {
   else if (gross > 0) status = "acompte_paye";
   else status = "en_attente_acompte";
   if (status !== order.status) await query(`UPDATE orders SET status = $1 WHERE id = $2`, [status, orderId]);
+  if (gross > order.total_cents) await flagAnomaly("montant encaissé supérieur au total", { order: order.ref, gross, total: order.total_cents });
 }
 
 /**
@@ -213,7 +255,7 @@ async function applyStripeEvent(event: Stripe.Event): Promise<"processed" | "ign
       if (!pay) return "ignored";
       // Contrôle d'intégrité : le montant encaissé doit correspondre à l'échéance.
       if (s.amount_total !== null && s.amount_total !== pay.amount_cents) {
-        console.error(`[stripe] montant inattendu pour ${s.id}: ${s.amount_total} != ${pay.amount_cents}`);
+        await flagAnomaly("montant Stripe différent de l'échéance", { session: s.id, stripe: s.amount_total, attendu: pay.amount_cents });
         return "ignored";
       }
       let status = pay.status;
@@ -223,7 +265,15 @@ async function applyStripeEvent(event: Stripe.Event): Promise<"processed" | "ign
       else status = s.payment_status === "paid" ? "reussi" : "en_cours";
 
       const pi = typeof s.payment_intent === "string" ? s.payment_intent : (s.payment_intent?.id ?? null);
-      await query(`UPDATE payments SET status = $1, stripe_payment_intent = COALESCE($2, stripe_payment_intent), updated_at = now() WHERE id = $3`, [status, pi, pay.id]);
+      // Les webhooks peuvent arriver dans le désordre : un statut ne recule jamais.
+      const failedAfterPending = pay.status === "en_cours" && status === "echoue";
+      if (status !== pay.status && STATUS_RANK[status] <= STATUS_RANK[pay.status] && !failedAfterPending) return "ignored";
+      await query(
+        `UPDATE payments SET status = $1, stripe_payment_intent = COALESCE($2, stripe_payment_intent), updated_at = now(),
+                paid_at = CASE WHEN $1 = 'reussi' AND paid_at IS NULL THEN now() ELSE paid_at END
+          WHERE id = $3`,
+        [status, pi, pay.id],
+      );
       await refreshOrderStatus(pay.order_id);
       if (status === "reussi" && pay.status !== "reussi")
         await recordServerEvent("payment_succeeded", { payment: pay.id, kind: pay.kind, amount_cents: pay.amount_cents, livemode: event.livemode });
@@ -236,7 +286,8 @@ async function applyStripeEvent(event: Stripe.Event): Promise<"processed" | "ign
       if (!pi) return "ignored";
       const pay = await one<Payment>(`SELECT * FROM payments WHERE stripe_payment_intent = $1`, [pi]);
       if (!pay) return "ignored";
-      const refunded = Math.min(ch.amount_refunded, pay.amount_cents);
+      // amount_refunded est cumulatif : on ne garde que le plus grand (ordre d'arrivée non garanti).
+      const refunded = Math.max(pay.refunded_cents, Math.min(ch.amount_refunded, pay.amount_cents));
       const status = refunded >= pay.amount_cents ? "rembourse" : "rembourse_partiel";
       await query(`UPDATE payments SET refunded_cents = $1, status = $2, updated_at = now() WHERE id = $3`, [refunded, status, pay.id]);
       await refreshOrderStatus(pay.order_id);
@@ -254,7 +305,7 @@ export async function refundPayment(paymentId: string, amountCents?: number) {
   // Le statut sera mis à jour par le webhook charge.refunded.
   return getStripe().refunds.create(
     { payment_intent: pay.stripe_payment_intent, ...(amountCents ? { amount: amountCents } : {}) },
-    { idempotencyKey: `refund-${paymentId}-${amountCents ?? "full"}` },
+    { idempotencyKey: `refund-${paymentId}-${amountCents ?? "full"}-${Math.floor(Date.now() / 600_000)}` },
   );
 }
 

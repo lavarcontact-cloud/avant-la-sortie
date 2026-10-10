@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { site } from "@/lib/content";
+import { rateLimit } from "@/lib/server-utils";
 import { ORDER_STATUS_LABEL, PAYMENT_STATUS_LABEL, createCheckout, formatEuros, getOrderByToken, getPayments, nextDue, paidCents, stripeConfigured } from "@/lib/payments";
 
 export const metadata: Metadata = { title: "Paiement", robots: { index: false, follow: false } };
@@ -12,6 +13,7 @@ async function pay(formData: FormData) {
   const tok = String(formData.get("token") ?? "");
   const order = await getOrderByToken(tok);
   if (!order) notFound();
+  if (!(await rateLimit(`pay:${order.id}`, 10, 3600))) redirect(`/paiement/${tok}?erreur=${encodeURIComponent("Trop de tentatives")}`);
   let url: string;
   try {
     url = await createCheckout(order, { waiver: formData.get("waiver") === "on", acceptTerms: formData.get("terms") === "on" });

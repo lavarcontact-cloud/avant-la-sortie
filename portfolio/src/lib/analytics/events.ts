@@ -32,6 +32,7 @@ export const SERVER_EVENTS = [
   "payment_succeeded",
   "payment_failed",
   "payment_refunded",
+  "payment_anomaly",
 ] as const;
 export type ServerEventName = (typeof SERVER_EVENTS)[number];
 

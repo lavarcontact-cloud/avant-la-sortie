@@ -53,8 +53,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             { k: "Sessions (consenties)", v: Number(f.sessions ?? 0) },
             { k: "Formulaire de devis ouvert", v: Number(f.quote_started ?? 0) },
             { k: "Devis envoyés", v: Number(f.quote_sent ?? 0) },
-            { k: "Paiements commencés", v: Number(f.checkout ?? 0) },
-            { k: "Paiements réussis", v: Number(f.paid ?? 0) },
+            { k: "Paiements commencés (test + réel)", v: Number(f.checkout ?? 0) },
+            { k: "Paiements réussis (test + réel)", v: Number(f.paid ?? 0) },
           ]}
         />
         <p className="mt-2 text-xs text-[var(--color-muted)]">Les deux premières étapes ne comptent que les visiteurs consentants ; les trois suivantes sont exhaustives. Les taux entre ces deux groupes sont donc indicatifs.</p>

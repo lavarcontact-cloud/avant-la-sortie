@@ -14,7 +14,8 @@ export function Telemetry() {
 
   useEffect(() => {
     if (!allowed || pathname.startsWith("/admin")) return;
-    track("page_view", { path: pathname, referrer: document.referrer || undefined });
+    // Le jeton de paiement est un secret : jamais dans les statistiques.
+    track("page_view", { path: pathname.startsWith("/paiement/") ? "/paiement/[jeton]" : pathname, referrer: document.referrer || undefined });
   }, [pathname, allowed]);
 
   useReportWebVitals((m) => {

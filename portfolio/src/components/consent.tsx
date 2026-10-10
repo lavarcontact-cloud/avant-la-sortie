@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useId, useRef, useState } from "react";
-import { setAnalyticsEnabled, track } from "@/lib/analytics/client";
+import { setAnalyticsEnabled } from "@/lib/analytics/client";
 import {
   CONSENT_COOKIE,
   CONSENT_MAX_AGE_DAYS,
@@ -69,7 +69,6 @@ export function ConsentProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ id: rec.id, version: rec.v, choices, action }),
       keepalive: true,
     }).catch(() => {});
-    if (choices.audience) track("page_view", { path: location.pathname, referrer: document.referrer || undefined });
   }, [record]);
 
   const openPreferences = useCallback(() => setPrefsOpen(true), []);
@@ -149,7 +148,7 @@ function ConsentBanner({
             <span>
               <span className="block font-semibold">Mesure d'audience</span>
               <span className="block text-sm text-[var(--color-muted)]">
-                Statistiques internes de fréquentation et d'usage. Conservées 13 mois maximum.
+                Statistiques internes de fréquentation et d'usage. Identifiant conservé 13 mois, statistiques 25 mois au plus.
               </span>
             </span>
             <input

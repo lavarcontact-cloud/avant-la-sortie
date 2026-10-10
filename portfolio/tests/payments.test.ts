@@ -96,6 +96,48 @@ describe("webhooks", () => {
   });
 });
 
+describe("intégrité (revue indépendante)", () => {
+  it("refuse une seconde échéance ouverte en parallèle sur la même commande", async () => {
+    const o = await order();
+    await paymentFor(o, "acompte", 45000, "cs_open1");
+    await expect(paymentFor(o, "acompte", 45000, "cs_open2")).rejects.toThrow();
+  });
+
+  it("un statut ne recule pas si les webhooks arrivent dans le désordre", async () => {
+    const o = await order(60000, 0);
+    await paymentFor(o, "total", 60000, "cs_order");
+    await handleStripeEvent(ev("evt_o1", "checkout.session.async_payment_succeeded", { id: "cs_order", payment_status: "paid", amount_total: 60000, payment_intent: "pi_order" }));
+    await handleStripeEvent(ev("evt_o2", "checkout.session.completed", { id: "cs_order", payment_status: "unpaid", amount_total: 60000, payment_intent: "pi_order" }));
+    expect((await one<{ status: string }>(`SELECT status FROM payments WHERE stripe_session_id = 'cs_order'`))?.status).toBe("reussi");
+    // Remboursements cumulatifs reçus à l'envers : on garde le plus grand.
+    await handleStripeEvent(ev("evt_o3", "charge.refunded", { payment_intent: "pi_order", amount_refunded: 30000 }));
+    await handleStripeEvent(ev("evt_o4", "charge.refunded", { payment_intent: "pi_order", amount_refunded: 10000 }));
+    expect((await one<{ refunded_cents: number }>(`SELECT refunded_cents FROM payments WHERE stripe_session_id = 'cs_order'`))?.refunded_cents).toBe(30000);
+    // Une relance tardive de "completed" ne repasse pas un paiement remboursé en "réussi".
+    await handleStripeEvent(ev("evt_o5", "checkout.session.completed", { id: "cs_order", payment_status: "paid", amount_total: 60000, payment_intent: "pi_order" }));
+    expect((await one<{ status: string }>(`SELECT status FROM payments WHERE stripe_session_id = 'cs_order'`))?.status).toBe("rembourse_partiel");
+  });
+
+  it("un prélèvement en cours peut encore échouer", async () => {
+    const o = await order(20000, 0);
+    await paymentFor(o, "total", 20000, "cs_fail");
+    await handleStripeEvent(ev("evt_f1", "checkout.session.completed", { id: "cs_fail", payment_status: "unpaid", amount_total: 20000, payment_intent: "pi_fail" }));
+    await handleStripeEvent(ev("evt_f2", "checkout.session.async_payment_failed", { id: "cs_fail", payment_status: "unpaid", amount_total: 20000, payment_intent: "pi_fail" }));
+    expect((await one<{ status: string }>(`SELECT status FROM payments WHERE stripe_session_id = 'cs_fail'`))?.status).toBe("echoue");
+  });
+
+  it("signale un paiement reçu sur une commande annulée et un montant incohérent", async () => {
+    const o = await order(25000, 0);
+    await paymentFor(o, "total", 25000, "cs_cancel");
+    await query(`UPDATE orders SET status = 'annule' WHERE id = $1`, [o.id]);
+    await handleStripeEvent(ev("evt_c1", "checkout.session.completed", { id: "cs_cancel", payment_status: "paid", amount_total: 25000, payment_intent: "pi_cancel" }));
+    const reasons = (await query<{ r: string }>(`SELECT props->>'reason' AS r FROM events WHERE name = 'payment_anomaly'`)).map((x) => x.r);
+    expect(reasons).toContain("paiement reçu sur une commande annulée");
+    expect(reasons).toContain("montant Stripe différent de l'échéance"); // test "cs_bad" plus haut
+    expect((await one<{ paid_at: Date | null }>(`SELECT paid_at FROM payments WHERE stripe_session_id = 'cs_cancel'`))?.paid_at).not.toBeNull();
+  });
+});
+
 describe("limitation de débit", () => {
   it("bloque au-delà du quota", async () => {
     const results = [];
