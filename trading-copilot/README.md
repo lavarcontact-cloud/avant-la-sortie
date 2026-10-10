@@ -1,50 +1,27 @@
-# React + TypeScript + Vite
+# Vigie — simulateur et copilote crypto explicable (MVP)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application éducative : simulation de trading avec argent **fictif**, copilote qui sépare faits et hypothèses, radar à règles documentées, backtest avec protocole anti-surapprentissage, calculateur d'objectif honnête.
 
-Currently, two official plugins are available:
+> Aucun ordre réel, aucun conseil personnalisé. Les crypto-actifs peuvent perdre toute leur valeur.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Démarrer
+```bash
+cd trading-copilot
+npm install
+npm run dev          # http://localhost:5173
+npm test             # tests unitaires (moteur, copilote, API)
+npm run build && npm run e2e   # tests de bout en bout (Chromium, desktop + mobile)
+npm run check        # typage + lint + tests unitaires
 ```
+Variables d'environnement serveur (optionnelles) : `ANTHROPIC_API_KEY` (active la reformulation IA), `COPILOT_MODEL` (défaut `claude-opus-5-5`).
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Données
+- Temps réel : API publique Coinbase Exchange (REST + WebSocket), sans clé.
+- Repli : snapshot **réel** BTC-EUR / ETH-EUR (350 jours, collecté le 10/10/2026 13:20 UTC), avec source et horodatage dans `src/data/snapshot/*.json`.
+- Aucune donnée synthétique n'est présentée comme réelle.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Documentation
+`docs/AUDIT.md` (A) · `docs/SPEC.md` (B) · `docs/ARCHITECTURE.md` (C) · `docs/TESTS.md` (E) · `docs/COSTS.md` (F) · `docs/REGULATION.md`
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## Déploiement
+Projet Vercel dédié, *Root Directory* = `trading-copilot`. Le site racine du dépôt ignore ce dossier (`.vercelignore`).

@@ -293,6 +293,13 @@ describe('objectif', () => {
 });
 
 describe('bilan', () => {
+  it('conserve le stop d\'un ordre au marché (régression)', () => {
+    const evs = submit([init()], { asset: 'BTC', side: 'buy', type: 'market', qty: 0.01, stopPrice: 45_000 }, q(50_000));
+    const s = apply(evs);
+    expect(s.positions.BTC.stopPrice).toBe(45_000);
+    expect(debrief(s, { BTC: 50_000 }, DEFAULT_LIMITS, 10_000).map((x) => x.title).join()).toMatch(/Des stops ont été définis/);
+  });
+
   it('signale l\'absence de stop et un échantillon réduit', () => {
     let evs = submit([init()], { asset: 'BTC', side: 'buy', type: 'market', qty: 0.1 }, q(50_000));
     evs = submit(evs, { asset: 'BTC', side: 'sell', type: 'market', qty: 0.1 }, q(49_000));

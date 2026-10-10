@@ -20,6 +20,7 @@ export interface RadarAlert {
   source: string;
 }
 
+const fr = (x: number, d: number) => x.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
 const RANK: Record<Severity, number> = { important: 3, attention: 2, info: 1 };
 const pct = (x: number, d = 1) => `${x >= 0 ? '+' : ''}${(x * 100).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d })} %`;
 
@@ -55,7 +56,7 @@ export function detect(asset: AssetId, candles: Candle[], source: string): Radar
       ...base, id: `${asset}-move-${last.t}`, kind: 'move',
       severity: Math.abs(z) >= RULES.moveZImportant ? 'important' : 'attention',
       title: `${asset} : variation inhabituelle (${pct(simple)})`,
-      explanation: `La séance clôturée affiche ${pct(simple)}, soit ${z.toFixed(1)} écarts-types par rapport aux 30 séances précédentes. Un tel écart est rare dans la fenêtre récente, mais ne dit rien, à lui seul, de la suite.`,
+      explanation: `La séance clôturée affiche ${pct(simple)}, soit ${fr(z, 1)} écarts-types par rapport aux 30 séances précédentes. Un tel écart est rare dans la fenêtre récente, mais ne dit rien, à lui seul, de la suite.`,
       rule: `|z| ≥ ${RULES.moveZ} (z = rendement log du jour vs moyenne/écart-type des 30 jours précédents)`,
       metrics: { returnPct: simple, z, stdev30: sd },
     });
@@ -66,8 +67,8 @@ export function detect(asset: AssetId, candles: Candle[], source: string): Radar
     const ratio = last.v / medVol;
     if (ratio >= RULES.volumeRatio) out.push({
       ...base, id: `${asset}-volume-${last.t}`, kind: 'volume', severity: ratio >= 3 ? 'attention' : 'info',
-      title: `${asset} : volume ${ratio.toFixed(1)}× la normale`,
-      explanation: `Le volume échangé (${last.v.toFixed(1)} ${asset}) est ${ratio.toFixed(1)} fois la médiane des 20 séances précédentes. Volume mesuré sur une seule plateforme : il ne représente pas tout le marché.`,
+      title: `${asset} : volume ${fr(ratio, 1)}× la normale`,
+      explanation: `Le volume échangé (${fr(last.v, 1)} ${asset}) est ${fr(ratio, 1)} fois la médiane des 20 séances précédentes. Volume mesuré sur une seule plateforme : il ne représente pas tout le marché.`,
       rule: `volume ≥ ${RULES.volumeRatio} × médiane 20 j`, metrics: { ratio, volume: last.v, median20: medVol },
     });
 
@@ -76,7 +77,7 @@ export function detect(asset: AssetId, candles: Candle[], source: string): Radar
     if (rr >= RULES.rangeRatio) out.push({
       ...base, id: `${asset}-range-${last.t}`, kind: 'range', severity: 'info',
       title: `${asset} : amplitude intrajournalière élevée`,
-      explanation: `L'écart entre plus haut et plus bas atteint ${(((last.h - last.l) / last.c) * 100).toFixed(1)} % du cours, ${rr.toFixed(1)}× la médiane 20 j. Une amplitude forte signale un marché nerveux : le glissement et le risque d'exécution augmentent.`,
+      explanation: `L'écart entre plus haut et plus bas atteint ${fr(((last.h - last.l) / last.c) * 100, 1)} % du cours, ${fr(rr, 1)}× la médiane 20 j. Une amplitude forte signale un marché nerveux : le glissement et le risque d'exécution augmentent.`,
       rule: `(H-L)/C ≥ ${RULES.rangeRatio} × médiane 20 j`, metrics: { rangeRatio: rr },
     });
 
@@ -84,13 +85,13 @@ export function detect(asset: AssetId, candles: Candle[], source: string): Radar
     if (last.c > upper[n - 1]) out.push({
       ...base, id: `${asset}-bo-up-${last.t}`, kind: 'breakout', severity: 'attention',
       title: `${asset} : clôture au-dessus du plus haut 20 j`,
-      explanation: `Clôture à ${last.c.toFixed(2)} € au-dessus du plus haut des 20 séances précédentes (${upper[n - 1].toFixed(2)} €). Configuration à surveiller : beaucoup de cassures échouent et reviennent dans le canal.`,
+      explanation: `Clôture à ${fr(last.c, 2)} € au-dessus du plus haut des 20 séances précédentes (${fr(upper[n - 1], 2)} €). Configuration à surveiller : beaucoup de cassures échouent et reviennent dans le canal.`,
       rule: `clôture > max(H) des ${RULES.donchianN} jours précédents (canal de Donchian)`, metrics: { close: last.c, upper: upper[n - 1] },
     });
     if (last.c < lower[n - 1]) out.push({
       ...base, id: `${asset}-bo-down-${last.t}`, kind: 'breakout', severity: 'attention',
       title: `${asset} : clôture sous le plus bas 20 j`,
-      explanation: `Clôture à ${last.c.toFixed(2)} € sous le plus bas des 20 séances précédentes (${lower[n - 1].toFixed(2)} €). Le support observé a cédé ; cela n'implique pas mécaniquement une poursuite de la baisse.`,
+      explanation: `Clôture à ${fr(last.c, 2)} € sous le plus bas des 20 séances précédentes (${fr(lower[n - 1], 2)} €). Le support observé a cédé ; cela n'implique pas mécaniquement une poursuite de la baisse.`,
       rule: `clôture < min(B) des ${RULES.donchianN} jours précédents`, metrics: { close: last.c, lower: lower[n - 1] },
     });
   }
@@ -101,7 +102,7 @@ export function detect(asset: AssetId, candles: Candle[], source: string): Radar
     if (ratio >= RULES.volRegimeHigh || ratio <= RULES.volRegimeLow) out.push({
       ...base, id: `${asset}-vol-${last.t}`, kind: 'vol_regime', severity: ratio >= RULES.volRegimeHigh ? 'attention' : 'info',
       title: ratio >= RULES.volRegimeHigh ? `${asset} : la volatilité s'accélère` : `${asset} : marché anormalement calme`,
-      explanation: `Volatilité réalisée 7 j : ${(v7 * 100).toFixed(0)} % annualisés, contre ${(v90 * 100).toFixed(0)} % sur 90 j (ratio ${ratio.toFixed(2)}). ${ratio >= RULES.volRegimeHigh ? 'Les écarts de prix récents sont plus larges : des stops trop serrés seront touchés plus souvent.' : 'Les phases calmes précèdent parfois des mouvements brusques ; ce n\'est pas une règle.'}`,
+      explanation: `Volatilité réalisée 7 j : ${fr(v7 * 100, 0)} % annualisés, contre ${fr(v90 * 100, 0)} % sur 90 j (ratio ${fr(ratio, 2)}). ${ratio >= RULES.volRegimeHigh ? 'Les écarts de prix récents sont plus larges : des stops trop serrés seront touchés plus souvent.' : 'Les phases calmes précèdent parfois des mouvements brusques ; ce n\'est pas une règle.'}`,
       rule: `vol7/vol90 ≥ ${RULES.volRegimeHigh} ou ≤ ${RULES.volRegimeLow}`, metrics: { vol7: v7, vol90: v90, ratio },
     });
     const hi90 = Math.max(...candles.slice(n - 90).map((c) => c.h));
@@ -109,7 +110,7 @@ export function detect(asset: AssetId, candles: Candle[], source: string): Radar
     if (-dd >= RULES.drawdownFrom90dHigh) out.push({
       ...base, id: `${asset}-dd-${last.t}`, kind: 'drawdown', severity: 'info',
       title: `${asset} : ${pct(dd, 0)} depuis le plus haut 90 j`,
-      explanation: `Le cours est ${(-dd * 100).toFixed(1)} % sous son plus haut des 90 derniers jours (${hi90.toFixed(0)} €). Utile pour situer le contexte, pas pour décider seul.`,
+      explanation: `Le cours est ${fr(-dd * 100, 1)} % sous son plus haut des 90 derniers jours (${fr(hi90, 0)} €). Utile pour situer le contexte, pas pour décider seul.`,
       rule: `clôture ≤ (1 - ${RULES.drawdownFrom90dHigh}) × plus haut 90 j`, metrics: { drawdown: dd, high90: hi90 },
     });
   }
@@ -121,7 +122,7 @@ export function detect(asset: AssetId, candles: Candle[], source: string): Radar
     if (crossedUp || crossedDown) out.push({
       ...base, id: `${asset}-trend-${last.t}`, kind: 'trend', severity: 'info',
       title: `${asset} : clôture ${crossedUp ? 'au-dessus de' : 'sous'} la moyenne 50 j`,
-      explanation: `La moyenne mobile simple 50 j est à ${s50[n - 1].toFixed(0)} €. Ce croisement est fréquent et souvent annulé dans les jours suivants : à lire comme un repère de tendance, pas comme un signal.`,
+      explanation: `La moyenne mobile simple 50 j est à ${fr(s50[n - 1], 0)} €. Ce croisement est fréquent et souvent annulé dans les jours suivants : à lire comme un repère de tendance, pas comme un signal.`,
       rule: 'croisement de la clôture et de la SMA 50', metrics: { sma50: s50[n - 1], close: last.c },
     });
   }
@@ -138,7 +139,7 @@ export function detectCorrelation(a: AssetId, ca: Candle[], b: AssetId, cb: Cand
   return [{
     id: `corr-${a}-${b}-${ca[ca.length - 1].t}`, asset: 'PORTFOLIO', kind: 'correlation', severity: 'info',
     title: `${a} et ${b} évoluent presque ensemble`,
-    explanation: `Corrélation des rendements quotidiens sur 30 jours : ${rho.toFixed(2)}. Détenir les deux diversifie peu : une baisse de l'un s'accompagne le plus souvent d'une baisse de l'autre.`,
+    explanation: `Corrélation des rendements quotidiens sur 30 jours : ${fr(rho, 2)}. Détenir les deux diversifie peu : une baisse de l'un s'accompagne le plus souvent d'une baisse de l'autre.`,
     rule: `corrélation 30 j ≥ ${RULES.corrHigh}`, metrics: { rho }, dataAt: ca[ca.length - 1].t, source,
   }];
 }
@@ -149,8 +150,8 @@ export function detectSpread(q: Quote): RadarAlert[] {
   if (bps < RULES.spreadBps) return [];
   return [{
     id: `${q.asset}-spread-${q.at}`, asset: q.asset, kind: 'spread', severity: 'attention',
-    title: `${q.asset} : écart achat/vente élevé (${bps.toFixed(0)} pb)`,
-    explanation: `L'écart entre meilleur acheteur (${q.bid}) et meilleur vendeur (${q.ask}) coûte ${bps.toFixed(0)} points de base à l'aller-retour. Liquidité réduite : un ordre au marché sera exécuté moins bien.`,
+    title: `${q.asset} : écart achat/vente élevé (${fr(bps, 0)} pb)`,
+    explanation: `L'écart entre meilleur acheteur (${q.bid}) et meilleur vendeur (${q.ask}) coûte ${fr(bps, 0)} points de base à l'aller-retour. Liquidité réduite : un ordre au marché sera exécuté moins bien.`,
     rule: `spread ≥ ${RULES.spreadBps} pb`, metrics: { bps }, dataAt: q.at, source: q.source,
   }];
 }

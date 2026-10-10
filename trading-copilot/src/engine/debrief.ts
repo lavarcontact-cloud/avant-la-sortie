@@ -4,6 +4,9 @@ import type { LedgerState, Limits } from './types';
 import { valuate, type Marks } from './ledger';
 import { mean } from './indicators';
 
+const e = (x: number) => `${x.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+const p2 = (x: number) => `${(x * 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} %`;
+
 export interface DebriefItem { tone: 'positive' | 'negative' | 'neutral'; title: string; detail: string }
 
 export function debrief(s: LedgerState, marks: Marks, limits: Limits, peakEquity: number): DebriefItem[] {
@@ -14,8 +17,8 @@ export function debrief(s: LedgerState, marks: Marks, limits: Limits, peakEquity
 
   out.push({
     tone: v.netPnl >= 0 ? 'positive' : 'negative',
-    title: `Résultat net simulé : ${v.netPnl >= 0 ? '+' : ''}${v.netPnl.toFixed(2)} € (${(v.netReturn * 100).toFixed(2)} %)`,
-    detail: `Réalisé brut ${s.realizedGross.toFixed(2)} €, latent ${v.unrealized.toFixed(2)} €, frais ${s.feesPaid.toFixed(2)} €. Coûts implicites estimés (spread + glissement, déjà inclus dans les prix) : ${s.implicitCosts.toFixed(2)} €.`,
+    title: `Résultat net simulé : ${v.netPnl >= 0 ? '+' : ''}${e(v.netPnl)} (${p2(v.netReturn)})`,
+    detail: `Réalisé brut ${e(s.realizedGross)}, latent ${e(v.unrealized)}, frais ${e(s.feesPaid)}. Coûts implicites estimés (spread + glissement, déjà inclus dans les prix) : ${e(s.implicitCosts)}.`,
   });
 
   const grossAbs = Math.abs(s.realizedGross) + Math.abs(v.unrealized);
@@ -35,13 +38,13 @@ export function debrief(s: LedgerState, marks: Marks, limits: Limits, peakEquity
   if (wins.length && losses.length) {
     const aw = mean(wins.map((x) => x.netPnl)), al = Math.abs(mean(losses.map((x) => x.netPnl)));
     out.push(aw >= al
-      ? { tone: 'positive', title: 'Gains moyens supérieurs aux pertes moyennes', detail: `Gain moyen ${aw.toFixed(2)} € contre perte moyenne ${al.toFixed(2)} €.` }
-      : { tone: 'negative', title: 'Pertes moyennes supérieures aux gains moyens', detail: `Perte moyenne ${al.toFixed(2)} € contre gain moyen ${aw.toFixed(2)} €. Il faut alors un taux de réussite élevé pour rester positif.` });
+      ? { tone: 'positive', title: 'Gains moyens supérieurs aux pertes moyennes', detail: `Gain moyen ${e(aw)} contre perte moyenne ${e(al)}.` }
+      : { tone: 'negative', title: 'Pertes moyennes supérieures aux gains moyens', detail: `Perte moyenne ${e(al)} contre gain moyen ${e(aw)}. Il faut alors un taux de réussite élevé pour rester positif.` });
   }
   if (t.length && t.length < 10) out.push({ tone: 'neutral', title: 'Échantillon réduit', detail: `${t.length} opération(s) clôturée(s) : trop peu pour juger une méthode. Le hasard domine sur un petit nombre d'opérations.` });
 
   const dd = peakEquity > 0 ? v.equity / peakEquity - 1 : 0;
-  if (-dd > limits.maxDrawdownPct) out.push({ tone: 'negative', title: 'Limite de repli dépassée', detail: `Capital ${(-dd * 100).toFixed(1)} % sous son plus haut, au-delà de ta limite de ${(limits.maxDrawdownPct * 100).toFixed(0)} %.` });
+  if (-dd > limits.maxDrawdownPct) out.push({ tone: 'negative', title: 'Limite de repli dépassée', detail: `Capital ${(-dd * 100).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} % sous son plus haut, au-delà de ta limite de ${(limits.maxDrawdownPct * 100).toFixed(0)} %.` });
   const maxW = Math.max(0, ...v.lines.map((l) => l.value / v.equity));
   if (maxW > limits.maxPositionPct) out.push({ tone: 'negative', title: 'Concentration au-delà de ta limite', detail: `Une ligne pèse ${(maxW * 100).toFixed(0)} % du portefeuille (limite ${(limits.maxPositionPct * 100).toFixed(0)} %).` });
   return out;

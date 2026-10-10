@@ -6,9 +6,9 @@ import type { Answer } from './copilot';
 
 /** Extrait les nombres d'un texte, normalisés (séparateurs français et anglais). */
 export function extractNumbers(text: string): string[] {
-  const re = /\d{1,3}(?:[\s  ]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?/g;
+  const re = /\d{1,3}(?:[\s\u202f\u00a0]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?/g;
   return (text.match(re) ?? []).map((raw) => {
-    const n = parseFloat(raw.replace(/[\s  ]/g, '').replace(',', '.'));
+    const n = parseFloat(raw.replace(/[\s\u202f\u00a0]/g, '').replace(',', '.'));
     return String(Math.round(n * 1e6) / 1e6);
   });
 }

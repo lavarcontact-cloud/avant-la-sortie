@@ -86,7 +86,7 @@ function applyFill(s0: LedgerState, f: Fill): LedgerState {
       asset: f.asset, qty, avgPrice: avg, reservedQty: prev?.reservedQty ?? 0,
       entryFees: re((prev?.entryFees ?? 0) + f.fee),
       openedAt: qty0 > 0 ? prev!.openedAt : f.at,
-      stopPrice: order?.stopPrice ?? prev?.stopPrice,
+      stopPrice: f.stopPrice ?? order?.stopPrice ?? prev?.stopPrice,
     };
     s.positions[f.asset] = pos;
   } else {
@@ -201,6 +201,7 @@ function makeFill(o: Order, price: number, ref: number, implicit: number, ex: Ex
   return {
     orderId: o.id, asset: o.asset, side: o.side, qty: o.qty, price, refPrice: ref,
     fee: re(o.qty * price * ex.feeRate), implicitCost: re(implicit), at, quoteSource: src,
+    ...(o.stopPrice !== undefined ? { stopPrice: o.stopPrice } : {}),
   };
 }
 

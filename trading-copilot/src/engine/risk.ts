@@ -96,6 +96,8 @@ export function historicalVaR(returns: number[], confidence = 0.95) {
   return { var: -quantile(r, 1 - confidence), n: r.length, insufficient: false };
 }
 
+const fr = (x: number, d: number) => x.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+
 export interface LimitCheck {
   rule: keyof Limits;
   severity: 'block' | 'warn';
@@ -113,16 +115,16 @@ export function checkLimits(s: LedgerState, d: OrderDraft, price: number, marks:
     const cur = v.lines.find((l) => l.asset === d.asset)?.value ?? 0;
     const after = cur + d.qty * price;
     const w = after / eq;
-    if (w > limits.maxPositionPct + 1e-9) out.push({ rule: 'maxPositionPct', severity: 'warn', value: w, limit: limits.maxPositionPct, message: `Après cet ordre, ${d.asset} pèserait ${(w * 100).toFixed(1)} % du portefeuille, au-delà de ta limite de ${(limits.maxPositionPct * 100).toFixed(0)} %.` });
+    if (w > limits.maxPositionPct + 1e-9) out.push({ rule: 'maxPositionPct', severity: 'warn', value: w, limit: limits.maxPositionPct, message: `Après cet ordre, ${d.asset} pèserait ${fr(w * 100, 1)} % du portefeuille, au-delà de ta limite de ${fr(limits.maxPositionPct * 100, 0)} %.` });
     if (d.stopPrice === undefined) {
       if (limits.requireStop) out.push({ rule: 'requireStop', severity: 'warn', message: 'Aucun stop défini : la perte maximale de cette opération n\'est pas bornée par ton plan.' });
     } else {
       const risk = d.qty * (price - d.stopPrice) + s.execution.feeRate * d.qty * (price + d.stopPrice);
       const rp = risk / eq;
-      if (rp > limits.maxRiskPerTradePct + 1e-9) out.push({ rule: 'maxRiskPerTradePct', severity: 'warn', value: rp, limit: limits.maxRiskPerTradePct, message: `Perte au stop estimée : ${risk.toFixed(2)} € (${(rp * 100).toFixed(2)} % du capital), au-delà de ta limite de ${(limits.maxRiskPerTradePct * 100).toFixed(2)} % par opération.` });
+      if (rp > limits.maxRiskPerTradePct + 1e-9) out.push({ rule: 'maxRiskPerTradePct', severity: 'warn', value: rp, limit: limits.maxRiskPerTradePct, message: `Perte au stop estimée : ${fr(risk, 2)} € (${fr(rp * 100, 2)} % du capital), au-delà de ta limite de ${fr(limits.maxRiskPerTradePct * 100, 2)} % par opération.` });
     }
   }
   const dd = peakEquity > 0 ? eq / peakEquity - 1 : 0;
-  if (-dd > limits.maxDrawdownPct && d.side === 'buy') out.push({ rule: 'maxDrawdownPct', severity: 'warn', value: -dd, limit: limits.maxDrawdownPct, message: `Ton capital simulé est ${(-dd * 100).toFixed(1)} % sous son plus haut, au-delà de ta limite de repli de ${(limits.maxDrawdownPct * 100).toFixed(0)} %. Ton plan prévoit une pause.` });
+  if (-dd > limits.maxDrawdownPct && d.side === 'buy') out.push({ rule: 'maxDrawdownPct', severity: 'warn', value: -dd, limit: limits.maxDrawdownPct, message: `Ton capital simulé est ${fr(-dd * 100, 1)} % sous son plus haut, au-delà de ta limite de repli de ${fr(limits.maxDrawdownPct * 100, 0)} %. Ton plan prévoit une pause.` });
   return out;
 }

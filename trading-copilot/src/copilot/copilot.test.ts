@@ -53,7 +53,7 @@ describe('réponses', () => {
     const c = ctx(true);
     const a = answer('Quel serait l\'impact d\'une baisse de 5 % sur ma position ?', c);
     const expected = -0.05 * 0.05 * c.marks.BTC!;
-    expect(a.data[0].value.replace(/\s| /g, '')).toBe(`${expected.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€`.replace(/\s| /g, ''));
+    expect(a.data[0].value.replace(/\s|\u202f/g, '')).toBe(`${expected.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€`.replace(/\s|\u202f/g, ''));
   });
   it('conseil personnalisé : refus encadré', () => {
     const a = answer('Dois-je acheter du bitcoin maintenant ?', ctx());

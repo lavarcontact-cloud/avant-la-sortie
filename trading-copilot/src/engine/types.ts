@@ -63,6 +63,7 @@ export interface Fill {
   implicitCost: number; // coût estimé du spread + glissement en EUR
   at: number;
   quoteSource: string;
+  stopPrice?: number; // stop déclaré sur l'ordre d'origine (conservé pour le risque et le bilan)
 }
 
 export type LedgerEvent =
