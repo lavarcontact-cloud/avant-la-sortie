@@ -5,9 +5,9 @@
 **Ce qui a été analysé :**
 1. **Toute la parole**, à partir des sous-titres automatiques horodatés de YouTube (894 segments, ±1 s ; noms propres souvent déformés).
 2. **Toute la piste audio réelle** (MP3 320 kb/s récupéré via le connecteur Firecrawl) : intensité sonore par tranche de 30 s, silences, crêtes.
-3. **~40 images de la vidéo** capturées dans le lecteur YouTube (planches contact dans `analyse/`, hors dépôt). Le timecode d'une image est approximatif, à +0-6 s près.
+3. **Le fichier vidéo lui-même** (copie YouTube 720p), analysé en entier : coupes, noirs, silences, une image toutes les 10 s.
 
-**Ce qui n'a pas été analysé :** chaque plan. 40 images sur 47 minutes, c'est une image toutes les ~70 s en moyenne, plus dense dans les zones sans dialogue. Je n'identifie personne d'après son visage. Les noms viennent uniquement de ce qui est dit ou écrit.
+**Limite :** je n'identifie personne d'après son visage. Les noms viennent uniquement de ce qui est dit ou écrit.
 
 ---
 
@@ -62,6 +62,13 @@ Le bloc 42:05 → 46:50 (tournage de clip dans un parking, studio en lumière vi
 - **7:09 → 7:43** : l'attachée de presse est nommée après un juron, puis tu t'excuses trois fois. **À couper** (personne privée, contexte négatif).
 
 ---
+
+### 1.9 Mesures sur le fichier vidéo (analyse complète)
+- **Rythme** : 250 vraies coupes en 47 min (seuil strict), soit **un plan toutes les 11 s en moyenne**. **De 12:00 à 28:00, environ une coupe par minute** : de longs plans continus en vertical (performance de rue, rassemblement) sans aucun montage interne. C'est la mesure exacte du « manque de dynamisme ».
+- **Images inutilisables** : 35:56 → 37:25 (1 min 30 quasi noire, le debrief), 10:05 → 10:37 (la caméra filme la sangle du sac), 1:00 → 3:55 (nuit, très sombre, flou de bougé), 33:30 → 33:40 (fumée, rien de lisible).
+- **5 images noires parasites** (0,16 à 0,36 s) : 16:04,7 · 28:21,0 · 28:29,4 · 33:10,5 · 38:14,8.
+- **38:20 → 41:10** : 3 minutes de selfie statique sur le canapé.
+- **Qualité du fichier** : 720p à 1,2 Mb/s, une copie YouTube. Pour l'export final, il faut le master ou les rushs.
 
 ## 2. Ce que contiennent les blocs sans dialogue (vu à l'image)
 

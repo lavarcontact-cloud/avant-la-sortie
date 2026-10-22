@@ -4,5 +4,7 @@ node_modules/
 __pycache__/
 
 # Médias issus de la vidéo non répertoriée (non versionnés)
-vlog-remontage/analyse/*.jpg
+vlog-remontage/analyse/**/*.jpg
 vlog-remontage/*.mp3
+vlog-remontage/*.mp4
+vlog-remontage/media/

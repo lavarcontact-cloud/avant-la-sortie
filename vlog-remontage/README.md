@@ -8,33 +8,32 @@ Dossier exclu du déploiement du site (`.vercelignore`). Les médias tirés de l
 | A — Diagnostic | `A-diagnostic.md` |
 | B — Nouvelle structure | `out/structure.md` (+ `out/structure.csv` pour un tableur) |
 | C — Plan détaillé | `C-plan-detaille.md` (+ colonne « Traitement » de B, plan par plan) |
-| D — Exécution | ce fichier + `out/remontage.edl`, `out/titres.srt`, `tools/`, `remontage_audio_v1.mp3` (local) |
+| D — Exécution | ce fichier + `out/remontage.edl`, `out/titres.srt`, `tools/`, `remontage_v1_apercu.mp4` et `remontage_audio_v1.mp3` (locaux) |
 | E — Direction artistique | `E-direction-artistique.md` |
-| Analyse | `analyse/planche_*.jpg` (40 images de la vidéo, local), `analyse/loudness_30s.txt` |
+| Analyse | `analyse/video/` (coupes, noirs, silences, planches toutes les 10 s), `analyse/loudness_30s.txt` |
 
 ## État réel
 
 **Sources réellement exploitées**
+- **Le fichier vidéo** de la version YouTube (`media/SEBV2.mp4`, 1280×720, 25 i/s, H.264 à 1,2 Mb/s, AAC 44,1 kHz, 47:32,8). C'est une copie compressée, pas le master : assez bonne pour la structure, trop faible pour l'export final.
+- Analyse complète : coupes, noirs, silences, intensité sonore, une image toutes les 10 s sur 47 min (`analyse/video/`, local).
 - Sous-titres automatiques horodatés (toute la parole).
-- **Piste audio complète** (MP3 320 kb/s, 47:32) récupérée via le connecteur Firecrawl.
-- **40 images** capturées dans le lecteur YouTube, ciblées sur les zones sans dialogue et les moments clés. Le timecode d'une image est à +0-6 s près.
-- La vidéo elle-même n'est pas téléchargeable depuis cet environnement (YouTube bloqué par le réseau, et aucun connecteur ne rend le fichier vidéo).
 
 **Fait**
-- Diagnostic image + son + récit (A). Principaux constats : 1:50 de silence total, 17 dB d'écart de volume entre scènes, la moitié des scènes de rue en vertical avec bandes noires, fil rouge de l'accréditation enterré.
-- Nouvelle structure en 9 parties, 63 plans, **22:05** au lieu de 47:33. Elle tient dans `cutlist.py`, la source unique dont tout le reste est généré.
-- EDL CMX3600, piste guide `.srt` des textes, tableau CSV.
-- **`remontage_audio_v1.mp3`** : la bande-son complète du remontage (22:05), niveaux égalisés (-14,4 LUFS intégré, crête -0,7 dBFS, plage dynamique ramenée de 10,5 à 5,4 LU). **À écouter en premier** : c'est le nouveau récit, sans l'image.
+- Diagnostic image + son + récit (A), complété par l'analyse du fichier.
+- Nouvelle structure : 9 parties, 68 plans, **21:49** au lieu de 47:33 (`cutlist.py`, source unique).
+- Points de coupe vérifiés à l'image pour le concert et le cold open. 5 images noires parasites retirées. 3 plans à l'image inutilisable (noire, sangle du sac) recouverts par des images de la même scène ou de la même nuit (b-roll), le son restant d'origine.
+- EDL CMX3600 (événements image et son séparés pour les b-rolls), piste guide `.srt`, CSV.
+- **`remontage_v1_apercu.mp4`** : **l'assembly regardable de la nouvelle structure** (21:50, 540p), son égalisé plan par plan (-14,2 LUFS, crête -1,3 dBTP), repères de texte en blanc. C'est un **ours** (ordre, durées, rythme de récit), pas le montage fini.
 
-**Testé**
-- EDL : vérifiée par script (durée source = durée record pour chaque événement, timeline continue).
-- `render_rough.py` : testé sur une fausse source de 47:33 avec timecode incrusté (plans au bon timecode, durée exacte, seul noir = carton titre).
-- `render_audio.py` : exécuté sur la vraie piste audio ; intensité mesurée après rendu (chiffres ci-dessus).
-- `analyse_source.sh` : testé sur la fausse source.
+**Testé / vérifié**
+- EDL : durée source = durée record pour chaque événement, timeline continue (script).
+- Assembly : durée 21:49,8 pour 21:49,7 attendus ; seuls noirs = les 2 cartons voulus ; planches contact relues.
+- Mesures d'intensité après rendu (chiffres ci-dessus).
 
 **Pas fait**
-- Montage image final, motion design, sound design, étalonnage, export : spécifiés (C, E), à exécuter dans Premiere / After Effects avec le fichier vidéo.
-- Les points de coupe sont calés sur la parole et sur 40 images : à affiner image par image.
+- Motion design, sound design, triptyques verticaux, étalonnage, export final : spécifiés (C, E), à faire dans Premiere / After Effects, idéalement à partir du **master** et des rushs.
+- Les coupes hors concert et cold open restent calées sur la parole (±1 s) : à affiner image par image.
 
 ## Utilisation
 
@@ -49,7 +48,7 @@ ffprobe -v error -select_streams v -show_entries stream=r_frame_rate SEBV2.mp4
 python3 build.py --fps 25          # remplacer 25 par la cadence réelle
 
 # 2. Regarder la structure en vidéo (assembly, sans finition)
-python3 tools/render_rough.py SEBV2.mp4 --out assembly.mp4 --titles
+python3 tools/render_rough.py SEBV2.mp4 --out assembly.mp4 --titles --level
 
 # 3. Bande-son seule, niveaux égalisés
 python3 tools/render_audio.py SEBV2.mp4 --out remontage_audio.mp3

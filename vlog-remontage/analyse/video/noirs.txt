@@ -1,0 +1,5 @@
+[blackdetect @ 0x7f7b4c000d80] black_start:964.68 black_end:964.88 black_duration:0.2
+[blackdetect @ 0x7f7b4c000d80] black_start:1700.96 black_end:1701.16 black_duration:0.2
+[blackdetect @ 0x7f7b4c000d80] black_start:1709.4 black_end:1709.76 black_duration:0.36
+[blackdetect @ 0x7f7b4c000d80] black_start:1990.48 black_end:1990.64 black_duration:0.16
+[blackdetect @ 0x7f7b4c000d80] black_start:2294.76 black_end:2295.08 black_duration:0.32

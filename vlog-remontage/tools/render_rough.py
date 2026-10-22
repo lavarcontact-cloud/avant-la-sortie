@@ -6,6 +6,7 @@
 Ce n'est PAS le montage final : pas de motion design, pas de sound design.
 C'est l'ordre et la durée des plans, pour juger la structure en la regardant.
 --titles incruste les textes de cutlist.py en simple texte blanc (repères, pas du design).
+--level égalise le son plan par plan (-16 LUFS) puis cale le tout à -14 LUFS / -1 dBTP.
 Chaque plan est réencodé en H.264/AAC à cadence fixe, puis tout est concaténé.
 """
 import argparse
@@ -49,6 +50,7 @@ def main():
     p.add_argument("--out", default="assembly.mp4")
     p.add_argument("--height", type=int, default=720)
     p.add_argument("--titles", action="store_true")
+    p.add_argument("--level", action="store_true")
     args = p.parse_args()
 
     duration, fps = probe(args.source)
@@ -73,20 +75,31 @@ def main():
                        "-vf", vf, "-shortest", *enc, seg]
             else:
                 a, b = c["src"]
-                cmd = ["ffmpeg", "-y", "-v", "error", "-ss", f"{a:.3f}", "-i", args.source, "-t", f"{b - a:.3f}",
-                       "-vf", vf, *enc, seg]
+                v = c.get("broll", a)  # image de couverture éventuelle, son toujours de src
+                af = []
+                if args.level:
+                    af = ["-af", f"loudnorm=I=-16:TP=-2:LRA=11,afade=t=in:d=0.015,afade=t=out:st={b - a - 0.015:.3f}:d=0.015"]
+                # -t en sortie : chaque plan dure exactement b - a (pas de dérive cumulée)
+                cmd = ["ffmpeg", "-y", "-v", "error", "-ss", f"{v:.3f}", "-t", f"{b - a:.3f}", "-i", args.source,
+                       "-ss", f"{a:.3f}", "-t", f"{b - a:.3f}", "-i", args.source,
+                       "-map", "0:v:0", "-map", "1:a:0", "-vf", vf, *af, *enc, "-t", f"{b - a:.3f}", seg]
             subprocess.run(cmd, check=True)
             parts.append(seg)
             print(f"\r{i}/{len(CUTS)}", end="", flush=True)
         lst = os.path.join(tmp, "list.txt")
         with open(lst, "w") as f:
             f.writelines(f"file '{x}'\n" for x in parts)
+        if args.level:
+            audio = ["-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11,alimiter=limit=0.79:level=false",
+                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000"]
+        else:
+            audio = ["-c", "copy"]
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", lst,
-                        "-c", "copy", "-movflags", "+faststart", args.out], check=True)
+                        *audio, "-movflags", "+faststart", args.out], check=True)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     out_dur, _ = probe(args.out)
-    print(f"\n{args.out} : {out_dur / 60:.0f} min {out_dur % 60:04.1f} s")
+    print(f"\n{args.out} : {int(out_dur // 60)} min {out_dur % 60:04.1f} s")
 
 
 if __name__ == "__main__":

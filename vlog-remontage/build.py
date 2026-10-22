@@ -69,6 +69,14 @@ def write_edl(rows, fps, path):
             rec_in, rec_out = tc_f(rec, fps), tc_f(rec + dur, fps)
             rec += dur
             a, b = tc_f(src_in, fps), tc_f(src_in + dur, fps)
+            if r.get("broll") is not None:
+                # son de src, image prise ailleurs : deux événements sur la même position
+                v_in = round(r["broll"] * fps)
+                f.write(f"{r['n']:03d}  {REEL:<8} V     C        {tc_f(v_in, fps)} {tc_f(v_in + dur, fps)} {rec_in} {rec_out}\n")
+                f.write(f"* IMAGE DE COUVERTURE (b-roll) | {r['act']}\n\n")
+                f.write(f"{r['n']:03d}  {REEL:<8} AA    C        {a} {b} {rec_in} {rec_out}\n")
+                f.write(f"* SON | {r['goal']}\n\n")
+                continue
             # B = vidéo + audio 1/2 (AA/V)
             f.write(f"{r['n']:03d}  {REEL:<8} AA/V  C        {a} {b} {rec_in} {rec_out}\n")
             f.write(f"* FROM CLIP NAME: {REEL}.mp4\n")
