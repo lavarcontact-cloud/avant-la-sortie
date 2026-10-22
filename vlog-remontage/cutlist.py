@@ -1,0 +1,198 @@
+"""Liste de coupe du remontage « Seb V2 » (export YouTube 6YR1KuJPEqc, 47:33).
+
+Source unique : l'export aplati. Les points d'entrée/sortie sont en secondes
+de l'export, calés sur les sous-titres automatiques horodatés de YouTube
+(précision ~ ±1 s, aucune image visionnée). Ce sont des points de départ
+pour une assembly, à affiner à l'image dans Premiere.
+
+Champs :
+  act     acte de la nouvelle structure
+  src     (entrée, sortie) en secondes dans l'export
+  heard   ce qu'on entend (citation des sous-titres auto, approximative)
+  goal    objectif narratif
+  fx      traitement montage / motion / son
+  title   texte à l'écran (None = aucun) — seulement des infos dites dans la vidéo
+  check   ce qui doit être vérifié à l'image avant validation
+"""
+
+GAP = "GAP"  # carton généré (titre), pas de média source
+
+CUTS = [
+    # ---------------- COLD OPEN ----------------
+    dict(act="0 · Cold open", src=(2116, 2127), heard="« Merci… merci à vous… c'est réel »  [acclamations]",
+         goal="Ouvrir sur la récompense : la salle pleine.", fx="Plan foule le plus large, son salle plein pot, coupe sèche au silence.",
+         title=None, check="Confirmer que c'est bien la salle du concert."),
+    dict(act="0 · Cold open", src=(260.5, 265.5), heard="« …une accréditation. Ils m'ont dit non »",
+         goal="Poser le conflit : on lui a refusé l'accès.", fx="Punch-in 120 % sur « non », silence total 6 images avant. Bip sur le juron.",
+         title="REFUSÉ", check="Juron à bipper à 264-265 s."),
+    dict(act="0 · Cold open", src=(2145.5, 2148.5), heard="« C'était historique. Historique. »",
+         goal="Réponse au conflit, sans dire comment.", fx="Coupe sur le mot, écho court sur le 2e « historique ».",
+         title=None, check=None),
+    dict(act="0 · Cold open", src=(505, 511), heard="« ça l'a raté… oh non »  (RER manqué)",
+         goal="Respiration comique.", fx="Freeze frame sur « oh non », son de disque rayé ou silence.",
+         title=None, check=None),
+    dict(act="0 · Cold open", src=(1336, 1339.5), heard="« C'est la maison maintenant »  (quartier de KLM)",
+         goal="Promettre l'accès aux coulisses.", fx="Whip pan entrant + impact grave.",
+         title=None, check="Vérifier que KLM est à l'image avant d'annoncer son nom."),
+    dict(act="0 · Cold open", src=(2226.5, 2235), heard="« …j'en ai perdu mon téléphone. C'est une dinguerie »",
+         goal="Ouvrir une 2e boucle (le téléphone).", fx="Zoom lent pendant la phrase, coupe brutale.",
+         title=None, check=None),
+    dict(act="0 · Cold open", src=(2787, 2793), heard="« Dinguerie, dinguerie, dinguerie… »",
+         goal="Lancer le titre sur le rythme de la voix.", fx="Stutter-cut sur chaque « dinguerie » (1 plan différent de la semaine par mot), puis titre.",
+         title=None, check="Choisir 5-6 plans forts de la semaine pour le stutter."),
+    dict(act="0 · Cold open", src=GAP, dur=3, heard="—", goal="Carton titre.", fx="Titre du vlog + compteur J-5 qui s'affiche.",
+         title="UNE SEMAINE · PARIS", check="Titre définitif à choisir."),
+
+    # ---------------- ACTE 1 : NOCTURNE DANS LE 18 ----------------
+    dict(act="1 · Nocturne dans le 18", src=(60, 72), heard="« Let's go famille, on est de retour… on va déposer la nièce »",
+         goal="Présenter le narrateur en mouvement.", fx="Plans de route accélérés x1.5, pas de musique sous la voix.",
+         title=None, check="Le 0:00-1:00 d'origine (musique/guitare) n'est pas analysable sans l'image : à visionner."),
+    dict(act="1 · Nocturne dans le 18", src=(75, 98), heard="« Go dans le 18… on va faire Tiindu… cette année c'est l'année du 18… et le 95 »",
+         goal="Annoncer la mission du soir et le point de vue (le 18).", fx="Texte cinétique sur « l'année du 18 », jump cuts dans la tirade.",
+         title="PARIS 18", check="Orthographe exacte de l'artiste (sous-titres auto : « Tiindu »)."),
+    dict(act="1 · Nocturne dans le 18", src=(111, 125), heard="« Il est 21h26… on espère à 22h on sera là-bas… une nocturne »",
+         goal="Horloge : créer l'urgence.", fx="Compteur horaire animé 21:26 → 22:00 en tracking.",
+         title="21:26", check=None),
+    dict(act="1 · Nocturne dans le 18", src=(154, 160), heard="« La ligne 4, on rentre dedans. Let's go »",
+         goal="Transition de lieu.", fx="Whoosh de rame + match cut porte de métro.",
+         title="LIGNE 4", check=None),
+    dict(act="1 · Nocturne dans le 18", src=(161, 199), heard="« On arrive à Barbès… le quartier… — Tu fais un vlog ? — Ouais, et des clips »",
+         goal="Arrivée, première rencontre spontanée.", fx="Garder le son direct. Carte de lieu courte. Rire du passant isolé.",
+         title="BARBÈS", check="Identité des personnes à l'image."),
+    dict(act="1 · Nocturne dans le 18", src=(228, 243), heard="« Je suis arrivé… t'es où mon bros… c'est lui, c'est lui »",
+         goal="Retrouvailles : fin de l'arc du soir.", fx="Speed ramp sur la rencontre, puis plein son.",
+         title=None, check="Qui est « lui » : à nommer seulement si confirmé."),
+
+    # ---------------- ACTE 2 : J-5, L'AFFAIRE ACCRÉDITATION ----------------
+    dict(act="2 · J-5 : l'accréditation", src=(246, 278), heard="« 11h52… dans 5 jours c'est le concert de Batbat… ils m'ont dit non… on va les appeler en live »",
+         goal="Lancer le fil rouge de tout le vlog.", fx="Jump cuts serrés (couper chaque respiration). Compteur J-5 en incrustation fixe.",
+         title="J-5", check="Bip ~264 s."),
+    dict(act="2 · J-5 : l'accréditation", src=(283, 301), heard="« Dans 5 jours, historique… FGO-Barbara ramène B. pour son premier concert… semaine du 20 septembre »",
+         goal="Donner l'enjeu : premier concert de l'artiste à Paris.", fx="Affiche/story du concert en overlay si tu l'as.",
+         title="FGO-BARBARA · PARIS 18", check="Nom de la salle (sous-titres : « FJ/FG Barbara ») et date à confirmer."),
+    dict(act="2 · J-5 : l'accréditation", src=(340, 356), heard="« À tout moment ils vont dire non… on va envoyer un message à Batbat… Sony… montage pour Tiindu »",
+         goal="Plan B + programme de la journée.", fx="Liste à cocher animée (Batbat / Sony / montage).",
+         title=None, check=None),
+    dict(act="2 · J-5 : l'accréditation", src=(414, 429), heard="« FGO-Barbara m'a répondu… contactez notre chargée des relations presse »",
+         goal="Rebondissement : la porte reste fermée.", fx="Écran de mail/SMS recréé en motion (texte exact de la réponse si tu l'as).",
+         title=None, check="Couper avant le prénom de l'attachée de presse (429 s)."),
+    dict(act="2 · J-5 : l'accréditation", src=(433, 441), heard="« On retouche des photos… Brick Squad… je préfère faire ça »",
+         goal="Il retourne au travail : caractère.", fx="Time-lapse écran de retouche, musique calme.",
+         title=None, check=None),
+
+    # ---------------- ACTE 3 : LA ROUTE, LE PARFUM, SONY ----------------
+    dict(act="3 · Route, parfum, Sony", src=(465, 486), heard="« On a lavé la pièce… on prend la route… chaque jour free Palestine… »",
+         goal="Départ + valeurs du narrateur (gardées telles quelles).", fx="Plans de préparation en cuts sur le beat.",
+         title=None, check="Morceau cité : droits."),
+    dict(act="3 · Route, parfum, Sony", src=(495, 512), heard="« Le RER il est arrivé… oh, ça l'a raté… oh non… monte dans le R »",
+         goal="Gag du RER (payoff du teaser).", fx="Rejouer le freeze du cold open, cette fois avec la suite.",
+         title=None, check=None),
+    dict(act="3 · Route, parfum, Sony", src=(525, 537), heard="« Arrivé à Nation… mon parfum tient 5 minutes… on va à Printemps »",
+         goal="Mini-arc absurde.", fx="Compteur 5:00 qui décompte à l'écran.",
+         title="NATION", check=None),
+    dict(act="3 · Route, parfum, Sony", src=(546, 553), heard="« Parfum, première couche… »", goal="Tuto express.", fx="Split screen 3 cases (3 couches).",
+         title="COUCHE 1", check="Noms des parfums à vérifier à l'image."),
+    dict(act="3 · Route, parfum, Sony", src=(556, 560), heard="« …un classique… Sauvage »", goal="Tuto express.", fx="Case 2.",
+         title="COUCHE 2", check=None),
+    dict(act="3 · Route, parfum, Sony", src=(565, 571), heard="« …le Gentleman »", goal="Tuto express.", fx="Case 3, puis pschitt + coupe.",
+         title="COUCHE 3", check=None),
+    dict(act="3 · Route, parfum, Sony", src=(578, 599), heard="« On a laissé une bonne odeur… les logos Sony… Bonjour… pour Blue Sky ? »",
+         goal="Entrée dans le label.", fx="Transition masque sur le logo, ambiance hall en son.",
+         title="SONY MUSIC", check="Logos/marques : OK pour un vlog, flouter les écrans internes."),
+    dict(act="3 · Route, parfum, Sony", src=(605, 637), heard="« Une petite photo… — T'es photographe ? — Ouais »",
+         goal="Il est reconnu pour son métier.", fx="Freeze frame + flash photo, photo finale en plein écran.",
+         title=None, check="Identité de la personne photographiée."),
+    dict(act="3 · Route, parfum, Sony", src=(637, 657), heard="(aucune parole sur 1:53)",
+         goal="À VISIONNER : 637-750 s sans dialogue.", fx="Garder au plus 20 s de b-roll fort.",
+         title=None, check="Contenu inconnu : à visionner (637-750 s)."),
+    dict(act="3 · Route, parfum, Sony", src=(750, 782), heard="« Le Bx, ils sont morts dans le film… première partie… le 26 rendez-vous »",
+         goal="Moment de groupe, humour.", fx="Rires gardés, répétition « dead dead » en stutter.",
+         title=None, check="Qui parle ? Date du 26 à confirmer."),
+    dict(act="3 · Route, parfum, Sony", src=(791, 805), heard="[rires] « …jusque dans le 18 »", goal="Fin de scène.", fx="Coupe sur le rire.",
+         title=None, check=None),
+    dict(act="3 · Route, parfum, Sony", src=(823, 868), heard="(morceau rappé, 823-941 s)",
+         goal="À VISIONNER : perf, freestyle ou musique ajoutée ?", fx="Si perf filmée : 45 s max, montage sur les mesures.",
+         title=None, check="Nature de la séquence et droits du morceau."),
+
+    # ---------------- ACTE 4 : RETOUR DE NUIT ----------------
+    dict(act="4 · Retour de nuit", src=(956, 986), heard="« On reprend le vlog… retour du quartier… dans le 19, Rosa Parks… Porte de la Chapelle… plus de batterie »",
+         goal="Recontextualiser après la musique.", fx="Mini-carte animée 19e → Porte de la Chapelle, icône batterie qui se vide.",
+         title="ROSA PARKS → PORTE DE LA CHAPELLE", check=None),
+    dict(act="4 · Retour de nuit", src=(1099, 1135), heard="(cris, musique, peu de paroles)",
+         goal="À VISIONNER : 986-1310 s, 5 min quasi sans dialogue.", fx="Réduire les 5:24 à ~1:30 en tout.",
+         title=None, check="Contenu inconnu : choisir les meilleurs moments."),
+    dict(act="4 · Retour de nuit", src=(1251, 1302), heard="« Ouais ouais… j'envoie deux types en mission… reculez »",
+         goal="Fin du segment nocturne.", fx="Accéléré + coupe au noir sur « reculez ».",
+         title=None, check="À visionner."),
+
+    # ---------------- ACTE 5 : CHEZ KLM ----------------
+    dict(act="5 · Chez KLM", src=(1311, 1336), heard="« Nouveau jour… la route pour le quartier de KLM… 18h06… Lucas à 18h30 »",
+         goal="Nouvelle journée, nouvel objectif.", fx="Horloge 18:06 → 18:30.",
+         title="NOUVEAU JOUR · 18:06", check="Jour de la semaine à confirmer."),
+    dict(act="5 · Chez KLM", src=(1336, 1360), heard="« C'est la maison maintenant… tu vlogues en continu ? — depuis une semaine… le gars du moment »",
+         goal="Payoff du teaser + ton complice.", fx="Son direct, pas de musique.",
+         title="KLM", check="Vérifier que c'est KLM qui parle avant le nom à l'écran."),
+    dict(act="5 · Chez KLM", src=(1366, 1392), heard="« …la tenue… nouvelles lunettes… l'ancien, FBI… »", goal="Chambrage.", fx="Annotations dessinées (flèches) sur lunettes/tenue.",
+         title=None, check=None),
+    dict(act="5 · Chez KLM", src=(1399, 1424), heard="« Goyard… l'exclu elle est pour quand ?… pourquoi dans le vlog quand tu dis une date y a pas de son ? — TikTok… »",
+         goal="Meilleur gag de la vidéo.", fx="Couper le son sur une date juste avant cette réplique (setup), puis freeze + rire.",
+         title=None, check=None),
+    dict(act="5 · Chez KLM", src=(1480, 1512), heard="« Reculez… t'as pris le contrôle… obligé pour le vlog… le SMUR de Lariboisière »",
+         goal="Énergie de groupe.", fx="Cuts rapides, sirène reprise en sound design si présente.",
+         title=None, check=None),
+    dict(act="5 · Chez KLM", src=(1526, 1547), heard="« Ton nom bien sûr… je l'ai écrit… R-I-O-R-S-E-R-E… »",
+         goal="Quelqu'un épelle un nom.", fx="Lettres qui tombent une par une au rythme de l'épellation.",
+         title=None, check="Nom épelé à vérifier (sous-titres illisibles)."),
+    dict(act="5 · Chez KLM", src=(1559, 1604), heard="(morceau, 1547-1795 s)",
+         goal="À VISIONNER : clip, studio ou playback ?", fx="45 s max.",
+         title=None, check="Nature et droits."),
+
+    # ---------------- ACTE 6 : J-0, LE CONCERT ----------------
+    dict(act="6 · J-0 : le concert", src=GAP, dur=2, heard="—", goal="Le compteur arrive à zéro.", fx="J-5 → J-0 en flip, basse qui monte.",
+         title="J-0", check=None),
+    dict(act="6 · J-0 : le concert", src=(1795, 1802), heard="« Tu veux du bruit s'il vous plaît ? La famille ! »", goal="Entrée en scène.", fx="Coupe sur le cri du public.",
+         title="SOLD OUT", check="« Sold out » dit à 2335 s."),
+    dict(act="6 · J-0 : le concert", src=(1941, 1975), heard="« J'entends des voix… »", goal="Temps fort live.", fx="Ralentis sur le public, son salle.",
+         title=None, check="Droits : extrait live court."),
+    dict(act="6 · J-0 : le concert", src=(2025, 2075), heard="« J'arrive en méchant… tu m'as reconnu… »", goal="Climax.", fx="Montage sur les temps forts, plans backstage intercalés.",
+         title=None, check="Droits."),
+    dict(act="6 · J-0 : le concert", src=(2111, 2152), heard="« Merci… go à l'arrière… tu es la boss… on a perdu 500 g… c'était historique »",
+         goal="Payoff du fil rouge.", fx="Musique coupée net, voix seules. Écho de « REFUSÉ » barré.",
+         title=None, check="Comment il est entré : à expliquer si c'est montrable."),
+
+    # ---------------- ACTE 7 : LE LENDEMAIN ----------------
+    dict(act="7 · Le lendemain", src=(2156, 2183), heard="« Samedi, j'étais au concert de B… assis sur mon sac… la semaine a été intense »",
+         goal="Respiration, sincérité.", fx="Plan fixe, aucun effet.",
+         title=None, check=None),
+    dict(act="7 · Le lendemain", src=(2223, 2256), heard="« …j'en ai perdu mon téléphone… dans le balcon… j'ai des objectifs, des rêves »",
+         goal="Payoff du teaser téléphone.", fx="Rappel flash du teaser.",
+         title=None, check=None),
+    dict(act="7 · Le lendemain", src=(2259, 2282), heard="« Gare du Nord… toujours pas de téléphone… 2h23… le bus il part »", goal="Gag.", fx="Bus qui part en accéléré.",
+         title="GARE DU NORD · 02:23", check=None),
+    dict(act="7 · Le lendemain", src=(2284, 2318), heard="« Dimanche, dernier jour… je crois savoir où est mon téléphone… dans la loge »",
+         goal="Révélation : il était en loge.", fx="Zoom sur « dans la loge ».",
+         title="DIMANCHE", check=None),
+    dict(act="7 · Le lendemain", src=(2326, 2340), heard="« …historique. Premier concert sur Paris. Sold out »", goal="Résumé de la victoire.", fx="Texte SOLD OUT tamponné.",
+         title=None, check=None),
+    dict(act="7 · Le lendemain", src=(2346, 2383), heard="« Avant-hier on avait fait… mercredi… encore avant, j'étais dans le 95… le freestyle… »",
+         goal="Récap de la semaine.", fx="Flashbacks en 0,5 s par jour cité, sur sa voix.",
+         title=None, check="Associer chaque jour cité à ses images."),
+    dict(act="7 · Le lendemain", src=(2430, 2457), heard="« On a fait un peu de montage… les images de Batbat… aller chercher le téléphone »",
+         goal="Nouvelle mini-quête.", fx="Checklist animée reprise de l'acte 2.",
+         title=None, check=None),
+    dict(act="7 · Le lendemain", src=(2466, 2490), heard="« Gare du Nord… on est au BK… mon téléphone… récupéré »", goal="Fin de la quête téléphone.", fx="Sonnerie / notification en sound design.",
+         title=None, check="Confirmer à l'image qu'il récupère bien le téléphone."),
+    dict(act="7 · Le lendemain", src=(2499, 2525), heard="« Petit opening la food… canette… je mettrai son Instagram dans la vidéo »",
+         goal="Respiration légère.", fx="Carte Instagram animée (pseudo exact requis).",
+         title=None, check="Pseudo Instagram à fournir."),
+    dict(act="7 · Le lendemain", src=(2750, 2810), heard="« 8h05 sorti de chez moi… le clip de SA… photographe… studio… dinguerie »",
+         goal="Une journée de taf, de bout en bout.", fx="Montage très rapide des photos du shooting.",
+         title=None, check="Chronologie : quel jour ? (2432 s parle des images de SA « d'hier »)."),
+    dict(act="7 · Le lendemain", src=(2821, 2852), heard="« Il est 9h12… je suis fatigué »", goal="Retombée.", fx="Son étouffé, image qui ralentit.",
+         title="09:12", check=None),
+
+    # ---------------- OUTRO ----------------
+    dict(act="8 · Outro", src=(2383, 2392), heard="« L'objectif c'est commencer le clip lundi… la nouvelle semaine elle va être sale »",
+         goal="Boucle ouverte vers l'épisode suivant.", fx="Coupe au noir sur « sale », carton fin.",
+         title="SEMAINE 2", check=None),
+]
