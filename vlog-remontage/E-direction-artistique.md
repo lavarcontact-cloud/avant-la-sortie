@@ -21,6 +21,7 @@
 - Tracking (annotations, flèches) : seulement quand l'objet bouge peu et que l'info est utile.
 - Freeze frame : maximum **un par séquence**, toujours sur une réaction. Détourage + contour corail réservés à 3 ou 4 moments dans toute la vidéo (REFUSÉ, gag TikTok, « historique », téléphone).
 - Split screen : uniquement pour les actions parallèles ou en série (le parfum, le récap de la semaine).
+- **Plans verticaux** (la moitié des scènes de rue) : jamais de bandes noires. Fond flouté pour la parole, **triptyque** pour l'énergie (foule, performance), split 2 × 9:16 pour le parallèle. Le triptyque devient une signature du vlog : c'est lui qui donne le look « réalisateur » au contenu tourné au téléphone. Le retour au **plein cadre 16:9** est réservé aux moments forts (entrée du concert, Sony, chez KLM), pour que le changement de format se ressente.
 
 ## 3. Transitions
 | Type | Quand | Exemples |
@@ -47,6 +48,8 @@
 
 ## 6. Palette sonore
 - **Base : le son direct.** C'est lui qui fait l'immersion.
+- **Remise à niveau d'abord** : l'export actuel varie de -12 à -29 LUFS selon les scènes. Toute scène parlée doit être à -16 LUFS (± 1) avant d'ajouter le moindre effet. Référence d'écoute : `remontage_audio_v1.mp3`.
+- **Aucun trou de son** : l'export a 1:50 de silence numérique (10:40 → 12:30). Toute image doit avoir au moins une ambiance.
 - Impacts graves (sub 40-60 Hz) : uniquement sur les punchs (REFUSÉ, J-0, coupe du concert).
 - Whooshes : sur les whip pans et les cartes de lieu, pas sur chaque coupe.
 - **Silence** : outil principal de rupture. 4 à 8 images de silence avant une phrase choc.
@@ -56,6 +59,7 @@
 
 ## 7. Étalonnage
 - Partir de l'export : corrections **légères** seulement (l'image est déjà compressée).
+- Priorité aux scènes de nuit presque noires (1:15 → 3:55, 36:05) : remonter les noirs et les tons moyens, accepter un peu de bruit plutôt qu'une image illisible. Si un plan reste illisible, le couper.
 - Une balance de base par lieu ou journée pour unifier les plans caméra et téléphone : correction de la balance des blancs, noirs légèrement relevés (pas de noir écrasé).
 - Look : contraste modéré, saturation -5 à -10 %, peaux protégées (qualifieur sur les tons chair). Grain fin optionnel pour fondre caméra et téléphone.
 - Pas de LUT « cinéma » appliquée à fond : avec un export 8 bits, ça bande et ça dégrade.

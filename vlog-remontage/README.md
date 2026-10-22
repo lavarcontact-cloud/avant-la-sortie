@@ -1,63 +1,73 @@
 # Remontage du vlog « Seb V2 »
 
 Source : vidéo YouTube non répertoriée `6YR1KuJPEqc` (47:33).
-Dossier exclu du déploiement du site (`.vercelignore`).
+Dossier exclu du déploiement du site (`.vercelignore`). Les médias tirés de la vidéo (MP3, planches) restent en local, hors git (`.gitignore`).
 
 | Livrable | Fichier |
 |---|---|
 | A — Diagnostic | `A-diagnostic.md` |
 | B — Nouvelle structure | `out/structure.md` (+ `out/structure.csv` pour un tableur) |
 | C — Plan détaillé | `C-plan-detaille.md` (+ colonne « Traitement » de B, plan par plan) |
-| D — Exécution | ce fichier + `out/remontage.edl`, `out/titres.srt`, `tools/` |
+| D — Exécution | ce fichier + `out/remontage.edl`, `out/titres.srt`, `tools/`, `remontage_audio_v1.mp3` (local) |
 | E — Direction artistique | `E-direction-artistique.md` |
+| Analyse | `analyse/planche_*.jpg` (40 images de la vidéo, local), `analyse/loudness_30s.txt` |
 
 ## État réel
 
+**Sources réellement exploitées**
+- Sous-titres automatiques horodatés (toute la parole).
+- **Piste audio complète** (MP3 320 kb/s, 47:32) récupérée via le connecteur Firecrawl.
+- **40 images** capturées dans le lecteur YouTube, ciblées sur les zones sans dialogue et les moments clés. Le timecode d'une image est à +0-6 s près.
+- La vidéo elle-même n'est pas téléchargeable depuis cet environnement (YouTube bloqué par le réseau, et aucun connecteur ne rend le fichier vidéo).
+
 **Fait**
-- Analyse de toute la parole de la vidéo à partir des sous-titres automatiques horodatés de YouTube.
-- Nouvelle structure en 9 parties, 58 plans, **21:08** au lieu de 47:33. Elle tient dans `cutlist.py`, la source unique dont tout le reste est généré.
-- EDL CMX3600 (Premiere / Resolve / Avid), piste de textes `.srt` calée sur la nouvelle timeline, tableau CSV.
-- Script de rendu d'une **assembly** (version de travail) et script d'analyse technique de la source.
+- Diagnostic image + son + récit (A). Principaux constats : 1:50 de silence total, 17 dB d'écart de volume entre scènes, la moitié des scènes de rue en vertical avec bandes noires, fil rouge de l'accréditation enterré.
+- Nouvelle structure en 9 parties, 63 plans, **22:05** au lieu de 47:33. Elle tient dans `cutlist.py`, la source unique dont tout le reste est généré.
+- EDL CMX3600, piste guide `.srt` des textes, tableau CSV.
+- **`remontage_audio_v1.mp3`** : la bande-son complète du remontage (22:05), niveaux égalisés (-14,4 LUFS intégré, crête -0,7 dBFS, plage dynamique ramenée de 10,5 à 5,4 LU). **À écouter en premier** : c'est le nouveau récit, sans l'image.
 
 **Testé**
-- `build.py` : EDL vérifiée par script. Chaque événement a une durée source égale à sa durée record, et la timeline est continue, sans trou ni chevauchement.
-- `tools/render_rough.py` : testé sur une fausse source de 47:33 avec timecode incrusté. Les plans tombent au bon timecode source (35:16, 04:20, 39:51 contrôlés à l'image), le rendu dure exactement 21:08 à 25 i/s, et le seul noir est le carton titre voulu.
-- `tools/analyse_source.sh` : détection des coupes, des noirs, des silences, de l'intensité sonore et planches contact, testée sur la même fausse source.
+- EDL : vérifiée par script (durée source = durée record pour chaque événement, timeline continue).
+- `render_rough.py` : testé sur une fausse source de 47:33 avec timecode incrusté (plans au bon timecode, durée exacte, seul noir = carton titre).
+- `render_audio.py` : exécuté sur la vraie piste audio ; intensité mesurée après rendu (chiffres ci-dessus).
+- `analyse_source.sh` : testé sur la fausse source.
 
-**Pas fait (et pourquoi)**
-- **Je n'ai vu aucune image** : YouTube est bloqué en téléchargement dans mon environnement. Les points de coupe viennent de la parole (±1 s) et tous les blocs musicaux sont marqués « À VISIONNER ».
-- Pas de motion design, de sound design ni d'étalonnage réalisés : ils sont spécifiés (C et E), à exécuter dans Premiere / After Effects.
-- Pas d'export final.
+**Pas fait**
+- Montage image final, motion design, sound design, étalonnage, export : spécifiés (C, E), à exécuter dans Premiere / After Effects avec le fichier vidéo.
+- Les points de coupe sont calés sur la parole et sur 40 images : à affiner image par image.
 
 ## Utilisation
 
 Prérequis : Python 3 et ffmpeg (`brew install ffmpeg` sur Mac).
 
 ```bash
-# 0. Récupérer l'export (ou mieux, ton fichier master d'origine), le nommer SEBV2.mp4
-yt-dlp -f "bv*+ba/b" -o SEBV2.mp4 "https://youtu.be/6YR1KuJPEqc"
+# 0. Placer l'export (ou mieux, le master d'origine) ici sous le nom SEBV2.mp4
+#    (sur ta machine : yt-dlp -f "bv*+ba/b" -o SEBV2.mp4 "https://youtu.be/6YR1KuJPEqc")
 
-# 1. Vérifier la cadence (r_frame_rate) puis générer EDL / SRT / tableaux
+# 1. Vérifier la cadence, puis générer EDL / SRT / tableaux
 ffprobe -v error -select_streams v -show_entries stream=r_frame_rate SEBV2.mp4
 python3 build.py --fps 25          # remplacer 25 par la cadence réelle
 
-# 2. Regarder la structure avant tout travail de finition
+# 2. Regarder la structure en vidéo (assembly, sans finition)
 python3 tools/render_rough.py SEBV2.mp4 --out assembly.mp4 --titles
 
-# 3. Analyse technique de la source (et planches contact à m'envoyer)
+# 3. Bande-son seule, niveaux égalisés
+python3 tools/render_audio.py SEBV2.mp4 --out remontage_audio.mp3
+
+# 4. Analyse technique (coupes, noirs, silences, loudness, planches contact)
 bash tools/analyse_source.sh SEBV2.mp4 analyse
 ```
 
 ### Dans Premiere Pro
-1. Fichier > Importer > `out/remontage.edl` (réglages de séquence = ceux de l'export). Quand Premiere demande les médias, lier la bobine `SEBV2` à `SEBV2.mp4`.
-2. Importer `out/titres.srt` et le glisser sur la séquence : c'est une **piste guide**. Chaque texte indique où placer un titre animé (After Effects / Essential Graphics) selon `E-direction-artistique.md`.
-3. Affiner chaque coupe à l'image (les points d'entrée et de sortie sont à ±1 s), puis appliquer la colonne « Traitement » de `out/structure.md`.
-4. Garder le projet du premier monteur **intact**. Travailler dans une copie ou dans une nouvelle séquence.
+1. Fichier > Importer > `out/remontage.edl` (réglages de séquence = ceux de l'export). Lier la bobine `SEBV2` à `SEBV2.mp4`.
+2. Importer `out/titres.srt` sur la séquence : c'est une **piste guide**, pas l'habillage final.
+3. Son d'abord : *Audio Essentiel > Dialogue > Unifier l'intensité* sur toutes les scènes parlées, puis comparer avec `remontage_audio_v1.mp3`.
+4. Plans verticaux : appliquer la règle de `C-plan-detaille.md` (fond flouté / triptyque).
+5. Garder le projet du premier monteur **intact**. Travailler dans une nouvelle séquence.
 
 ### Modifier la structure
-Tout se change dans `cutlist.py` (ordre, entrées et sorties, textes), puis relancer `python3 build.py`. Ne pas éditer les fichiers de `out/` à la main.
+Tout se change dans `cutlist.py`, puis relancer `python3 build.py`. Ne pas éditer `out/` à la main.
 
 ## Ce qu'il me faut pour aller plus loin
-1. **Le projet Premiere du monteur + les rushs**, sinon au moins le master non compressé. Avec seulement l'export, impossible de séparer voix et musique ou de reprendre un plan plus long.
-2. Ou, a minima, l'**accès à la vidéo** depuis cet environnement (autoriser `youtube.com` et `googlevideo.com` dans le réseau de l'environnement), ou les **planches contact** produites par `analyse_source.sh` : je pourrai alors choisir les plans des zones « À VISIONNER ».
-3. Les vérifications listées dans la colonne ⚠ de `out/structure.md` : noms exacts, salle, jours, et comment tu es entré au concert.
+1. **Le projet Premiere + les rushs** (ou au moins le master) : pour retrouver le son manquant de 10:40 → 12:30 et séparer voix et musique.
+2. **Les confirmations de la colonne ⚠** de `out/structure.md` : noms exacts, salle, ordre des derniers jours, comment tu es entré au concert, timecode de Leto.

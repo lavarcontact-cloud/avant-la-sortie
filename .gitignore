@@ -2,3 +2,7 @@ node_modules/
 .vercel
 .DS_Store
 __pycache__/
+
+# Médias issus de la vidéo non répertoriée (non versionnés)
+vlog-remontage/analyse/*.jpg
+vlog-remontage/*.mp3

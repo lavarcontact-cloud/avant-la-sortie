@@ -2,104 +2,112 @@
 
 **Source analysée :** « Seb V2 », YouTube non répertoriée (`6YR1KuJPEqc`), chaîne RÉALISATEUR DE TES RÊVE(S), mise en ligne le 19/10/2026. **Durée réelle : 47:33** (et non 42 min).
 
-**Ce qui a été analysé :** les sous-titres automatiques horodatés de YouTube (894 segments), c'est-à-dire **la parole uniquement**, avec les erreurs habituelles de la transcription automatique (noms propres déformés, paroles de morceaux à moitié reconnues).
-**Ce qui n'a PAS été analysé :** l'image. Le téléchargement depuis YouTube est bloqué dans mon environnement. Je n'ai vu aucun plan, aucun cadrage, aucun visage. Tous les timecodes ci-dessous viennent des sous-titres (précision ±1 s).
+**Ce qui a été analysé :**
+1. **Toute la parole**, à partir des sous-titres automatiques horodatés de YouTube (894 segments, ±1 s ; noms propres souvent déformés).
+2. **Toute la piste audio réelle** (MP3 320 kb/s récupéré via le connecteur Firecrawl) : intensité sonore par tranche de 30 s, silences, crêtes.
+3. **~40 images de la vidéo** capturées dans le lecteur YouTube (planches contact dans `analyse/`, hors dépôt). Le timecode d'une image est approximatif, à +0-6 s près.
+
+**Ce qui n'a pas été analysé :** chaque plan. 40 images sur 47 minutes, c'est une image toutes les ~70 s en moyenne, plus dense dans les zones sans dialogue. Je n'identifie personne d'après son visage. Les noms viennent uniquement de ce qui est dit ou écrit.
 
 ---
 
 ## 1. Les défauts principaux
 
-### 1.1 Près de la moitié de la vidéo n'a pas de dialogue
-Cinq blocs sans parole exploitable (musique, cris, morceaux rappés) :
+### 1.1 Un trou de son de 1 min 50 s
+**De 10:40 à 12:30, la piste audio est en silence numérique total** (-∞), alors que l'image continue : des plans de rue soignés, en paysage, puis des plans verticaux (11:05, 11:55). Le son a probablement été coupé à l'export, par exemple une musique retirée. C'est le défaut le plus grave de la version actuelle. Un spectateur sur deux croit à un bug et quitte la vidéo.
 
-| Bloc | Durée | Ce qu'on entend |
-|---|---|---|
-| 10:37 → 12:30 | 1:53 | rien de transcrit |
-| 13:43 → 15:41 | 2:00 | un morceau rappé (« reste là même si t'as la… ») |
-| 16:26 → 21:50 | 5:24 | cris, musique, quelques mots (« j'envoie deux types en mission », « reculez ») |
-| 25:47 → 35:11 | 9:24 | morceaux, puis le concert (« tu veux du bruit s'il vous plaît », « j'entends des voix ») |
-| 42:05 → 45:49 | 3:44 | musique |
+### 1.2 Des écarts de volume énormes
+| Passage | Intensité moyenne |
+|---|---|
+| Concert (28:00 → 35:10) | **-12 LUFS** |
+| Tournage + studio (42:05 → 45:49) | -13 LUFS |
+| Parlé, jour 1 | -16 LUFS |
+| Accréditation (4:06 → 6:00) | -19 LUFS |
+| Parfum (8:45 → 9:40) | -20 LUFS |
+| Debrief assis (35:56 → 37:36) | -24 LUFS |
+| **Dimanche matin (38:04 → 40:19)** | **-29 LUFS** |
 
-**Total ≈ 22 min 20 s, soit 47 % de la vidéo.** Sans voir l'image, je ne peux pas savoir si ce sont des performances filmées ou de la musique posée sur des plans. Dans les deux cas, ce sont les zones où le spectateur décroche. Ce sont aussi les zones à risque **Content ID** : des morceaux entiers peuvent faire démonétiser ou bloquer la vidéo.
+Il y a **17 dB d'écart** entre le concert et le dimanche matin. Le spectateur monte le son pour entendre la fin, puis se fait agresser par la musique suivante. Le niveau global (-13,7 LUFS) est bon, mais la **crête monte à +0,5 dBFS** : il y a de la saturation.
 
-### 1.2 Le fil rouge est enterré
-Le meilleur moteur narratif de la vidéo existe déjà dans les rushs :
-- **4:06**, on lui refuse l'accréditation pour le concert de Batbat « dans 5 jours », alors qu'il est photographe-vidéaste et qu'il l'a déjà accompagné.
-- **6:54**, la salle lui répond de passer par l'attachée de presse.
-- **35:17 à 35:52**, il est au concert, la salle crie, « c'était historique ».
-- **38:25**, on apprend qu'il a laissé son téléphone **dans la loge**.
+### 1.3 Beaucoup d'images verticales posées dans du 16:9
+Une grande partie des scènes de rue est filmée **en vertical** et affichée avec deux bandes noires : 11:55, 12:45, 14:05, 17:20, 19:00, 20:55, 23:20, 24:50, 25:45, 27:20, 42:40. **Plus de la moitié de l'écran est noire** pendant de longues minutes. C'est le défaut visuel le plus visible. C'est aussi une opportunité : ces plans sont prêts pour les Shorts, et en 16:9 on peut les traiter en triptyque, en fond flouté ou en split screen.
 
-Entre 6:54 et 35:17, soit **28 minutes**, rien ne rappelle cet enjeu. Le spectateur l'a oublié au moment du payoff. Et on ne sait jamais **comment** il est entré.
+### 1.4 Des images de nuit très sombres
+De 1:15 à 3:55 (nocturne dans le 18) et à 36:05 (debrief assis), l'image est presque noire et floue de bougé. Sur ces passages, l'étalonnage (remonter les noirs) et le raccourcissement sont prioritaires.
 
-### 1.3 Pas d'accroche
-0:00 à 1:00 : musique, chant, « ça fait mal à la tête… elle a sorti la guitare ». Ensuite, « on est de retour » et on part déposer la nièce. Aucune promesse, aucun enjeu avant 4:06.
+### 1.5 Le fil rouge est enterré
+- **4:06**, on te refuse l'accréditation pour le concert de Batbat « dans 5 jours ».
+- **6:54**, la salle te renvoie vers l'attachée de presse.
+- **28:00 → 35:11**, le concert : scène, projecteurs, foule, drapeaux.
+- **35:17**, tu es **dans le couloir des coulisses** avec l'équipe (vu à l'image).
+- **38:25**, ton téléphone est resté **dans la loge**.
 
-### 1.4 La chronologie est floue
-Aucun repère de jour à l'écran. Les seuls indices sont parlés :
+Entre 6:54 et 28:00, rien ne rappelle cet enjeu. Et on ne sait jamais **comment** tu es entré.
+
+### 1.6 Pas d'accroche
+0:00 → 1:00, un montage d'ouverture : une foule de nuit sous une structure de scène (0:15), une danse dans un salon (0:45). Ce sont de bonnes images, mais sans promesse ni enjeu. Le vrai crochet (l'accréditation refusée) arrive à 4:06.
+
+### 1.7 La chronologie est floue
+Aucun repère de jour à l'écran. Les indices parlés :
 - « 11h52 », 4:06
 - « nouveau jour », 21:51
 - « il doit être samedi », 35:56
-- « on est dimanche, dernier jour », 38:04
-- puis, à 45:50, une **autre** journée (« 8h05 sorti de chez moi… on a fait le clip de SA… studio »), placée après le dimanche.
+- « dimanche, dernier jour », 38:04
 
-À 40:32, il parle pourtant des « images de SA d'hier ». **L'ordre de la fin est contradictoire** et doit être vérifié avec toi.
+Le bloc 42:05 → 46:50 (tournage de clip dans un parking, studio en lumière violette, « le clip de SA… studio ») est placé **après** le dimanche. Pourtant, à 40:32, tu parles des « images de SA d'hier ». **L'ordre de la fin est à confirmer.**
 
-### 1.5 Des monologues trop longs, et deux passages risqués
-- **4:06 → 6:12** : 2 minutes de discours sur l'accréditation, avec beaucoup de répétitions (« scammers » trois fois, « historique » quatre fois).
-- **5:08 → 5:14** : « il y a un an il était en prison ». C'est une information sensible sur un artiste. **À couper**, sauf accord de l'artiste.
-- **7:09 → 7:43** : il nomme l'attachée de presse (« Julie ») après un juron, puis s'excuse trois fois. **À couper** : c'est une personne privée, identifiable, dans un contexte négatif. Les excuses répétées affaiblissent aussi le personnage.
-
-### 1.6 Rythme uniforme
-Les scènes parlées sont laissées en continu (respirations, hésitations, « vas-y famille » répétés). Les blocs musicaux sont longs. Il manque l'alternance rapide / lent / silence qui fait la rétention.
+### 1.8 Des monologues trop longs, et deux passages risqués
+- **4:06 → 6:12** : 2 min de discours avec beaucoup de répétitions.
+- **5:08 → 5:14** : « il y a un an il était en prison ». Information sensible sur un artiste : **à couper**, sauf accord de l'artiste.
+- **7:09 → 7:43** : l'attachée de presse est nommée après un juron, puis tu t'excuses trois fois. **À couper** (personne privée, contexte négatif).
 
 ---
 
-## 2. Les séquences les plus fortes à préserver
+## 2. Ce que contiennent les blocs sans dialogue (vu à l'image)
+
+| Bloc | Durée | Contenu | Décision |
+|---|---|---|---|
+| 10:37 → 12:30 | 1:53 | Plans de rue en paysage + verticaux, **sans aucun son** | 12 s, avec une nouvelle musique libre de droits |
+| 13:43 → 15:41 | 2:00 | **Performance rap dans la rue**, en vertical | 30 s, en triptyque |
+| 16:26 → 21:50 | 5:24 | **Rassemblement dans un parc / quartier** : foule serrée, téléphones levés, en vertical | ~1:50 au total |
+| 25:47 → 28:00 | 2:13 | Rap de nuit dans la rue, en vertical | 45 s |
+| 28:00 → 35:11 | 7:11 | **Le concert**, en paysage : scène, fumée, projecteurs, foule, drapeaux | ~2:00 |
+| 42:05 → 45:49 | 3:44 | **Tournage de clip** (parking, vertical) + **studio** (lumière violette) | 35 s, plus le résumé parlé à 45:50 |
+
+## 3. Les séquences fortes à préserver
 
 | TC source | Moment | Pourquoi |
 |---|---|---|
-| 4:06 → 4:37 | Refus de l'accréditation, « on va les appeler en live » | Conflit clair, enjeu, personnage |
-| 6:54 → 7:09 | La réponse de la salle (« contactez notre chargée des relations presse ») | Rebondissement |
-| 8:15 → 8:31 | RER raté, « oh non » | Comique, court, universel |
-| 8:45 → 9:38 | Parfum qui « tient 5 minutes », détour par Printemps, 3 couches | Mini-arc absurde, très « Shorts » |
-| 9:46 → 10:37 | Sony, photo, « t'es photographe ? » | Reconnaissance de son métier |
-| 12:30 → 13:00 | « Le Bx, ils sont morts dans le film », rires | Groupe, humour |
-| 22:16 → 23:42 | Chez KLM : « c'est la maison maintenant », « le gars du moment », lunettes, Goyard, l'exclu | Complicité, coulisses |
-| **23:36 → 23:42** | « Pourquoi dans le vlog quand tu dis une date y a pas de son ? — TikTok » | **Le meilleur gag de la vidéo** |
-| 35:17 → 35:52 | Fin du concert : « merci », « tu es la boss », « 500 g », « historique » | Payoff |
+| 4:06 → 4:37 | Accréditation refusée, « on va les appeler en live » | Conflit, enjeu |
+| 6:54 → 7:09 | La réponse de la salle | Rebondissement |
+| 8:15 → 8:31 | RER raté, « oh non » | Comique |
+| 8:45 → 9:38 | Le parfum qui « tient 5 minutes » | Mini-sketch, parfait pour les Shorts |
+| 9:46 → 10:37 | Sony, « t'es photographe ? » | Reconnaissance de ton métier |
+| 22:16 → 23:42 | Chez KLM : « c'est la maison », lunettes, Goyard, l'exclu | Complicité, coulisses |
+| **23:36 → 23:42** | « Pourquoi y a pas de son quand tu dis une date ? — TikTok » | **Meilleur gag** |
+| 28:00 → 35:11 | Concert (meilleurs plans : 28:20, 33:10, 34:40) | Spectacle |
+| **35:11 → 35:52** | Couloir des coulisses, « merci », « tu es la boss », « historique » | **Payoff + preuve de l'accès** |
 | 37:03 → 37:36 | Téléphone perdu, « j'ai des objectifs, j'ai des rêves » | Sincérité |
-| 38:25 → 38:55 | Le téléphone est resté « dans la loge », premier concert parisien sold out | Révélation + victoire |
-| 39:06 → 39:39 | Récap de la semaine jour par jour | Prêt pour un montage flashback |
-| 39:43 → 39:52 | « La nouvelle semaine elle va être sale » | Fin ouverte vers l'épisode 2 |
+| 38:25 → 38:55 | Le téléphone est « dans la loge », sold out | Révélation |
+| 39:06 → 39:43 | Récap de la semaine | Montage flashback |
 
-## 3. Passages à raccourcir ou supprimer
-- 0:00 → 1:00 : à visionner. Garder seulement si c'est fort à l'image.
-- 2:07 → 2:41 : blague carte Orange / carte bancaire. Supprimer.
-- 5:01 → 5:40 : répétitions, et la mention de la prison. Supprimer.
-- 5:56 → 6:36 : « je peux pas vous montrer », morceau posé. Supprimer.
-- 6:36 → 6:54 : explication de la carte SD. Supprimer.
-- 7:09 → 7:13 et 7:21 → 7:45 : passage sur l'attachée de presse. Supprimer. On garde « on retouche des photos… je préfère faire ça » (7:13 → 7:21).
-- 10:37 → 12:30 : sans parole. Garder 20 s maximum.
-- 13:43 → 15:41 : morceau. Garder 45 s maximum, selon l'image et les droits.
-- 16:26 → 21:50 : passer de 5:24 à environ 1:30.
-- 25:47 → 35:11 : passer de 9:24 à environ 2:30, dont 1:30 de concert.
-- 42:05 → 45:49 : supprimer.
+## 4. Passages à raccourcir ou supprimer
+- 2:07 → 2:41 : blague sur les cartes. Supprimer.
+- 5:01 → 5:40 : répétitions et mention de la prison. Supprimer.
+- 5:56 → 6:54 : « je peux pas vous montrer », morceau posé, carte SD. Supprimer.
+- 7:09 → 7:13 et 7:21 → 7:45 : passage sur l'attachée de presse. Supprimer.
+- Blocs sans dialogue : voir le tableau §2.
 
-## 4. Moments à déplacer
-- **Cold open** : concert (35:16), refus (4:20), « historique » (35:45), RER (8:25), chez KLM (22:16), téléphone (37:06), « dinguerie » (46:27).
-- **Récap de la semaine (39:06)** : à garder en fin de vidéo, mais illustré par des flashbacks.
-- **« La nouvelle semaine elle va être sale » (39:43)** : en outro, après la dernière journée.
-
-## 5. Possibilités de storytelling inexploitées
-1. **Compte à rebours J-5 → J-0** jusqu'au concert. Le « dans 5 jours » est dit à 4:16, et le compteur peut revenir à chaque changement de jour.
-2. **La quête du téléphone** : perdu (37:03), Gare du Nord sans téléphone (37:38), « dans la loge » (38:25), récupéré (41:20). C'est un mini-arc complet, idéal en fin de vidéo.
-3. **Le gag TikTok (23:36)** : on peut le *préparer* en coupant le son d'une date dite plus tôt dans le vlog, pour que la réplique paie.
-4. **Le parfum « 5 minutes »** : un vrai sketch, à monter en split screen avec un compteur.
-5. **Les horaires dits à voix haute** (21h26, 11h52, 18h06, 2h23, 9h12) : repères graphiques gratuits et vérifiés.
+## 5. Storytelling inexploité
+1. **Compte à rebours J-5 → J-0** jusqu'au concert. Le « dans 5 jours » est dit à 4:16.
+2. **La preuve en coulisses** : ouvrir sur le couloir backstage (35:17) juste après « ils m'ont dit non ».
+3. **La quête du téléphone** : perdu (37:03), Gare du Nord sans téléphone (37:38), « dans la loge » (38:25), récupéré (41:20).
+4. **Le gag TikTok (23:36)**, à préparer en coupant le son d'une date plus tôt dans le vlog.
+5. **Les heures dites à voix haute** (21h26, 11h52, 18h06, 2h23, 9h12) comme repères graphiques.
+6. **Le vertical comme langage** : triptyques et split screens, au lieu des bandes noires.
 
 ## 6. Limites techniques
-- **Je n'ai que l'export aplati.** Voix, musique et ambiances sont mixées ensemble. On ne peut pas retirer une musique sous un dialogue ni remixer proprement. Les coupes dans une musique posée feront des sauts audibles, à masquer avec un sound design.
-- **Pas de rushs** : impossible de prolonger un plan, de trouver une meilleure prise ou de recadrer sans perte au-delà de la résolution de l'export.
-- **Aucune image vue.** Identités, lieux et contenus des blocs musicaux sont à confirmer.
-- **Leto n'apparaît nulle part dans l'audio.** Je ne peux pas situer son passage. S'il est dans la vidéo, donne-moi le timecode.
-- **Noms propres incertains** (transcription automatique) : « Tiindu », « FJ/FG Barbara » (probablement FGO-Barbara, Paris 18), « Ramzat / la Felle », « SA / Saf », le nom épelé à 25:27. **Rien de tout ça ne sera affiché à l'écran sans ta confirmation.**
+- **Je n'ai que l'export aplati** (+ sa piste audio). Voix et musique sont mixées ensemble : impossible de retirer une musique sous un dialogue. Le trou de 10:40 → 12:30 ne peut être comblé qu'avec la **piste d'origine du projet** ou une nouvelle musique.
+- **Pas de rushs** : impossible de rallonger un plan ou de choisir une autre prise.
+- **Leto** n'apparaît pas dans l'audio, et je n'identifie pas les personnes d'après leur visage. Donne-moi le timecode de son passage.
+- **Noms incertains** (transcription automatique) : « Tiindu », « FJ/FG Barbara » (probablement FGO-Barbara, Paris 18), « Ramzat / la Felle », « SA / Saf », le nom épelé à 25:27. Rien de tout ça ne s'affichera sans ta confirmation.

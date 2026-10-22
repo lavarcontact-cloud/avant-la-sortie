@@ -1,233 +1,253 @@
 TITLE: SEB V2 REMONTAGE
 FCM: NON-DROP FRAME
 
-001  SEBV2    AA/V  C        00:35:16:00 00:35:27:00 00:00:00:00 00:00:11:00
+001  SEBV2    AA/V  C        00:34:38:00 00:34:44:00 00:00:00:00 00:00:06:00
 * FROM CLIP NAME: SEBV2.mp4
 * 0 · Cold open | Ouvrir sur la récompense : la salle pleine.
 
-002  SEBV2    AA/V  C        00:04:20:12 00:04:25:13 00:00:11:00 00:00:16:01
+002  SEBV2    AA/V  C        00:35:16:00 00:35:27:00 00:00:06:00 00:00:17:00
+* FROM CLIP NAME: SEBV2.mp4
+* 0 · Cold open | Montrer qu'il est EN COULISSES, juste après le show.
+
+003  SEBV2    AA/V  C        00:04:20:12 00:04:25:13 00:00:17:00 00:00:22:01
 * FROM CLIP NAME: SEBV2.mp4
 * 0 · Cold open | Poser le conflit : on lui a refusé l'accès.
 
-003  SEBV2    AA/V  C        00:35:45:13 00:35:48:12 00:00:16:01 00:00:19:00
+004  SEBV2    AA/V  C        00:35:45:13 00:35:48:12 00:00:22:01 00:00:25:00
 * FROM CLIP NAME: SEBV2.mp4
 * 0 · Cold open | Réponse au conflit, sans dire comment.
 
-004  SEBV2    AA/V  C        00:08:25:00 00:08:31:00 00:00:19:00 00:00:25:00
+005  SEBV2    AA/V  C        00:08:25:00 00:08:31:00 00:00:25:00 00:00:31:00
 * FROM CLIP NAME: SEBV2.mp4
 * 0 · Cold open | Respiration comique.
 
-005  SEBV2    AA/V  C        00:22:16:00 00:22:19:13 00:00:25:00 00:00:28:13
+006  SEBV2    AA/V  C        00:22:16:00 00:22:19:13 00:00:31:00 00:00:34:13
 * FROM CLIP NAME: SEBV2.mp4
 * 0 · Cold open | Promettre l'accès aux coulisses.
 
-006  SEBV2    AA/V  C        00:37:06:12 00:37:15:00 00:00:28:13 00:00:37:01
+007  SEBV2    AA/V  C        00:37:06:12 00:37:15:00 00:00:34:13 00:00:43:01
 * FROM CLIP NAME: SEBV2.mp4
 * 0 · Cold open | Ouvrir une 2e boucle (le téléphone).
 
-007  SEBV2    AA/V  C        00:46:27:00 00:46:33:00 00:00:37:01 00:00:43:01
+008  SEBV2    AA/V  C        00:46:27:00 00:46:33:00 00:00:43:01 00:00:49:01
 * FROM CLIP NAME: SEBV2.mp4
 * 0 · Cold open | Lancer le titre sur le rythme de la voix.
 
-008  BL       V     C        00:00:00:00 00:00:03:00 00:00:43:01 00:00:46:01
+009  BL       V     C        00:00:00:00 00:00:03:00 00:00:49:01 00:00:52:01
 * CARTON: UNE SEMAINE · PARIS
 
-009  SEBV2    AA/V  C        00:01:00:00 00:01:12:00 00:00:46:01 00:00:58:01
+010  SEBV2    AA/V  C        00:01:00:00 00:01:12:00 00:00:52:01 00:01:04:01
 * FROM CLIP NAME: SEBV2.mp4
 * 1 · Nocturne dans le 18 | Présenter le narrateur en mouvement.
 
-010  SEBV2    AA/V  C        00:01:15:00 00:01:38:00 00:00:58:01 00:01:21:01
+011  SEBV2    AA/V  C        00:01:15:00 00:01:38:00 00:01:04:01 00:01:27:01
 * FROM CLIP NAME: SEBV2.mp4
 * 1 · Nocturne dans le 18 | Annoncer la mission du soir et le point de vue (le 18).
 
-011  SEBV2    AA/V  C        00:01:51:00 00:02:05:00 00:01:21:01 00:01:35:01
+012  SEBV2    AA/V  C        00:01:51:00 00:02:05:00 00:01:27:01 00:01:41:01
 * FROM CLIP NAME: SEBV2.mp4
 * 1 · Nocturne dans le 18 | Horloge : créer l'urgence.
 
-012  SEBV2    AA/V  C        00:02:34:00 00:02:40:00 00:01:35:01 00:01:41:01
+013  SEBV2    AA/V  C        00:02:34:00 00:02:40:00 00:01:41:01 00:01:47:01
 * FROM CLIP NAME: SEBV2.mp4
 * 1 · Nocturne dans le 18 | Transition de lieu.
 
-013  SEBV2    AA/V  C        00:02:41:00 00:03:19:00 00:01:41:01 00:02:19:01
+014  SEBV2    AA/V  C        00:02:41:00 00:03:19:00 00:01:47:01 00:02:25:01
 * FROM CLIP NAME: SEBV2.mp4
 * 1 · Nocturne dans le 18 | Arrivée, première rencontre spontanée.
 
-014  SEBV2    AA/V  C        00:03:48:00 00:04:03:00 00:02:19:01 00:02:34:01
+015  SEBV2    AA/V  C        00:03:48:00 00:04:03:00 00:02:25:01 00:02:40:01
 * FROM CLIP NAME: SEBV2.mp4
 * 1 · Nocturne dans le 18 | Retrouvailles : fin de l'arc du soir.
 
-015  SEBV2    AA/V  C        00:04:06:00 00:04:38:00 00:02:34:01 00:03:06:01
+016  SEBV2    AA/V  C        00:04:06:00 00:04:38:00 00:02:40:01 00:03:12:01
 * FROM CLIP NAME: SEBV2.mp4
 * 2 · J-5 : l'accréditation | Lancer le fil rouge de tout le vlog.
 
-016  SEBV2    AA/V  C        00:04:43:00 00:05:01:00 00:03:06:01 00:03:24:01
+017  SEBV2    AA/V  C        00:04:43:00 00:05:01:00 00:03:12:01 00:03:30:01
 * FROM CLIP NAME: SEBV2.mp4
 * 2 · J-5 : l'accréditation | Donner l'enjeu : premier concert de l'artiste à Paris.
 
-017  SEBV2    AA/V  C        00:05:40:00 00:05:56:00 00:03:24:01 00:03:40:01
+018  SEBV2    AA/V  C        00:05:40:00 00:05:56:00 00:03:30:01 00:03:46:01
 * FROM CLIP NAME: SEBV2.mp4
 * 2 · J-5 : l'accréditation | Plan B + programme de la journée.
 
-018  SEBV2    AA/V  C        00:06:54:00 00:07:09:00 00:03:40:01 00:03:55:01
+019  SEBV2    AA/V  C        00:06:54:00 00:07:09:00 00:03:46:01 00:04:01:01
 * FROM CLIP NAME: SEBV2.mp4
 * 2 · J-5 : l'accréditation | Rebondissement : la porte reste fermée.
 
-019  SEBV2    AA/V  C        00:07:13:00 00:07:21:00 00:03:55:01 00:04:03:01
+020  SEBV2    AA/V  C        00:07:13:00 00:07:21:00 00:04:01:01 00:04:09:01
 * FROM CLIP NAME: SEBV2.mp4
 * 2 · J-5 : l'accréditation | Il retourne au travail : caractère.
 
-020  SEBV2    AA/V  C        00:07:45:00 00:08:06:00 00:04:03:01 00:04:24:01
+021  SEBV2    AA/V  C        00:07:45:00 00:08:06:00 00:04:09:01 00:04:30:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Départ + valeurs du narrateur (gardées telles quelles).
 
-021  SEBV2    AA/V  C        00:08:15:00 00:08:32:00 00:04:24:01 00:04:41:01
+022  SEBV2    AA/V  C        00:08:15:00 00:08:32:00 00:04:30:01 00:04:47:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Gag du RER (payoff du teaser).
 
-022  SEBV2    AA/V  C        00:08:45:00 00:08:57:00 00:04:41:01 00:04:53:01
+023  SEBV2    AA/V  C        00:08:45:00 00:08:57:00 00:04:47:01 00:04:59:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Mini-arc absurde.
 
-023  SEBV2    AA/V  C        00:09:06:00 00:09:13:00 00:04:53:01 00:05:00:01
+024  SEBV2    AA/V  C        00:09:06:00 00:09:13:00 00:04:59:01 00:05:06:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Tuto express.
 
-024  SEBV2    AA/V  C        00:09:16:00 00:09:20:00 00:05:00:01 00:05:04:01
+025  SEBV2    AA/V  C        00:09:16:00 00:09:20:00 00:05:06:01 00:05:10:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Tuto express.
 
-025  SEBV2    AA/V  C        00:09:25:00 00:09:31:00 00:05:04:01 00:05:10:01
+026  SEBV2    AA/V  C        00:09:25:00 00:09:31:00 00:05:10:01 00:05:16:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Tuto express.
 
-026  SEBV2    AA/V  C        00:09:38:00 00:09:59:00 00:05:10:01 00:05:31:01
+027  SEBV2    AA/V  C        00:09:38:00 00:09:59:00 00:05:16:01 00:05:37:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Entrée dans le label.
 
-027  SEBV2    AA/V  C        00:10:05:00 00:10:37:00 00:05:31:01 00:06:03:01
+028  SEBV2    AA/V  C        00:10:05:00 00:10:37:00 00:05:37:01 00:06:09:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Il est reconnu pour son métier.
 
-028  SEBV2    AA/V  C        00:10:37:00 00:10:57:00 00:06:03:01 00:06:23:01
+029  SEBV2    AA/V  C        00:10:42:00 00:10:54:00 00:06:09:01 00:06:21:01
 * FROM CLIP NAME: SEBV2.mp4
-* 3 · Route, parfum, Sony | À VISIONNER : 637-750 s sans dialogue.
+* 3 · Route, parfum, Sony | Plans de rue cinéma (paysage) + plans verticaux : respiration visuelle.
 
-029  SEBV2    AA/V  C        00:12:30:00 00:13:02:00 00:06:23:01 00:06:55:01
+030  SEBV2    AA/V  C        00:12:30:00 00:13:02:00 00:06:21:01 00:06:53:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Moment de groupe, humour.
 
-030  SEBV2    AA/V  C        00:13:11:00 00:13:25:00 00:06:55:01 00:07:09:01
+031  SEBV2    AA/V  C        00:13:11:00 00:13:25:00 00:06:53:01 00:07:07:01
 * FROM CLIP NAME: SEBV2.mp4
 * 3 · Route, parfum, Sony | Fin de scène.
 
-031  SEBV2    AA/V  C        00:13:43:00 00:14:28:00 00:07:09:01 00:07:54:01
+032  SEBV2    AA/V  C        00:13:58:00 00:14:28:00 00:07:07:01 00:07:37:01
 * FROM CLIP NAME: SEBV2.mp4
-* 3 · Route, parfum, Sony | À VISIONNER : perf, freestyle ou musique ajoutée ?
+* 3 · Route, parfum, Sony | Moment brut : un artiste rappe dans la rue, filmé en vertical.
 
-032  SEBV2    AA/V  C        00:15:56:00 00:16:26:00 00:07:54:01 00:08:24:01
+033  SEBV2    AA/V  C        00:15:56:00 00:16:26:00 00:07:37:01 00:08:07:01
 * FROM CLIP NAME: SEBV2.mp4
-* 4 · Retour de nuit | Recontextualiser après la musique.
+* 4 · Nuit et rassemblement | Recontextualiser après la musique.
 
-033  SEBV2    AA/V  C        00:18:19:00 00:18:55:00 00:08:24:01 00:09:00:01
+034  SEBV2    AA/V  C        00:17:16:00 00:17:46:00 00:08:07:01 00:08:37:01
 * FROM CLIP NAME: SEBV2.mp4
-* 4 · Retour de nuit | À VISIONNER : 986-1310 s, 5 min quasi sans dialogue.
+* 4 · Nuit et rassemblement | Rassemblement dans un parc / quartier : foule serrée, téléphones levés.
 
-034  SEBV2    AA/V  C        00:20:51:00 00:21:42:00 00:09:00:01 00:09:51:01
+035  SEBV2    AA/V  C        00:19:00:00 00:19:30:00 00:08:37:01 00:09:07:01
 * FROM CLIP NAME: SEBV2.mp4
-* 4 · Retour de nuit | Fin du segment nocturne.
+* 4 · Nuit et rassemblement | Pic d'énergie.
 
-035  SEBV2    AA/V  C        00:21:51:00 00:22:16:00 00:09:51:01 00:10:16:01
+036  SEBV2    AA/V  C        00:20:51:00 00:21:42:00 00:09:07:01 00:09:58:01
+* FROM CLIP NAME: SEBV2.mp4
+* 4 · Nuit et rassemblement | Fin du segment.
+
+037  SEBV2    AA/V  C        00:21:51:00 00:22:16:00 00:09:58:01 00:10:23:01
 * FROM CLIP NAME: SEBV2.mp4
 * 5 · Chez KLM | Nouvelle journée, nouvel objectif.
 
-036  SEBV2    AA/V  C        00:22:16:00 00:22:40:00 00:10:16:01 00:10:40:01
+038  SEBV2    AA/V  C        00:22:16:00 00:22:40:00 00:10:23:01 00:10:47:01
 * FROM CLIP NAME: SEBV2.mp4
 * 5 · Chez KLM | Payoff du teaser + ton complice.
 
-037  SEBV2    AA/V  C        00:22:46:00 00:23:12:00 00:10:40:01 00:11:06:01
+039  SEBV2    AA/V  C        00:22:46:00 00:23:12:00 00:10:47:01 00:11:13:01
 * FROM CLIP NAME: SEBV2.mp4
 * 5 · Chez KLM | Chambrage.
 
-038  SEBV2    AA/V  C        00:23:19:00 00:23:44:00 00:11:06:01 00:11:31:01
+040  SEBV2    AA/V  C        00:23:19:00 00:23:44:00 00:11:13:01 00:11:38:01
 * FROM CLIP NAME: SEBV2.mp4
 * 5 · Chez KLM | Meilleur gag de la vidéo.
 
-039  SEBV2    AA/V  C        00:24:40:00 00:25:12:00 00:11:31:01 00:12:03:01
+041  SEBV2    AA/V  C        00:24:40:00 00:25:12:00 00:11:38:01 00:12:10:01
 * FROM CLIP NAME: SEBV2.mp4
 * 5 · Chez KLM | Énergie de groupe.
 
-040  SEBV2    AA/V  C        00:25:26:00 00:25:47:00 00:12:03:01 00:12:24:01
+042  SEBV2    AA/V  C        00:25:26:00 00:25:47:00 00:12:10:01 00:12:31:01
 * FROM CLIP NAME: SEBV2.mp4
 * 5 · Chez KLM | Quelqu'un épelle un nom.
 
-041  SEBV2    AA/V  C        00:25:59:00 00:26:44:00 00:12:24:01 00:13:09:01
+043  SEBV2    AA/V  C        00:25:59:00 00:26:44:00 00:12:31:01 00:13:16:01
 * FROM CLIP NAME: SEBV2.mp4
-* 5 · Chez KLM | À VISIONNER : clip, studio ou playback ?
+* 5 · Chez KLM | Freestyle de nuit dans le quartier.
 
-042  BL       V     C        00:00:00:00 00:00:02:00 00:13:09:01 00:13:11:01
+044  BL       V     C        00:00:00:00 00:00:02:00 00:13:16:01 00:13:18:01
 * CARTON: J-0
 
-043  SEBV2    AA/V  C        00:29:55:00 00:30:02:00 00:13:11:01 00:13:18:01
+045  SEBV2    AA/V  C        00:28:15:00 00:28:30:00 00:13:18:01 00:13:33:01
 * FROM CLIP NAME: SEBV2.mp4
 * 6 · J-0 : le concert | Entrée en scène.
 
-044  SEBV2    AA/V  C        00:32:21:00 00:32:55:00 00:13:18:01 00:13:52:01
+046  SEBV2    AA/V  C        00:29:55:00 00:30:02:00 00:13:33:01 00:13:40:01
+* FROM CLIP NAME: SEBV2.mp4
+* 6 · J-0 : le concert | Le public répond.
+
+047  SEBV2    AA/V  C        00:32:21:00 00:32:55:00 00:13:40:01 00:14:14:01
 * FROM CLIP NAME: SEBV2.mp4
 * 6 · J-0 : le concert | Temps fort live.
 
-045  SEBV2    AA/V  C        00:33:45:00 00:34:35:00 00:13:52:01 00:14:42:01
+048  SEBV2    AA/V  C        00:33:45:00 00:34:35:00 00:14:14:01 00:15:04:01
 * FROM CLIP NAME: SEBV2.mp4
 * 6 · J-0 : le concert | Climax.
 
-046  SEBV2    AA/V  C        00:35:11:00 00:35:52:00 00:14:42:01 00:15:23:01
+049  SEBV2    AA/V  C        00:35:11:00 00:35:52:00 00:15:04:01 00:15:45:01
 * FROM CLIP NAME: SEBV2.mp4
 * 6 · J-0 : le concert | Payoff du fil rouge.
 
-047  SEBV2    AA/V  C        00:35:56:00 00:36:23:00 00:15:23:01 00:15:50:01
+050  SEBV2    AA/V  C        00:35:56:00 00:36:23:00 00:15:45:01 00:16:12:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Respiration, sincérité.
 
-048  SEBV2    AA/V  C        00:37:03:00 00:37:36:00 00:15:50:01 00:16:23:01
+051  SEBV2    AA/V  C        00:37:03:00 00:37:36:00 00:16:12:01 00:16:45:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Payoff du teaser téléphone.
 
-049  SEBV2    AA/V  C        00:37:39:00 00:38:02:00 00:16:23:01 00:16:46:01
+052  SEBV2    AA/V  C        00:37:39:00 00:38:02:00 00:16:45:01 00:17:08:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Gag.
 
-050  SEBV2    AA/V  C        00:38:04:00 00:38:38:00 00:16:46:01 00:17:20:01
+053  SEBV2    AA/V  C        00:38:04:00 00:38:38:00 00:17:08:01 00:17:42:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Révélation : il était en loge.
 
-051  SEBV2    AA/V  C        00:38:46:00 00:39:00:00 00:17:20:01 00:17:34:01
+054  SEBV2    AA/V  C        00:38:46:00 00:39:00:00 00:17:42:01 00:17:56:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Résumé de la victoire.
 
-052  SEBV2    AA/V  C        00:39:06:00 00:39:43:00 00:17:34:01 00:18:11:01
+055  SEBV2    AA/V  C        00:39:06:00 00:39:43:00 00:17:56:01 00:18:33:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Récap de la semaine.
 
-053  SEBV2    AA/V  C        00:40:30:00 00:40:57:00 00:18:11:01 00:18:38:01
+056  SEBV2    AA/V  C        00:40:30:00 00:40:57:00 00:18:33:01 00:19:00:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Nouvelle mini-quête.
 
-054  SEBV2    AA/V  C        00:41:06:00 00:41:30:00 00:18:38:01 00:19:02:01
+057  SEBV2    AA/V  C        00:41:06:00 00:41:30:00 00:19:00:01 00:19:24:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Fin de la quête téléphone.
 
-055  SEBV2    AA/V  C        00:41:39:00 00:42:05:00 00:19:02:01 00:19:28:01
+058  SEBV2    AA/V  C        00:41:39:00 00:42:05:00 00:19:24:01 00:19:50:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Respiration légère.
 
-056  SEBV2    AA/V  C        00:45:50:00 00:46:50:00 00:19:28:01 00:20:28:01
+059  SEBV2    AA/V  C        00:42:40:00 00:42:55:00 00:19:50:01 00:20:05:01
+* FROM CLIP NAME: SEBV2.mp4
+* 7 · Le lendemain | Il est au travail : le tournage.
+
+060  SEBV2    AA/V  C        00:44:35:00 00:44:55:00 00:20:05:01 00:20:25:01
+* FROM CLIP NAME: SEBV2.mp4
+* 7 · Le lendemain | La séance studio.
+
+061  SEBV2    AA/V  C        00:45:50:00 00:46:50:00 00:20:25:01 00:21:25:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Une journée de taf, de bout en bout.
 
-057  SEBV2    AA/V  C        00:47:01:00 00:47:32:00 00:20:28:01 00:20:59:01
+062  SEBV2    AA/V  C        00:47:01:00 00:47:32:00 00:21:25:01 00:21:56:01
 * FROM CLIP NAME: SEBV2.mp4
 * 7 · Le lendemain | Retombée.
 
-058  SEBV2    AA/V  C        00:39:43:00 00:39:52:00 00:20:59:01 00:21:08:01
+063  SEBV2    AA/V  C        00:39:43:00 00:39:52:00 00:21:56:01 00:22:05:01
 * FROM CLIP NAME: SEBV2.mp4
 * 8 · Outro | Boucle ouverte vers l'épisode suivant.
 
