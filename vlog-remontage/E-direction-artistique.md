@@ -6,18 +6,18 @@
 
 | Niveau | Police | Usage | Exemple |
 |---|---|---|---|
-| Punch | **Bricolage Grotesque** ExtraBold, capitales | Un seul mot qui frappe, 1 à 2 fois par séquence maximum | REFUSÉ · SOLD OUT · J-0 |
+| Punch | **Bricolage Grotesque** ExtraBold, capitales | Un seul mot qui frappe, 1 à 2 fois par séquence maximum, uniquement des mots dits ou lus à l'image | REFUSÉ · LE CONCERT |
 | Repère | **Space Mono** Regular, capitales, interlettrage +50 | Heure, lieu, jour, compteur : tout ce qui est factuel | 21:26 · LIGNE 4 · GARE DU NORD · 02:23 |
 | Nom | Bricolage Grotesque Bold + trait corail qui se dessine | Artistes et personnes **confirmés** uniquement | KLM |
 | Annotation | Inter Medium, ou trait dessiné à la main | Flèches et petits commentaires en tracking | « nouvelles lunettes » |
 
-- Couleurs : texte `#F6F3EC`, accent unique `#FF5B3C`, ombre portée noire à 40 %. Le corail est réservé aux moments clés : REFUSÉ barré, J-0, SOLD OUT, trait sous un nom.
+- Couleurs : texte `#F6F3EC`, accent unique `#FF5B3C`, ombre portée noire à 40 %. Le corail est réservé aux moments clés : REFUSÉ, LE CONCERT, trait sous un nom confirmé.
 - Lisibilité : hauteur minimale de 5 % de l'image, jamais sur un visage, marge de sécurité de 5 %.
 - Durée à l'écran : au moins 1 s pour un mot, au moins 2 s pour un repère.
 
 ## 2. Principes de motion design
 - Entrées en **4 à 6 images**, sorties en **3 images**. Easing fort en sortie (ease-out expo). Pas de rebond cartoon.
-- **Un seul élément permanent** : le compteur J-5 → J-0, en haut à gauche. Il fait office de timecode du récit.
+- **Aucun texte à l'écran sans source** : chaque texte est dit par lui ou lu à l'image (voir F-verifications.md). Pas de compteur de jours : l'écart n'est pas établi.
 - Tracking (annotations, flèches) : seulement quand l'objet bouge peu et que l'info est utile.
 - Freeze frame : maximum **un par séquence**, toujours sur une réaction. Détourage + contour corail réservés à 3 ou 4 moments dans toute la vidéo (REFUSÉ, gag TikTok, « historique », téléphone).
 - Split screen : uniquement pour les actions parallèles ou en série (le parfum, le récap de la semaine).
@@ -31,7 +31,7 @@
 | Whip pan / whoosh | Changement de lieu en mouvement | arrivée chez KLM, métro |
 | Match cut | Même geste ou forme d'un lieu à l'autre | porte de métro → porte de Sony |
 | Masque sur objet | Entrée dans un lieu fort | logo Sony |
-| **Exceptionnelles** (2 ou 3 au total) | Bascules de récit | J-5 → J-0 en flip, retour du mot REFUSÉ barré, stutter « dinguerie » |
+| **Exceptionnelles** (2 ou 3 au total) | Bascules de récit | carton LE CONCERT, stutter « dinguerie » |
 
 ## 4. Traitement des artistes et des lieux
 - **Aucun nom à l'écran sans confirmation** de l'identité à l'image et de l'orthographe.
@@ -50,7 +50,7 @@
 - **Base : le son direct.** C'est lui qui fait l'immersion.
 - **Remise à niveau d'abord** : l'export actuel varie de -12 à -29 LUFS selon les scènes. Toute scène parlée doit être à -16 LUFS (± 1) avant d'ajouter le moindre effet. Référence d'écoute : `remontage_audio_v1.mp3`.
 - **Aucun trou de son** : l'export a 1:50 de silence numérique (10:40 → 12:30). Toute image doit avoir au moins une ambiance.
-- Impacts graves (sub 40-60 Hz) : uniquement sur les punchs (REFUSÉ, J-0, coupe du concert).
+- Impacts graves (sub 40-60 Hz) : uniquement sur les punchs (REFUSÉ, carton LE CONCERT, coupe du concert).
 - Whooshes : sur les whip pans et les cartes de lieu, pas sur chaque coupe.
 - **Silence** : outil principal de rupture. 4 à 8 images de silence avant une phrase choc.
 - Sons comiques : 3 ou 4 dans toute la vidéo (disque rayé, pschitt, bus qui part).

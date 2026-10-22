@@ -7,12 +7,12 @@ TC = timecode dans l'export 47:33. NT = position dans la nouvelle timeline.
 
 ## 0 · Cold open (NT 0:00 → 0:52)
 
-**Ce que le spectateur doit ressentir :** « Il s'est fait refouler… et pourtant il était dans les coulisses du concert. Comment ? »
+**Ce que le spectateur doit ressentir :** « On lui a dit non… et il est au concert. » (le montage n'explique pas comment : ce n'est pas établi, voir F-verifications.md)
 
 | NT | Plan (TC source) | Image / montage | Son |
 |---|---|---|---|
 | 0:00 | Foule du concert (34:38 → 34:44) | Public, drapeaux, fumée (vu à 34:40) | Son salle à fond, aucune musique ajoutée |
-| 0:06 | Couloir des coulisses, « merci… c'est réel » (35:16 → 35:27) | Caméra à l'épaule au milieu de l'équipe (vu à 35:20) : **la preuve qu'il est en coulisses** | Voix et brouhaha, coupe sèche au silence |
+| 0:06 | Couloir de la salle, « merci… c'est réel » (35:16 → 35:27) | Caméra à l'épaule au milieu du groupe, dans un couloir de la salle (vu à 35:20) | Voix et brouhaha, coupe sèche au silence |
 | 0:17 | « Ils m'ont dit non » (4:20 → 4:25) | **Coupe au silence** 6 images avant, punch-in 120 % sur « non » | Bip sur le juron. Silence total sous « non » |
 | 0:19 | — | Texte **REFUSÉ** tamponné, léger tremblement 4 images | Impact grave (sub 40 Hz) |
 | 0:22 | « C'était historique » (35:45 → 35:48) | Coupe sèche sur le mot | Écho court sur le 2e « historique » |
@@ -20,18 +20,18 @@ TC = timecode dans l'export 47:33. NT = position dans la nouvelle timeline.
 | 0:31 | Chez KLM (22:16 → 22:19) | Whip pan d'entrée | Whoosh + impact |
 | 0:34 | Téléphone perdu (37:06 → 37:15) | Zoom numérique lent 100 → 115 %, noirs remontés (image sombre) | Son direct seul, remonté de ~7 dB |
 | 0:43 | « Dinguerie ×5 » (46:27 → 46:33) | **Stutter-cut** : un plan fort de chaque jour sur chaque « dinguerie » (concert 28:20, rassemblement 17:20, studio 44:40, Sony, chez KLM) | Chaque mot sur un temps du beat du titre |
-| 0:49 | Carton titre (3 s) | Titre + compteur **J-5** qui apparaît | Montée de basse qui s'arrête net |
+| 0:49 | Carton titre (3 s) | Titre du vlog | Montée de basse qui s'arrête net |
 
-Règle : aucun plan du cold open ne doit révéler **comment** il entre au concert.
+Règle : le cold open ne dit rien de la façon dont il est entré au concert (non établi).
 
 ---
 
-## 2 · J-5 : l'affaire de l'accréditation (NT 2:40 → 4:09)
+## 2 · L'affaire de l'accréditation (NT 2:40 → 4:09)
 
 **Ce que le spectateur doit ressentir :** l'injustice, puis la détermination.
 
 - **4:06 → 4:38** : coupe à chaque respiration. Jump cuts avec alternance plan normal / punch-in 115 %, jamais deux fois le même cadrage de suite.
-- Le compteur **J-5** reste en haut à gauche, en Space Mono. C'est le seul habillage permanent de la vidéo.
+- Insert plein écran de la story « Dans 5 jours » (visible à 4:44). Pas de compteur J-5 → J-0 : l'écart exact en jours n'est pas établi.
 - **4:43 → 5:01** : si tu as la story ou l'affiche du concert, mets-la en overlay incliné de 3° avec une ombre portée. Sinon, rien. Pas d'affiche inventée.
 - **5:40 → 5:56**, le « plan B » (message à Batbat, Sony, montage) : checklist animée de trois lignes, cochées au fil de la phrase. On la reprendra à l'acte 7 pour le téléphone.
 - **6:54 → 7:09**, la réponse : la recréer en motion (bulle de message) **uniquement avec le texte réel** de la réponse, si tu me l'envoies. Couper avant le prénom.
@@ -62,26 +62,26 @@ Règle : aucun plan du cold open ne doit révéler **comment** il entre au conce
 
 ---
 
-## 6 · J-0 : le concert (NT 13:16 → 15:45)
+## 6 · Le concert (NT 13:16 → 15:45)
 
-- Carton **J-0** (2 s) : le compteur bascule en flip, montée de basse.
+- Carton **LE CONCERT** (2 s), montée de basse.
 - **28:15 → 28:30**, entrée en scène : plan large horizontal, projecteurs dans la fumée (vu à 28:20). C'est le premier plan en paysage depuis longtemps, et ce changement de format fait lui-même l'effet « on y est ».
 - **29:55 → 30:02**, « tu veux du bruit » : coupe sur le premier cri du public.
-- **32:21 → 32:55** et **33:45 → 34:35** : montage sur les temps forts du morceau. Intercaler des plans de coulisses ou de loge s'ils existent. **Pas plus de 90 s de morceau au total**, à cause des droits.
-- **35:11 → 35:52**, payoff : la musique **coupe net** et on n'entend plus que les voix (« merci… tu es la boss… on a perdu 500 g… historique »). Le mot **REFUSÉ** du cold open revient, barré en corail.
-- Ce qui manque : **comment il est entré**. Si tu as une image ou une phrase qui l'explique, c'est le plan le plus important à ajouter ici. Ne rien inventer sinon.
+- **32:21 → 32:55** et **33:45 → 34:35** : montage sur les temps forts du morceau. Intercaler des plans de public. **Pas plus de 90 s de morceau au total**, à cause des droits.
+- **35:11 → 35:52**, payoff : la musique **coupe net** et on n'entend plus que les voix (« merci… tu es la boss… on a perdu 500 g… historique »). Aucun rappel du « REFUSÉ » : il suggérerait une revanche sur le refus, ce qui n'est pas établi.
+- **Comment il est entré : non établi.** Aucune narration là-dessus tant que ce n'est pas confirmé.
 
 ---
 
-## 7 · Le lendemain : la quête du téléphone (NT 15:45 → 21:56)
+## 7 · Après le concert : la quête du téléphone (NT 15:45 → 21:56)
 
 - **35:56 → 36:23**, assis sur son sac : plan fixe, aucun effet, aucune musique. Le contraste avec le concert fait le travail.
 - **37:03**, « j'en ai perdu mon téléphone » : rappel flash (8 images) du teaser.
 - **37:39**, Gare du Nord à 2h23, le bus qui part : accéléré x2 + son comique discret.
-- **38:25**, « dans la loge » : zoom rapide + texte **LOGE** en Space Mono.
-- **39:06 → 39:43**, récap de la semaine : **flashback de 0,5 s par jour cité**, sur sa voix, avec le compteur qui défile à l'envers (J-0 → J-5).
+- **38:25**, « dans la loge » : zoom rapide. Pas de texte : c'est sa supposition à lui.
+- **39:06 → 39:43**, récap de la semaine : **flashback de 0,5 s par jour cité**, sur sa voix, sans compteur.
 - **40:30 → 41:30** : la checklist de l'acte 2 revient (« téléphone ☐ »), puis se coche à la récupération.
-- **45:50 → 46:50**, journée shooting / studio : montage très rapide des photos du shooting, un temps par photo. **Chronologie à confirmer** avant de figer cette place.
+- **45:50 → 46:50**, journée tournage / studio : montage très rapide. **Ordre tournage / récupération du téléphone non établi** : aucun texte de jour ni d'heure entre les deux. Plaque d'immatriculation à flouter (42:46 → 43:48).
 
 ## Traitement des plans verticaux (s'applique partout)
 
@@ -114,7 +114,7 @@ Ne jamais laisser de bandes noires, sauf choix assumé et ponctuel.
 |---|---|---|---|
 | Le parfum qui tient 5 minutes | 8:45 → 9:38 | ~45 s | « Mon parfum tient 5 minutes. J'ai une technique. » |
 | Le gag TikTok | 23:16 → 23:42 | ~25 s | « Pourquoi y a pas de son quand je dis une date ? » |
-| Refusé → historique | 4:06 → 4:30 + 35:11 → 35:52 | ~55 s | « Ils m'ont refusé l'accréditation… » |
+| Le refus, puis le concert | 4:06 → 4:30 + 35:11 → 35:52 | ~55 s | « Ils m'ont refusé l'accréditation… » |
 | Téléphone perdu dans la loge | 37:03 → 37:36 + 38:25 → 38:40 | ~45 s | « J'ai perdu mon téléphone le soir le plus important » |
 | « T'es photographe ? » chez Sony | 10:05 → 10:37 | ~30 s | — |
 

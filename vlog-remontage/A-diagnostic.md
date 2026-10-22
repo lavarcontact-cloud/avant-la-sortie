@@ -39,10 +39,10 @@ De 1:15 à 3:55 (nocturne dans le 18) et à 36:05 (debrief assis), l'image est p
 - **4:06**, on te refuse l'accréditation pour le concert de Batbat « dans 5 jours ».
 - **6:54**, la salle te renvoie vers l'attachée de presse.
 - **28:00 → 35:11**, le concert : scène, projecteurs, foule, drapeaux.
-- **35:17**, tu es **dans le couloir des coulisses** avec l'équipe (vu à l'image).
+- **35:17**, tu es filmé dans un couloir de la salle avec un groupe (vu à l'image).
 - **38:25**, ton téléphone est resté **dans la loge**.
 
-Entre 6:54 et 28:00, rien ne rappelle cet enjeu. Et on ne sait jamais **comment** tu es entré.
+Entre 6:54 et 28:00, rien ne rappelle cet enjeu. La façon dont tu es entré n'est ni dite ni montrée : le montage ne l'invente pas (voir F-verifications.md).
 
 ### 1.6 Pas d'accroche
 0:00 → 1:00, un montage d'ouverture : une foule de nuit sous une structure de scène (0:15), une danse dans un salon (0:45). Ce sont de bonnes images, mais sans promesse ni enjeu. Le vrai crochet (l'accréditation refusée) arrive à 4:06.
@@ -93,7 +93,7 @@ Le bloc 42:05 → 46:50 (tournage de clip dans un parking, studio en lumière vi
 | 22:16 → 23:42 | Chez KLM : « c'est la maison », lunettes, Goyard, l'exclu | Complicité, coulisses |
 | **23:36 → 23:42** | « Pourquoi y a pas de son quand tu dis une date ? — TikTok » | **Meilleur gag** |
 | 28:00 → 35:11 | Concert (meilleurs plans : 28:20, 33:10, 34:40) | Spectacle |
-| **35:11 → 35:52** | Couloir des coulisses, « merci », « tu es la boss », « historique » | **Payoff + preuve de l'accès** |
+| **35:11 → 35:52** | Couloir de la salle, « merci », « tu es la boss », « historique » | **Payoff** |
 | 37:03 → 37:36 | Téléphone perdu, « j'ai des objectifs, j'ai des rêves » | Sincérité |
 | 38:25 → 38:55 | Le téléphone est « dans la loge », sold out | Révélation |
 | 39:06 → 39:43 | Récap de la semaine | Montage flashback |
@@ -106,8 +106,8 @@ Le bloc 42:05 → 46:50 (tournage de clip dans un parking, studio en lumière vi
 - Blocs sans dialogue : voir le tableau §2.
 
 ## 5. Storytelling inexploité
-1. **Compte à rebours J-5 → J-0** jusqu'au concert. Le « dans 5 jours » est dit à 4:16.
-2. **La preuve en coulisses** : ouvrir sur le couloir backstage (35:17) juste après « ils m'ont dit non ».
+1. **« Dans 5 jours »** (4:16, et la story visible à 4:44) comme promesse. Pas de compteur jour par jour : l'écart n'est pas établi.
+2. **Le refus, puis le concert** : ouvrir sur le concert et le couloir (35:17) juste après « ils m'ont dit non », sans expliquer le passage de l'un à l'autre.
 3. **La quête du téléphone** : perdu (37:03), Gare du Nord sans téléphone (37:38), « dans la loge » (38:25), récupéré (41:20).
 4. **Le gag TikTok (23:36)**, à préparer en coupant le son d'une date plus tôt dans le vlog.
 5. **Les heures dites à voix haute** (21h26, 11h52, 18h06, 2h23, 9h12) comme repères graphiques.
@@ -116,5 +116,5 @@ Le bloc 42:05 → 46:50 (tournage de clip dans un parking, studio en lumière vi
 ## 6. Limites techniques
 - **Je n'ai que l'export aplati** (+ sa piste audio). Voix et musique sont mixées ensemble : impossible de retirer une musique sous un dialogue. Le trou de 10:40 → 12:30 ne peut être comblé qu'avec la **piste d'origine du projet** ou une nouvelle musique.
 - **Pas de rushs** : impossible de rallonger un plan ou de choisir une autre prise.
-- **Leto** n'apparaît pas dans l'audio, et je n'identifie pas les personnes d'après leur visage. Donne-moi le timecode de son passage.
+- **Leto, Bricksquad, festival, jours** : voir `F-verifications.md` (ce qui est établi, ce qui ne l'est pas, les contradictions).
 - **Noms incertains** (transcription automatique) : « Tiindu », « FJ/FG Barbara » (probablement FGO-Barbara, Paris 18), « Ramzat / la Felle », « SA / Saf », le nom épelé à 25:27. Rien de tout ça ne s'affichera sans ta confirmation.

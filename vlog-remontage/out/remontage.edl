@@ -7,7 +7,7 @@ FCM: NON-DROP FRAME
 
 002  SEBV2    AA/V  C        00:35:16:00 00:35:27:00 00:00:05:00 00:00:16:00
 * FROM CLIP NAME: SEBV2.mp4
-* 0 · Cold open | Montrer qu'il est EN COULISSES, juste après le show.
+* 0 · Cold open | L'énergie juste après le show, au milieu du groupe.
 
 003  SEBV2    AA/V  C        00:04:20:12 00:04:25:13 00:00:16:00 00:00:21:01
 * FROM CLIP NAME: SEBV2.mp4
@@ -64,23 +64,23 @@ FCM: NON-DROP FRAME
 
 016  SEBV2    AA/V  C        00:04:06:00 00:04:38:00 00:02:39:01 00:03:11:01
 * FROM CLIP NAME: SEBV2.mp4
-* 2 · J-5 : l'accréditation | Lancer le fil rouge de tout le vlog.
+* 2 · L'accréditation | Lancer le fil rouge de tout le vlog.
 
 017  SEBV2    AA/V  C        00:04:43:00 00:05:01:00 00:03:11:01 00:03:29:01
 * FROM CLIP NAME: SEBV2.mp4
-* 2 · J-5 : l'accréditation | Donner l'enjeu : premier concert de l'artiste à Paris.
+* 2 · L'accréditation | Donner l'enjeu : premier concert de l'artiste à Paris.
 
 018  SEBV2    AA/V  C        00:05:40:00 00:05:56:00 00:03:29:01 00:03:45:01
 * FROM CLIP NAME: SEBV2.mp4
-* 2 · J-5 : l'accréditation | Plan B + programme de la journée.
+* 2 · L'accréditation | Plan B + programme de la journée.
 
 019  SEBV2    AA/V  C        00:06:54:00 00:07:09:00 00:03:45:01 00:04:00:01
 * FROM CLIP NAME: SEBV2.mp4
-* 2 · J-5 : l'accréditation | Rebondissement : la porte reste fermée.
+* 2 · L'accréditation | Rebondissement : la porte reste fermée.
 
 020  SEBV2    AA/V  C        00:07:13:00 00:07:21:00 00:04:00:01 00:04:08:01
 * FROM CLIP NAME: SEBV2.mp4
-* 2 · J-5 : l'accréditation | Il retourne au travail : caractère.
+* 2 · L'accréditation | Il retourne au travail : caractère.
 
 021  SEBV2    AA/V  C        00:07:45:00 00:08:06:00 00:04:08:01 00:04:29:01
 * FROM CLIP NAME: SEBV2.mp4
@@ -179,99 +179,99 @@ FCM: NON-DROP FRAME
 * 5 · Chez KLM | Freestyle de nuit dans le quartier.
 
 045  BL       V     C        00:00:00:00 00:00:02:00 00:13:02:16 00:13:04:16
-* CARTON: J-0
+* CARTON: LE CONCERT
 
 046  SEBV2    AA/V  C        00:28:10:00 00:28:19:13 00:13:04:16 00:13:14:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | Entrée en scène.
+* 6 · Le concert | Entrée en scène.
 
 047  SEBV2    AA/V  C        00:28:32:00 00:28:44:00 00:13:14:04 00:13:26:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | La salle entière.
+* 6 · Le concert | La salle entière.
 
 048  SEBV2    AA/V  C        00:29:55:00 00:30:02:00 00:13:26:04 00:13:33:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | Le public répond.
+* 6 · Le concert | Le public répond.
 
 049  SEBV2    AA/V  C        00:31:10:00 00:31:35:00 00:13:33:04 00:13:58:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | Montée.
+* 6 · Le concert | Montée.
 
 050  SEBV2    AA/V  C        00:32:21:00 00:32:42:00 00:13:58:04 00:14:19:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | Temps fort live.
+* 6 · Le concert | Temps fort live.
 
 051  SEBV2    AA/V  C        00:34:10:00 00:34:32:00 00:14:19:04 00:14:41:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | Climax.
+* 6 · Le concert | Climax.
 
 052  SEBV2    AA/V  C        00:35:03:00 00:35:16:00 00:14:41:04 00:14:54:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | L'image du concert.
+* 6 · Le concert | L'image du concert.
 
 053  SEBV2    AA/V  C        00:35:16:00 00:35:52:00 00:14:54:04 00:15:30:04
 * FROM CLIP NAME: SEBV2.mp4
-* 6 · J-0 : le concert | Payoff du fil rouge.
+* 6 · Le concert | Payoff du fil rouge.
 
 054  SEBV2    V     C        00:29:16:00 00:29:43:00 00:15:30:04 00:15:57:04
-* IMAGE DE COUVERTURE (b-roll) | 7 · Le lendemain
+* IMAGE DE COUVERTURE (b-roll) | 7 · Après le concert
 
 054  SEBV2    AA    C        00:35:56:00 00:36:23:00 00:15:30:04 00:15:57:04
 * SON | Respiration, sincérité.
 
 055  SEBV2    V     C        00:37:30:00 00:38:03:00 00:15:57:04 00:16:30:04
-* IMAGE DE COUVERTURE (b-roll) | 7 · Le lendemain
+* IMAGE DE COUVERTURE (b-roll) | 7 · Après le concert
 
 055  SEBV2    AA    C        00:37:03:00 00:37:36:00 00:15:57:04 00:16:30:04
 * SON | Payoff du teaser téléphone.
 
 056  SEBV2    AA/V  C        00:37:39:00 00:38:02:00 00:16:30:04 00:16:53:04
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Gag.
+* 7 · Après le concert | Gag.
 
 057  SEBV2    AA/V  C        00:38:04:00 00:38:14:17 00:16:53:04 00:17:03:21
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Nouveau jour.
+* 7 · Après le concert | Nouveau jour.
 
 058  SEBV2    AA/V  C        00:38:15:03 00:38:38:00 00:17:03:21 00:17:26:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Révélation : il était en loge.
+* 7 · Après le concert | Il pense avoir laissé son téléphone à charger dans la loge (ses mots).
 
 059  SEBV2    AA/V  C        00:38:46:00 00:39:00:00 00:17:26:18 00:17:40:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Résumé de la victoire.
+* 7 · Après le concert | Résumé de la victoire.
 
 060  SEBV2    AA/V  C        00:39:06:00 00:39:43:00 00:17:40:18 00:18:17:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Récap de la semaine.
+* 7 · Après le concert | Récap de la semaine.
 
 061  SEBV2    AA/V  C        00:40:30:00 00:40:57:00 00:18:17:18 00:18:44:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Nouvelle mini-quête.
+* 7 · Après le concert | Nouvelle mini-quête.
 
 062  SEBV2    AA/V  C        00:41:06:00 00:41:30:00 00:18:44:18 00:19:08:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Fin de la quête téléphone.
+* 7 · Après le concert | Fin de la quête téléphone.
 
 063  SEBV2    AA/V  C        00:41:39:00 00:42:05:00 00:19:08:18 00:19:34:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Respiration légère.
+* 7 · Après le concert | Respiration légère.
 
 064  SEBV2    AA/V  C        00:42:40:00 00:42:55:00 00:19:34:18 00:19:49:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Il est au travail : le tournage.
+* 7 · Après le concert | Il est au travail : le tournage.
 
 065  SEBV2    AA/V  C        00:44:35:00 00:44:55:00 00:19:49:18 00:20:09:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | La séance studio.
+* 7 · Après le concert | La séance studio.
 
 066  SEBV2    AA/V  C        00:45:50:00 00:46:50:00 00:20:09:18 00:21:09:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Une journée de taf, de bout en bout.
+* 7 · Après le concert | Une journée de taf, de bout en bout.
 
 067  SEBV2    AA/V  C        00:47:01:00 00:47:32:00 00:21:09:18 00:21:40:18
 * FROM CLIP NAME: SEBV2.mp4
-* 7 · Le lendemain | Retombée.
+* 7 · Après le concert | Retombée.
 
 068  SEBV2    AA/V  C        00:39:43:00 00:39:52:00 00:21:40:18 00:21:49:18
 * FROM CLIP NAME: SEBV2.mp4
