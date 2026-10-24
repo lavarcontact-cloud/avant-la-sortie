@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLoad } from '../lib/hooks.js';
 import { api, view } from '../lib/api.js';
 import { Icon, Sheet, Comments, useRequireAccount, useToast, shareLink, DemoTag, ReportSheet, Avatar, Empty } from '../components/ui.jsx';
-import { KIND_LABEL, youtubeId, ago } from '../lib/format.js';
+import { KIND_LABEL, youtubeId, youtubeThumb, thumbFallback, ago } from '../lib/format.js';
 
 // Le Tunnel : chaque piste est une séquence qu'on traverse de côté (pouce
 // gauche/droite ou tap sur les bords). Le changement de piste se fait en bas,
@@ -21,13 +21,14 @@ function Shot({ item, active, muted }) {
     if (active) { v.play().catch(() => {}); view(item.type, item.id); } else { v.pause(); }
   }, [active]); // eslint-disable-line
   const yt = item.type === 'post' && !item.media ? youtubeId(item.source?.url) : null;
+  const thumb = yt ? youtubeThumb(item.source.url) : null;
   return (
     <div className="shot">
       {item.media?.kind === 'video' && <video ref={ref} src={item.media.url} muted={muted} loop playsInline preload={active ? 'auto' : 'metadata'} />}
       {item.media?.kind === 'image' && <img src={item.media.url} alt="" />}
       {yt && (active
         ? <iframe src={`https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&mute=${muted ? 1 : 0}&playsinline=1&rel=0&modestbranding=1`} title={item.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />
-        : <img src={`https://i.ytimg.com/vi/${yt}/hqdefault.jpg`} alt="" />)}
+        : <img src={thumb.src} onError={(e) => thumbFallback(e, thumb.fallback)} alt="" />)}
       <div className="grad" />
       <div className="shot-info">
         {item.type === 'post' ? (

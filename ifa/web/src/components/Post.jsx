@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MediaView, Reactions, SourceLine, DemoTag, Icon, Avatar } from './ui.jsx';
-import { youtubeId, ago, KIND_LABEL, PLATFORM_LABEL } from '../lib/format.js';
+import { youtubeId, youtubeThumb, thumbFallback, ago, KIND_LABEL, PLATFORM_LABEL } from '../lib/format.js';
 
 // Une publication officielle présentée comme un post : qui, quand, d'où ça vient.
 export function PostCard({ post, lead = false }) {
   const nav = useNavigate();
   const yt = youtubeId(post.source.url);
+  const thumb = youtubeThumb(post.source.url);
+  const isShort = yt && /shorts\//.test(post.source.url);
   const hasMedia = post.media || yt;
   const isVideo = post.media?.kind === 'video' || yt;
   const label = post.source.type === 'app' ? 'officiel' : post.source.type === 'integration' ? `importé de ${PLATFORM_LABEL[post.source.platform] || 'une plateforme'}` : `via ${PLATFORM_LABEL[post.source.platform] || 'un lien'}`;
@@ -26,10 +28,10 @@ export function PostCard({ post, lead = false }) {
       </div>
       {hasMedia && (
         <Link to={`/qg/${post.id}`} aria-label={post.title}>
-          <div className={`post-media ${isVideo ? 'wide' : ''}`}>
+          <div className={`post-media ${isShort ? 'tall' : isVideo ? 'wide' : ''}`}>
             {post.media?.kind === 'image' && <img src={post.media.url} alt="" loading="lazy" />}
             {post.media?.kind === 'video' && <video src={`${post.media.url}#t=0.1`} preload="metadata" muted playsInline />}
-            {!post.media && yt && <img src={`https://i.ytimg.com/vi/${yt}/hqdefault.jpg`} alt="" loading="lazy" />}
+            {!post.media && thumb && <img src={thumb.src} onError={(e) => thumbFallback(e, thumb.fallback)} alt="" loading="lazy" />}
             {isVideo && <div className="play"><span><Icon name="play" fill /></span></div>}
           </div>
         </Link>

@@ -2,19 +2,19 @@
    FRÉQUENCE — système visuel v2
    Les couleurs viennent de l'univers réel d'Ifa : le bleu marine de ses vestes,
    le vert menthe du logo VRK, l'orange des enseignes de rue du 19e, le béton
-   vert-gris de la pochette. L'appli est claire et vivante ; les Clips (vidéo)
-   et le Labo (la "pièce du fond") passent en sombre.
+   vert-gris de la pochette. L'appli est sombre, comme la nuit du 19e ; les Clips
+   (vidéo) et le Labo (la "pièce du fond") descendent encore d'un cran.
    Typo : la police système du téléphone (SF Pro / Roboto), comme une vraie
    appli, plus une police "marqueur" réservée aux stickers.
    ========================================================================== */
 :root {
-  --bg: #F4F2EE;
-  --card: #FFFFFF;
-  --card-2: #ECE9E3;
-  --ink: #111633;
-  --mute: #686C7D;
-  --line: #E2DED6;
-  --navy: #1A2350;
+  --bg: #0A0C17;
+  --card: #151929;
+  --card-2: #1F2439;
+  --ink: #F3F1EC;
+  --mute: #9EA3B8;
+  --line: #272C44;
+  --navy: #1E2758;
   --mint: #63D8B8;
   --mint-ink: #0B3A2E;
   --orange: #FF5A2B;
@@ -31,17 +31,17 @@
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-t: env(safe-area-inset-top, 0px);
   --ease: cubic-bezier(.2, .8, .2, 1);
-  --shadow: 0 1px 2px rgba(17, 22, 51, .06), 0 8px 24px -12px rgba(17, 22, 51, .18);
-  color-scheme: light;
+  --shadow: 0 10px 30px -14px rgba(0, 0, 0, .7);
+  color-scheme: dark;
 }
 /* Espaces sombres (Clips, Labo, visionneuses) */
 .dark, .viewer, .tunnel {
-  --bg: #0D1124;
-  --card: #171C34;
-  --card-2: #20264A;
+  --bg: #07080F;
+  --card: #131726;
+  --card-2: #1D2236;
   --ink: #F3F1EC;
   --mute: #A3A7BA;
-  --line: #2A3054;
+  --line: #262B42;
   --shadow: 0 10px 30px -14px rgba(0, 0, 0, .7);
   color-scheme: dark;
 }
@@ -69,7 +69,7 @@ input, textarea, select { font: inherit; color: inherit; }
 .uv { color: var(--mint); }
 .lede { font-size: 17px; max-width: 40ch; }
 p { margin: 0 0 .8em; }
-.sticker { display: inline-block; width: fit-content; align-self: flex-start; font-family: var(--f-tag); font-size: 15px; line-height: 1; padding: 6px 10px 5px; border-radius: 8px; background: var(--mint); color: var(--mint-ink); transform: rotate(-3deg); box-shadow: 2px 2px 0 #111633; white-space: nowrap; }
+.sticker { display: inline-block; width: fit-content; align-self: flex-start; font-family: var(--f-tag); font-size: 15px; line-height: 1; padding: 6px 10px 5px; border-radius: 8px; background: var(--mint); color: var(--mint-ink); transform: rotate(-3deg); box-shadow: 2px 2px 0 #000; white-space: nowrap; }
 .sticker.orange { background: var(--orange); color: #fff; }
 
 /* ---------------------------------------------------------------- layout */
@@ -140,7 +140,7 @@ p { margin: 0 0 .8em; }
 
 .tag { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--card-2); color: var(--ink); white-space: nowrap; }
 .tag.sodium { background: color-mix(in srgb, var(--orange) 14%, transparent); color: var(--orange); }
-.tag.uv, .tag.canal { background: color-mix(in srgb, var(--mint) 24%, transparent); color: var(--mint-ink); }
+.tag.uv, .tag.canal { background: color-mix(in srgb, var(--mint) 18%, transparent); color: var(--mint); }
 .dark .tag.uv, .dark .tag.canal { color: var(--mint); }
 .tag.brique { background: color-mix(in srgb, var(--danger) 13%, transparent); color: var(--danger); }
 .tag.demo { background: repeating-linear-gradient(-45deg, #FFE8A3 0 6px, #FFF3CC 6px 12px); color: #6B4E00; }
@@ -223,6 +223,7 @@ p { margin: 0 0 .8em; }
 .post-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .post-media { position: relative; aspect-ratio: 4 / 5; background: var(--card-2); overflow: hidden; }
 .post-media.wide { aspect-ratio: 16 / 9; }
+.post-media.short { aspect-ratio: 9 / 16; width: min(100%, calc(78dvh * 9 / 16)); margin: 0 auto; border-radius: 18px; background: #000; }
 .post-media img, .post-media video, .post-media iframe { width: 100%; height: 100%; object-fit: cover; border: 0; }
 .post-media .play { position: absolute; inset: 0; display: grid; place-items: center; }
 .post-media .play span { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, .45); color: #fff; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }

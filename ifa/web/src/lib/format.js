@@ -44,3 +44,15 @@ export function youtubeId(url) {
   const m = String(url).match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/);
   return m ? m[1] : null;
 }
+
+// Miniature YouTube en bonne définition : verticale d'origine pour les Shorts,
+// 1280 px pour les vidéos classiques ; repli sur la 480 px si elle n'existe pas.
+export function youtubeThumb(url) {
+  const id = youtubeId(url);
+  if (!id) return null;
+  const big = /shorts\//.test(url) ? 'oardefault' : 'maxresdefault';
+  return { src: `https://i.ytimg.com/vi/${id}/${big}.jpg`, fallback: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` };
+}
+export function thumbFallback(e, fallback) {
+  if (e.currentTarget.src !== fallback) e.currentTarget.src = fallback;
+}

@@ -170,7 +170,9 @@ export function PostDetail() {
       <div className="row between wrap" style={{ marginBottom: 16 }}>
         <span className="mono">Publié le {new Date(p.published_at).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })} par l'équipe d'Ifa</span>
       </div>
-      {hasMedia && <div className={`post-media ${p.media?.kind === 'image' ? '' : 'wide'}`} style={{ borderRadius: 18, aspectRatio: p.media?.kind === 'image' ? 'auto' : undefined }}><MediaView media={p.media} sourceUrl={p.source.url} wide /></div>}
+      {hasMedia && (/youtube\.com\/shorts\//.test(p.source.url || '') && !p.media
+        ? <div className="post-media short"><MediaView media={null} sourceUrl={p.source.url} /></div>
+        : <div className={`post-media ${p.media?.kind === 'image' ? '' : 'wide'}`} style={{ borderRadius: 18, aspectRatio: p.media?.kind === 'image' ? 'auto' : undefined }}><MediaView media={p.media} sourceUrl={p.source.url} wide /></div>)}
       {p.body && <div style={{ marginTop: 18, whiteSpace: 'pre-wrap', fontSize: 17 }}>{p.body}</div>}
       {p.source.url && (
         <a href={p.source.url} target="_blank" rel="noopener noreferrer" className="btn ghost block" style={{ marginTop: 18 }}>
