@@ -8,6 +8,7 @@ import { spawn } from 'node:child_process';
 const { chromium, devices } = createRequire(import.meta.url)('playwright');
 const PORT = 8791;
 const BASE = `http://localhost:${PORT}`;
+const RUN = Date.now().toString(36); // textes uniques : la base de démo garde les passages précédents
 const OUT = new URL('./screens/', import.meta.url).pathname;
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -71,6 +72,7 @@ await step('Labo visiteur : contenu verrouillé, aucun fichier exposé', async (
 await step('Profil officiel Ifa', async () => {
   await anon.goto(`${BASE}/ifa`);
   await anon.getByText('Profil officiel').waitFor();
+  await anon.locator('a[href="https://www.instagram.com/ifa_pursang"]').waitFor();
   await shot(anon, '05-ifa');
 });
 await step('Cercles', async () => {
@@ -122,15 +124,15 @@ await step('Fan : commentaire filtré puis publié', async () => {
   await fan.getByLabel('Ton commentaire').fill('appelle moi au 06 12 34 56 78');
   await fan.getByRole('button', { name: 'Envoyer' }).click();
   await fan.getByText('Pas de coordonnées personnelles').waitFor();
-  await fan.getByLabel('Ton commentaire').fill('Trop hâte de la suite !');
+  await fan.getByLabel('Ton commentaire').fill(`Trop hâte de la suite ! ${RUN}`);
   await fan.getByRole('button', { name: 'Envoyer' }).click();
-  await fan.getByText('Trop hâte de la suite !').waitFor();
+  await fan.getByText(`Trop hâte de la suite ! ${RUN}`).waitFor();
   await shot(fan, '12-commentaires');
 });
 await step('Fan : publier une création (pré-modération)', async () => {
   await fan.goto(`${BASE}/cercles/publier`);
   await fan.locator('input[type=file]').setInputFiles(new URL('./fixtures/img.jpg', import.meta.url).pathname);
-  await fan.getByLabel('Légende').fill('Création e2e');
+  await fan.getByLabel('Légende').fill(`Création e2e ${RUN}`);
   await fan.locator('.check input').check();
   await shot(fan, '13-publier');
   await fan.getByRole('button', { name: 'Envoyer en validation' }).click();
@@ -148,11 +150,11 @@ const modo = await ctx();
 await step('Modérateur : valide la création', async () => {
   await login(modo, 'demo_modo@demo.frequence.local');
   await modo.goto(`${BASE}/regie/moderation`);
-  await modo.getByText('Création e2e').waitFor();
+  await modo.getByText(`Création e2e ${RUN}`).waitFor();
   await shot(modo, '16-regie-moderation');
-  const item = modo.locator('.mod-item', { hasText: 'Création e2e' });
+  const item = modo.locator('.mod-item', { hasText: `Création e2e ${RUN}` });
   await item.getByRole('button', { name: 'Publier' }).click();
-  await modo.getByText('Création e2e').waitFor({ state: 'detached' });
+  await modo.getByText(`Création e2e ${RUN}`).waitFor({ state: 'detached' });
 });
 
 const ed = await context2();
@@ -163,16 +165,16 @@ await step('Édition : publie une annonce avec signal, le fan la reçoit', async
   await ed.getByRole('heading', { name: 'Tableau de bord' }).waitFor();
   await shot(ed, '17-regie-tableau');
   await ed.goto(`${BASE}/regie/publications?nouveau=announcement`);
-  await ed.getByLabel('Titre').fill('Exemple · Annonce e2e avec signal');
+  await ed.getByLabel('Titre').fill(`Exemple · Annonce e2e ${RUN}`);
   await ed.locator('.check', { hasText: 'Envoyer un signal' }).locator('input').check();
   await shot(ed, '18-regie-publier');
   await ed.getByRole('button', { name: 'Publier', exact: true }).click();
   await ed.getByText('Publié sur le QG').waitFor();
   await fan.waitForTimeout(5000);
   await fan.goto(`${BASE}/signaux`);
-  await fan.getByText('Exemple · Annonce e2e avec signal').waitFor();
+  await fan.getByText(`Exemple · Annonce e2e ${RUN}`).waitFor();
   await shot(fan, '19-signaux');
-  await fan.getByText('Exemple · Annonce e2e avec signal').click();
+  await fan.getByText(`Exemple · Annonce e2e ${RUN}`).click();
   await fan.waitForURL(/\/qg\//);
 });
 await step('Édition : signaux, statistiques', async () => {

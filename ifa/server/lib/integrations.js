@@ -34,7 +34,9 @@ export async function syncYouTube(user) {
   const { apiKey, channelId } = config.youtube;
   if (!apiKey || !channelId) return { ok: false, reason: 'YOUTUBE_API_KEY et YOUTUBE_CHANNEL_ID non configurés' };
   try {
-    const ch = await getJson(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${encodeURIComponent(channelId)}&key=${apiKey}`);
+    // accepte un identifiant de chaîne (UC…) ou un pseudo (@ifapursang)
+    const selector = channelId.startsWith('@') ? `forHandle=${encodeURIComponent(channelId)}` : `id=${encodeURIComponent(channelId)}`;
+    const ch = await getJson(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&${selector}&key=${apiKey}`);
     const uploads = ch.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
     if (!uploads) return { ok: false, reason: 'Chaîne introuvable' };
     const pl = await getJson(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=15&playlistId=${uploads}&key=${apiKey}`);

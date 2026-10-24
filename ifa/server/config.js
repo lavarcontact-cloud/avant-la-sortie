@@ -28,7 +28,7 @@ export const config = {
     from: env.MAIL_FROM || 'Fréquence <no-reply@example.com>',
   },
   // Intégrations sociales
-  youtube: { apiKey: env.YOUTUBE_API_KEY || '', channelId: env.YOUTUBE_CHANNEL_ID || '' },
+  youtube: { apiKey: env.YOUTUBE_API_KEY || '', channelId: env.YOUTUBE_CHANNEL_ID || '@ifapursang' },
   instagram: { accessToken: env.INSTAGRAM_ACCESS_TOKEN || '' },
 
   schedulerIntervalMs: Number(env.SCHEDULER_INTERVAL_MS || 30_000),

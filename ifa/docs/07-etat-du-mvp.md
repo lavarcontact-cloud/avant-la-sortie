@@ -27,8 +27,8 @@ Dernière vérification : 24 octobre 2026.
 |---|---|
 | Livraison des push sur iPhone et Android | Clés VAPID en production, HTTPS, appareils de test |
 | Envoi de l'e-mail au parent | `SMTP_URL` (sinon le compte reste en attente ; en développement, le lien s'affiche dans la console du serveur) |
-| Import YouTube | `YOUTUBE_API_KEY` + identifiant de la chaîne officielle confirmée |
-| Import Instagram | Jeton de l'API Instagram du compte professionnel d'Ifa |
+| Import YouTube | `YOUTUBE_API_KEY` (chaîne @ifapursang déjà renseignée) |
+| Import Instagram | Jeton de l'API Instagram du compte professionnel @ifa_pursang |
 
 ## Non fait (volontairement hors MVP)
 - TikTok (app à faire valider par TikTok), Snapchat (pas d'API) : ajout manuel avec lien.
@@ -38,7 +38,7 @@ Dernière vérification : 24 octobre 2026.
 - Purges planifiées des journaux et des créations refusées.
 
 ## Dépend d'Ifa et de son équipe
-- **Comptes officiels** : aucune source fiable trouvée pour identifier avec certitude les comptes d'Ifa (Instagram, TikTok, Snapchat, YouTube, plateformes de streaming). **Aucun compte n'est associé au projet** tant que l'équipe ne l'a pas confirmé.
+- **Comptes officiels** : confirmés par le porteur du projet le 24/10/2026 et câblés sur le profil Ifa (migration `002_ifa_official_links.sql`) : Instagram [@ifa_pursang](https://www.instagram.com/ifa_pursang), YouTube [@ifapursang](https://www.youtube.com/@ifapursang), TikTok [@ifa_pursang](https://www.tiktok.com/@ifa_pursang), Snapchat ([lien de profil](https://snapchat.com/t/WcmhANW1)). Restent à fournir : liens Spotify, Apple Music, Deezer.
 - **Photos officielles** : à déposer dans `ifa/assets/photos/` ou via la régie (Profil officiel).
 - Bio, discographie, dates confirmées, autorisations de diffusion des extraits.
 - Désignation de l'éditeur du service et d'un contact pour les données personnelles (pages légales).

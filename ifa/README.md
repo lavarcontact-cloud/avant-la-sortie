@@ -2,7 +2,7 @@
 
 Application web progressive (PWA) pour l'artiste Ifa (Paris 19e) : actualités officielles, vidéos, avant-premières, communauté de fans et régie pour l'équipe.
 
-> Prototype fonctionnel à présenter à Ifa et à son équipe. **Aucun compte officiel n'est encore associé** : ils seront ajoutés une fois confirmés par l'équipe.
+> Prototype fonctionnel à présenter à Ifa et à son équipe. Comptes officiels câblés : Instagram et TikTok @ifa_pursang, YouTube @ifapursang, Snapchat.
 
 ## Dossier produit
 | Document | Contenu |

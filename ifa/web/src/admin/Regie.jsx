@@ -100,8 +100,8 @@ function Overview({ ov }) {
         {[
           ['Notifications push web', s.push, 'Clés VAPID à générer (npm run vapid) et à ajouter aux variables d\'environnement.'],
           ['E-mails (accord parental)', s.mail, 'Variable SMTP_URL à configurer. Sans elle, les comptes de moins de 15 ans restent en attente.'],
-          ['Import YouTube', s.youtube, 'YOUTUBE_API_KEY + YOUTUBE_CHANNEL_ID (chaîne officielle confirmée par l\'équipe).'],
-          ['Import Instagram', s.instagram, 'Jeton de l\'API Instagram du compte professionnel d\'Ifa (INSTAGRAM_ACCESS_TOKEN).'],
+          ['Import YouTube', s.youtube, 'Clé YOUTUBE_API_KEY à ajouter (chaîne @ifapursang déjà renseignée).'],
+          ['Import Instagram', s.instagram, 'Jeton de l\'API Instagram du compte professionnel @ifa_pursang (INSTAGRAM_ACCESS_TOKEN), à générer par l\'équipe.'],
           ['TikTok', s.tiktok, 'Nécessite une app TikTok for Developers validée et la connexion du compte d\'Ifa. En attendant : ajout manuel avec lien.'],
           ['Snapchat', s.snapchat, 'Pas d\'API publique de lecture des stories : ajout manuel avec lien vers l\'original.'],
         ].map(([n, ok, help]) => (
