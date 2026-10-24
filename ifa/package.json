@@ -1,0 +1,38 @@
+{
+  "name": "ifa-frequence",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fréquence — l'espace numérique officiel d'Ifa (PWA + API + admin)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:api": "node --watch server/index.js",
+    "dev:web": "vite --config web/vite.config.js",
+    "build": "vite build --config web/vite.config.js",
+    "start": "node server/index.js",
+    "migrate": "node scripts/migrate.js",
+    "seed:demo": "node scripts/seed-demo.js",
+    "create-admin": "node scripts/create-admin.js",
+    "vapid": "node scripts/vapid.js",
+    "test": "node --test --test-concurrency=1 tests/api.test.js",
+    "test:e2e": "node tests/e2e.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.3.0",
+    "multer": "^2.5.0",
+    "nodemailer": "^10.2.1",
+    "pg": "^8.23.1",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.6",
+    "vite": "^6.4.5"
+  }
+}
