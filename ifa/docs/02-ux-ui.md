@@ -28,7 +28,7 @@
 
 Barre flottante en bas, dans la zone du pouce, avec cinq stations numérotées et une aiguille lumineuse qui glisse vers la station active. Sur la station Labo, l'aiguille passe à l'ultraviolet. Les notifications et le profil sont en haut à droite : ce sont des destinations moins fréquentes, et le pouce reste libre pour les cinq espaces.
 
-## Écrans principaux (captures dans `tests/screens/` après `npm run test:e2e`)
+## Écrans principaux (captures dans [`docs/captures/`](captures/), régénérées dans `tests/screens/` par `npm run test:e2e`)
 
 | Écran | Rôle | Éléments clés |
 |---|---|---|
