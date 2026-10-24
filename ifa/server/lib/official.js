@@ -73,8 +73,9 @@ export async function importOfficialContent() {
         await q(`insert into releases (title, kind, release_date, release_at, cover_media_id, description, links) values ($1,$2,($3::timestamptz at time zone 'Europe/Paris')::date,$3,$4,$5,$6)`,
           [it.title, it.kind, it.release_at, await media(it.cover), it.description || null, it.links || {}]);
       } else if (it.type === 'post') {
-        await q(`insert into posts (author_id, kind, title, body, media_id, source_type, status, publish_at, is_pinned, notify) values ($1,$2,$3,$4,$5,'app','published',coalesce($6::timestamptz, now()),$7,$8)`,
-          [author?.id || null, it.kind, it.title, it.body || null, await media(it.media), it.publish_at || null, Boolean(it.pinned), Boolean(it.notify)]);
+        // un post qui renvoie vers une autre plateforme affiche la source et le lien
+        await q(`insert into posts (author_id, kind, title, body, media_id, source_type, source_platform, source_url, status, publish_at, is_pinned, notify) values ($1,$2,$3,$4,$5,$6,$7,$8,'published',coalesce($9::timestamptz, now()),$10,$11)`,
+          [author?.id || null, it.kind, it.title, it.body || null, await media(it.media), it.source_url ? 'manual' : 'app', it.source_platform || null, it.source_url || null, it.publish_at || null, Boolean(it.pinned), Boolean(it.notify)]);
       } else if (it.type === 'drop') {
         // jamais de fichier confidentiel dans le dépôt : le drop est créé vide, l'équipe ajoute le fichier
         await q(`insert into drops (title, teaser, body, kind, opens_at, closes_at, rights_note, is_published, notify_on_open, created_by) values ($1,$2,$3,$4,$5,$6,$7,$8,true,$9)`,
