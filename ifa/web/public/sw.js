@@ -2,7 +2,7 @@
 // - Coquille de l'appli en cache (ouverture instantanée, page hors-ligne).
 // - L'API n'est jamais mise en cache (données fraîches, fichiers protégés jamais stockés).
 // - Réception des notifications push et ouverture de la bonne page au clic.
-const VERSION = 'frq-v1';
+const VERSION = 'frq-v2';
 const SHELL = ['/', '/manifest.webmanifest', '/icons/icon-192.png'];
 
 self.addEventListener('install', (e) => {
