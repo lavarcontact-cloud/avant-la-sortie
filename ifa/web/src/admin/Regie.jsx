@@ -3,7 +3,7 @@ import { Link, NavLink, Navigate, Route, Routes, useLocation } from 'react-route
 import { useSession, canEdit, canModerate, isStaff } from '../lib/session.jsx';
 import { useLoad } from '../lib/hooks.js';
 import { api } from '../lib/api.js';
-import { Icon, Loading, ErrorBox, useToast } from '../components/ui.jsx';
+import { Icon, Loading, ErrorBox, useToast, Signature } from '../components/ui.jsx';
 import { Head, fmt, Seg } from './kit.jsx';
 import { Posts, Releases, Events, Drops, Community, Broadcasts, ArtistAdmin } from './Studio.jsx';
 
@@ -43,6 +43,7 @@ export function Regie() {
         <div className="grp mono dim">Compte</div>
         <Link to="/">← Retour à l'appli</Link>
         <div className="mono dim" style={{ padding: '10px 12px' }}>@{user.handle} · {user.role}</div>
+        <Signature className="left" />
       </aside>
       <main className="regie-main">
         <Routes>

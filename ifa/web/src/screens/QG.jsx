@@ -4,7 +4,7 @@ import { useLoad } from '../lib/hooks.js';
 import { api, view } from '../lib/api.js';
 import { useSession } from '../lib/session.jsx';
 import { PostCard, WaveViewer } from '../components/Post.jsx';
-import { Countdown, Empty, ErrorBox, Loading, MediaView, Reactions, SourceLine, KindTag, DemoTag, Comments, Icon, useToast, shareLink, ReminderButton, Provenance } from '../components/ui.jsx';
+import { Countdown, Empty, ErrorBox, Loading, MediaView, Reactions, SourceLine, KindTag, DemoTag, Comments, Icon, useToast, shareLink, ReminderButton, Provenance, Signature } from '../components/ui.jsx';
 import { dateLong, time, ago, EVENT_KIND, KIND_LABEL } from '../lib/format.js';
 
 // Le "signal" du moment : la prochaine échéance réelle (sortie ou date), sinon
@@ -143,6 +143,7 @@ export function QG() {
           <Link to="/bienvenue" className="btn" style={{ background: '#fff', color: '#111633' }}>C'est parti</Link>
         </section>
       )}
+      <Signature />
       {wave !== null && <WaveViewer items={data.stories} start={wave} onClose={() => setWave(null)} />}
     </div>
   );

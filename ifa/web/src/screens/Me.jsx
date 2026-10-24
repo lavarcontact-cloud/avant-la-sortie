@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { useLoad } from '../lib/hooks.js';
 import { useSession, isStaff } from '../lib/session.jsx';
-import { Avatar, Empty, Icon, Loading, Sheet, useToast } from '../components/ui.jsx';
+import { Avatar, Empty, Icon, Loading, Sheet, useToast, Signature } from '../components/ui.jsx';
 import { pushSupport, enablePush, disablePush, currentSubscription, isIOS, isStandalone } from '../lib/push.js';
 import { ago } from '../lib/format.js';
 
@@ -89,6 +89,7 @@ export function Me() {
         <Link to="/legal/charte" className="setting"><span>Charte de la communauté</span><Icon name="back" style={{ transform: 'rotate(180deg)' }} /></Link>
         <button className="setting" style={{ width: '100%' }} onClick={async () => { await logout(); nav('/'); }}><span>Me déconnecter</span><span /></button>
       </section>
+      <Signature />
       <EditProfile open={edit} onClose={() => setEdit(false)} />
     </div>
   );

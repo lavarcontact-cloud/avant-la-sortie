@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import { useLoad } from '../lib/hooks.js';
 import { useSession } from '../lib/session.jsx';
-import { Avatar, Icon, Loading, ErrorBox } from '../components/ui.jsx';
+import { Avatar, Icon, Loading, ErrorBox, Signature } from '../components/ui.jsx';
 import { AvatarPicker } from './Me.jsx';
 
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -72,6 +72,7 @@ export function Welcome() {
             <button className="btn block" onClick={() => { setMode('signup'); setStep(1); }}>Créer mon compte</button>
             <button className="btn ghost block" onClick={() => { setMode('login'); setStep(1); }}>J'ai déjà un compte</button>
           </div>
+          <Signature className="on-dark" />
         </>
       )}
 

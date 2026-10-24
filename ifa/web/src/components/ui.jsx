@@ -337,3 +337,13 @@ export function Provenance({ source, fan = false }) {
   if (source?.type === 'manual') return <span className="tag">Repris de {PLATFORM_LABEL[source.platform] || 'l\'extérieur'}</span>;
   return <span className="tag uv"><span className="verified" style={{ width: 13, height: 13, fontSize: 8 }}>✓</span>Officiel</span>;
 }
+
+// ---------------------------------------------------------------- signature
+export function Signature({ className = '' }) {
+  return (
+    <p className={`signature ${className}`}>
+      <span>appli conçue &amp; réalisée par</span>
+      <b>Sébastien Fula-Pitu</b>
+    </p>
+  );
+}
