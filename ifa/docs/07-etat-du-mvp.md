@@ -5,6 +5,17 @@ Dernière vérification : 24 octobre 2026.
 ## En ligne
 https://frequence-ifa.vercel.app — vérifié après déploiement : base connectée, stockage privé, push configuré, démo installée, Labo verrouillé pour les visiteurs, médias servis par liens signés, aucune table lisible par les rôles publics de Supabase.
 
+## V2 (24/10/2026)
+- Démo retirée de la production (`DEMO_SEED=0`, `DEMO_PURGE=1`) : uniquement du contenu réel ou confirmé par l'équipe.
+- Provenance affichée sur chaque contenu : « Officiel », « Repris de … » avec lien vers l'original, « Création d'un fan ».
+- Pages de détail `/sortie/:id` et `/date/:id` : date, heure, lieu ou plateformes, source, partage, **rappel individuel** (table `reminders`, envoi par le planificateur, boîte + push hors heures calmes).
+- Rappel aussi sur l'ouverture d'un drop du Labo.
+- Page Notifications pour les visiteurs : ce qu'on reçoit, où, et pourquoi un compte est nécessaire.
+- Boucle communautaire de lancement : salle « Salle Reel 1 » (ouverte, ferme le 10/11) et « Défi Reel 1 : ton passage préféré » (ouvre à la sortie, 27/10 à minuit), créés par Claude et modifiables dans la régie.
+- Clips : pistes en haut, sur plusieurs lignes, plus jamais coupées ; colonne au format téléphone sur ordinateur.
+- Vues tablette (820 px) et ordinateur (1 366 px) vérifiées sans débordement horizontal.
+- Tests : 17 tests API, 20 parcours navigateur (dont rappel, boucle défi → publication → validation → visible, tablette et ordinateur).
+
 ## Terminé et testé automatiquement
 | Fonction | Test |
 |---|---|

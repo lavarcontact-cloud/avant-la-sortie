@@ -27,6 +27,7 @@ export function Cercles() {
   const challenges = useLoad('/api/challenges');
   const feed = useLoad('/api/fan-posts');
   const open = (challenges.data || []).filter((c) => c.state === 'open');
+  const soon = (challenges.data || []).filter((c) => c.state === 'upcoming');
   return (
     <div className="page">
       <h1 className="display h1" style={{ margin: '0 0 8px' }}>La commu</h1>
@@ -41,6 +42,19 @@ export function Cercles() {
               <div className="display h3" style={{ marginTop: 10 }}>{c.title}</div>
               <p className="muted" style={{ margin: '6px 0 0', fontSize: 14 }}>{c.brief}</p>
               <span className="mono dim">{c.entries} participation{c.entries > 1 ? 's' : ''} validée{c.entries > 1 ? 's' : ''}</span>
+            </Link>
+          ))}
+        </section>
+      )}
+
+      {soon.length > 0 && (
+        <section className="section">
+          <div className="section-head"><h2 className="display h3">Défis à venir</h2></div>
+          {soon.map((c) => (
+            <Link key={c.id} to={`/cercles/defi/${c.id}`} className="panel" style={{ display: 'block', marginTop: 8 }}>
+              <div className="row between"><span className="sticker orange">bientôt</span><span className="mono">ouvre le {dateLong(c.starts_at).replace(/^\w+ /, '')}</span></div>
+              <div className="display h3" style={{ marginTop: 10 }}>{c.title}</div>
+              <p className="muted" style={{ margin: '6px 0 0', fontSize: 14 }}>{c.brief}</p>
             </Link>
           ))}
         </section>
@@ -124,6 +138,7 @@ export function Challenge() {
       {c.rules && <div className="panel" style={{ whiteSpace: 'pre-wrap', fontSize: 14 }}><span className="mono muted">Règles</span><br />{c.rules}</div>}
       <p className="mono dim" style={{ marginTop: 12 }}>{c.ends_at ? `Jusqu'au ${dateLong(c.ends_at)}` : 'Sans date de fin'} · Participer débloque un badge, pas de classement.</p>
       {c.state === 'open' && <button className="btn block" style={{ marginTop: 8 }} onClick={() => need('participer') && nav(`/cercles/publier?defi=${c.id}`)}>Je participe</button>}
+      {c.state === 'upcoming' && <div className="panel" style={{ marginTop: 8 }}><b>Ouvre le {dateLong(c.starts_at)}.</b><p className="muted" style={{ margin: '4px 0 0', fontSize: 14 }}>Tu pourras publier ta vidéo dès l'ouverture. En attendant, rejoins la salle Reel 1 dans la commu.</p></div>}
       <section className="section"><div className="section-head"><h2 className="display h3">Participations</h2></div><FanGrid items={data.entries} /></section>
     </div>
   );
