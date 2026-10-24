@@ -2,6 +2,9 @@
 
 Dernière vérification : 24 octobre 2026.
 
+## En ligne
+https://frequence-ifa.vercel.app — vérifié après déploiement : base connectée, stockage privé, push configuré, démo installée, Labo verrouillé pour les visiteurs, médias servis par liens signés, aucune table lisible par les rôles publics de Supabase.
+
 ## Terminé et testé automatiquement
 | Fonction | Test |
 |---|---|

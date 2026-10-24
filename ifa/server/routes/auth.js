@@ -110,6 +110,18 @@ r.patch('/me', requireUser, async (req, res) => {
   res.json({ user: publicUser(u, { self: true }) });
 });
 
+r.put('/me/password', requireUser, rateLimit({ key: 'pw', max: 10, windowMs: 3600e3 }), async (req, res) => {
+  const current = str(req.body?.current, { max: 200, field: 'Mot de passe actuel' });
+  const next = str(req.body?.next, { min: 10, max: 200, field: 'Nouveau mot de passe (10 caractères minimum)' });
+  const u = await one('select password_hash from users where id = $1', [req.user.id]);
+  if (!(await verifyPassword(current, u.password_hash))) fail(401, 'Mot de passe actuel incorrect');
+  await q('update users set password_hash = $2 where id = $1', [req.user.id, await hashPassword(next)]);
+  // déconnecte les autres appareils
+  await q('delete from sessions where user_id = $1', [req.user.id]);
+  await createSession(res, req.user.id);
+  res.json({ ok: true });
+});
+
 // Droit à la portabilité (RGPD art. 20)
 r.get('/me/export', requireUser, async (req, res) => {
   const id = req.user.id;

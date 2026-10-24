@@ -363,3 +363,11 @@ test('push web réel : requête chiffrée et signée VAPID générée pour chaqu
     Object.assign(config.vapid, { publicKey: '', privateKey: '', subject: '' });
   }
 });
+
+test('changement de mot de passe', async () => {
+  const fan = await signup(20);
+  assert.equal((await fan.c.put('/api/me/password', { current: 'faux', next: 'nouveaumotdepasse' })).status, 401);
+  assert.equal((await fan.c.put('/api/me/password', { current: 'motdepasse1', next: 'court' })).status, 400);
+  assert.equal((await fan.c.put('/api/me/password', { current: 'motdepasse1', next: 'nouveaumotdepasse' })).status, 200);
+  assert.equal((await fan.c.get('/api/auth/me')).data.user.id, fan.user.id, 'reste connecté sur cet appareil');
+});

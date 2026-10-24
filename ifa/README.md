@@ -42,8 +42,24 @@ npm run build && npm run seed:demo && npm run test:e2e                      # 16
 ```
 Le test e2e utilise Playwright et Chromium (`npm i -D playwright && npx playwright install chromium` s'ils ne sont pas déjà présents).
 
-## Déploiement
-L'appli a besoin d'un **processus Node permanent** (planificateur des signaux et du Labo), d'une **base PostgreSQL** et d'un **volume persistant** pour les fichiers. Vercel (sans serveur, disque éphémère) ne convient donc pas en l'état.
+## En ligne
+**https://frequence-ifa.vercel.app** — Vercel (projet `frequence-ifa`, région Paris) + Supabase Postgres (projet `frequence`, eu-west-3) + Vercel Blob privé (`frequence-medias`).
+
+| Élément | Mise en œuvre sur Vercel |
+|---|---|
+| API | `api/index.js` : l'app Express dans une fonction (`vercel.json`) |
+| Base | Pooler Supabase en mode transaction, utilisateur dédié `frequence_app` (propriétaire des tables, aucun droit pour les rôles publics de Supabase) ; `DATABASE_SSL=no-verify` |
+| Fichiers | Vercel Blob **privé** : `/api/media/:id` vérifie les droits puis redirige vers une URL signée (60 s pour le Labo, 1 h sinon). Envoi direct navigateur → Blob (`/api/uploads/blob`), puis vérification de la signature binaire |
+| Migrations, admin, démo | Au premier appel (`server/lib/bootstrap.js`) : migrations, compte admin depuis `ADMIN_EMAIL` / `ADMIN_PASSWORD`, démo si `DEMO_SEED=1` (comptes de démo **non connectables** en ligne) |
+| Planificateur | Déclenché par le trafic (au plus une fois par minute) + tâche cron quotidienne (`/api/cron/tick`, protégée par `CRON_SECRET`). Limite : sans visite, une publication programmée attend la visite suivante (ou le cron du matin) |
+| Push | Clés VAPID dans les variables du projet |
+
+La branche de production du projet Vercel est `main`, alors que l'appli vit sur `ifa-frequence` : la production se redéploie à la demande (tableau de bord Vercel → *Redeploy*, ou outil de déploiement). Un push sur `ifa-frequence` crée un déploiement de prévisualisation.
+
+**Avant l'ouverture au public :** mettre `DEMO_SEED=0`, supprimer la démo, configurer un SMTP pour l'accord parental, compléter les pages légales.
+
+## Déploiement ailleurs
+Hors Vercel, l'appli tourne comme un **processus Node permanent** (planificateur toutes les 30 s) avec une **base PostgreSQL** et un **volume persistant** pour les fichiers.
 
 **Avec Docker (VPS, Scaleway, Fly.io, Railway, Render…)**
 ```bash

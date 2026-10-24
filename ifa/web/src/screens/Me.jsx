@@ -230,6 +230,7 @@ export function Privacy() {
           <div className="setting" key={b.id}><span>@{b.handle}</span><button className="btn ghost sm" onClick={async () => { await api.del(`/api/blocks/${b.id}`); blocks.reload(); }}>Débloquer</button></div>
         ))}
       </section>
+      <PasswordChange />
       <section className="section panel stack" style={{ '--s': '10px' }}>
         <h2 className="mono muted" style={{ margin: 0 }}>Mes données</h2>
         <a className="btn ghost" href="/api/me/export" download>Télécharger mes données (JSON)</a>
@@ -243,5 +244,24 @@ export function Privacy() {
         )}
       </section>
     </div>
+  );
+}
+
+function PasswordChange() {
+  const [f, setF] = useState({ current: '', next: '' });
+  const [msg, setMsg] = useState(null);
+  const save = async (e) => {
+    e.preventDefault(); setMsg(null);
+    try { await api.put('/api/me/password', f); setF({ current: '', next: '' }); setMsg({ ok: true, text: 'Mot de passe changé. Tes autres appareils ont été déconnectés.' }); }
+    catch (ex) { setMsg({ ok: false, text: ex.message }); }
+  };
+  return (
+    <form className="section panel stack" style={{ '--s': '10px' }} onSubmit={save}>
+      <h2 className="mono muted" style={{ margin: 0 }}>Mot de passe</h2>
+      <label className="field"><span>Actuel</span><input type="password" autoComplete="current-password" value={f.current} onChange={(e) => setF({ ...f, current: e.target.value })} required /></label>
+      <label className="field"><span>Nouveau (10 caractères minimum)</span><input type="password" autoComplete="new-password" minLength={10} value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} required /></label>
+      {msg && <p className={msg.ok ? 'ok-msg' : 'err'}>{msg.text}</p>}
+      <button className="btn ghost">Changer le mot de passe</button>
+    </form>
   );
 }
