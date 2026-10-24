@@ -236,6 +236,20 @@ p { margin: 0 0 .8em; }
 .count b { display: block; font-family: var(--f-display); font-variation-settings: "wdth" 62; font-weight: 900; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
 .count span { font: 600 9px/1 var(--f-mono); letter-spacing: .1em; color: var(--mute); text-transform: uppercase; }
 
+/* photo officielle en fond du signal, assombrie pour garder le texte lisible */
+.signal-hero .hero-photo { position: absolute; inset: 0; }
+.signal-hero .hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; filter: saturate(.9); }
+.signal-hero .hero-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,11,.25) 0%, rgba(10,10,11,.7) 45%, rgba(10,10,11,.94) 100%), radial-gradient(120% 90% at 85% 0%, rgba(255,184,28,.22), transparent 55%); }
+.signal-hero > *:not(.hero-photo):not(.scan) { position: relative; }
+
+/* galerie officielle */
+.gallery { display: grid; grid-auto-flow: column; grid-auto-columns: 62%; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); scroll-snap-type: x mandatory; }
+.gallery::-webkit-scrollbar { display: none; }
+.gallery-item { scroll-snap-align: start; aspect-ratio: 2 / 3; border-radius: 18px; overflow: hidden; background: var(--asphalt-2); border: 1px solid var(--line); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s var(--ease); }
+.gallery-item:hover img { transform: scale(1.03); }
+@media (min-width: 720px) { .gallery { grid-auto-columns: 32%; } }
+
 /* ondes courtes (stories) : cartes verticales avec jauge d'expiration */
 .waves-strip { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding: 0 var(--gutter); margin: 0 calc(-1 * var(--gutter)); scroll-snap-type: x mandatory; }
 .waves-strip::-webkit-scrollbar { display: none; }
@@ -357,7 +371,7 @@ p { margin: 0 0 .8em; }
 /* ---------------------------------------------------------------- L'ARTISTE */
 .artist-head { position: relative; min-height: 62vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 var(--gutter) 24px; overflow: hidden; }
 .artist-head .bg { position: absolute; inset: 0; }
-.artist-head .bg img { width: 100%; height: 100%; object-fit: cover; }
+.artist-head .bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
 .artist-head .bg.gen { background:
   radial-gradient(70% 50% at 70% 25%, rgba(255, 184, 28, .45), transparent 60%),
   radial-gradient(60% 50% at 10% 70%, rgba(141, 107, 255, .35), transparent 60%),

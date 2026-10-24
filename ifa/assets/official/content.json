@@ -1,0 +1,66 @@
+{
+  "_note": "Contenus officiels confirmés par le porteur du projet le 24/10/2026. Chaque élément est importé une seule fois (table official_imports) ; l'équipe les modifie ensuite dans la régie. Heures en heure de Paris.",
+  "items": [
+    {
+      "key": "release:reel-1",
+      "type": "release",
+      "title": "Reel 1",
+      "kind": "single",
+      "release_at": "2026-10-27T00:00:00+01:00",
+      "cover": "reel-1-cover.jpg",
+      "description": "Nouveau titre d'Ifa, sur toutes les plateformes le mardi 27 octobre à minuit."
+    },
+    {
+      "key": "release:reel-1-clip",
+      "type": "release",
+      "title": "Reel 1 (clip)",
+      "kind": "clip",
+      "release_at": "2026-10-27T20:00:00+01:00",
+      "cover": "reel-1-cover.jpg",
+      "description": "Le clip de Reel 1, le mardi 27 octobre à 20 h."
+    },
+    {
+      "key": "drop:reel-1-avant-premiere",
+      "type": "drop",
+      "kind": "preview",
+      "title": "Reel 1 en avant-première",
+      "teaser": "45 secondes de Reel 1, réservées aux membres, avant la sortie de mardi minuit.",
+      "body": "Un extrait de Reel 1, en exclusivité pour la communauté. Il disparaît du Labo à la sortie officielle : rendez-vous ensuite sur ta plateforme.",
+      "opens_at": "2026-10-24T18:00:00+02:00",
+      "closes_at": "2026-10-27T00:00:00+01:00",
+      "rights_note": "Extrait de 45 s autorisé par l'équipe d'Ifa jusqu'à la sortie",
+      "published": false,
+      "_note": "Créé sans fichier ni publication : le fichier audio n'est jamais versé dans ce dépôt public. L'équipe le dépose dans la régie (Le Labo → Modifier → Fichier) puis coche « Publier »."
+    },
+    {
+      "key": "post:reel-1-annonce",
+      "type": "post",
+      "kind": "announcement",
+      "title": "Reel 1 : mardi minuit sur les plateformes, le clip à 20 h",
+      "body": "Le nouveau titre d'Ifa, Reel 1, sort dans la nuit de lundi à mardi (27 octobre, minuit) sur toutes les plateformes. Le clip suit le mardi à 20 h.",
+      "media": "reel-1-cover.jpg",
+      "pinned": true,
+      "notify": true
+    },
+    {
+      "key": "broadcast:reel-1-plateformes",
+      "type": "broadcast",
+      "category": "release",
+      "importance": "important",
+      "title": "Reel 1 est disponible",
+      "body": "Le nouveau titre d'Ifa est sur toutes les plateformes.",
+      "url": "/ifa#ecouter",
+      "send_at": "2026-10-27T00:00:00+01:00"
+    },
+    {
+      "key": "broadcast:reel-1-clip",
+      "type": "broadcast",
+      "category": "release",
+      "importance": "important",
+      "title": "Le clip de Reel 1 est sorti",
+      "body": "Le clip de Reel 1 est en ligne. Lien dans l'appli.",
+      "url": "/ifa#ecouter",
+      "send_at": "2026-10-27T20:00:00+01:00"
+    }
+  ]
+}

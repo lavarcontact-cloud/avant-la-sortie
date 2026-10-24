@@ -19,6 +19,9 @@ export function ensureReady() {
         values ($1,$2,$3,1990,1,'admin',$4) on conflict do nothing returning id`,
       [email, await hashPassword(process.env.ADMIN_PASSWORD), handle, config.termsVersion]);
     }
+    const { importOfficialPhotos } = await import('./official.js');
+    await importOfficialPhotos();
+    await (await import('./official.js')).importOfficialContent();
     if (process.env.DEMO_SEED === '1') {
       const { seedDemoOnce } = await import('./demo.js');
       await seedDemoOnce();

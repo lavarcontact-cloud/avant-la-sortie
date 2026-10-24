@@ -9,9 +9,13 @@ import { dateLong, time, EVENT_KIND, RELEASE_KIND, KIND_LABEL } from '../lib/for
 
 // Le "signal" du moment : la prochaine échéance réelle (sortie ou date), sinon
 // la dernière annonce épinglée. Jamais de compte à rebours inventé.
+function HeroBg({ banner }) {
+  return banner ? <div className="hero-photo" aria-hidden="true"><img src={banner.url} alt="" /></div> : null;
+}
+
 function Signal({ data }) {
   const candidates = [];
-  if (data.next_release?.release_date) candidates.push({ type: 'release', at: `${data.next_release.release_date}T00:00:00`, x: data.next_release });
+  if (data.next_release?.release_at || data.next_release?.release_date) candidates.push({ type: 'release', at: data.next_release.release_at || `${data.next_release.release_date}T00:00:00`, x: data.next_release });
   if (data.next_event) candidates.push({ type: 'event', at: data.next_event.starts_at, x: data.next_event });
   candidates.sort((a, b) => new Date(a.at) - new Date(b.at));
   const s = candidates[0];
@@ -19,6 +23,7 @@ function Signal({ data }) {
   if (!s && !pinned) {
     return (
       <div className="signal-hero">
+        <HeroBg banner={data.artist.banner} />
         <div className="scan" />
         <span className="mono muted">Pas de signal programmé</span>
         <h1 className="display h1" style={{ marginTop: 10 }}>Reste<br />branché</h1>
@@ -29,6 +34,7 @@ function Signal({ data }) {
   if (!s) {
     return (
       <Link to={`/qg/${pinned.id}`} className="signal-hero">
+        <HeroBg banner={data.artist.banner} />
         <div className="scan" />
         <div className="row"><span className="live-dot" /><span className="mono sodium">Annonce épinglée</span><DemoTag on={pinned.is_demo} /></div>
         <h1 className="display h2" style={{ marginTop: 12 }}>{pinned.title}</h1>
@@ -37,7 +43,8 @@ function Signal({ data }) {
   }
   return (
     <Link to={s.type === 'event' ? '/ifa#agenda' : '/ifa#discographie'} className="signal-hero">
-      <div className="scan" />
+      <HeroBg banner={data.artist.banner} />
+        <div className="scan" />
       <div className="row">
         <span className="live-dot" />
         <span className="mono sodium">{s.type === 'event' ? `${EVENT_KIND[s.x.kind]} confirmé` : `${RELEASE_KIND[s.x.kind]} annoncé`}</span>
@@ -45,7 +52,7 @@ function Signal({ data }) {
       </div>
       <h1 className="display h1" style={{ marginTop: 10 }}>{s.x.title}</h1>
       <p className="muted" style={{ margin: '6px 0 0' }}>
-        {s.type === 'event' ? `${[s.x.venue, s.x.city].filter(Boolean).join(' · ')} — ${dateLong(s.at)}, ${time(s.at)}` : `Sortie le ${dateLong(s.at)}`}
+        {s.type === 'event' ? `${[s.x.venue, s.x.city].filter(Boolean).join(' · ')} — ${dateLong(s.at)}, ${time(s.at)}` : `Sortie le ${dateLong(s.at)}${s.x.release_at ? ` à ${time(s.at)}` : ''}`}
       </p>
       <Countdown to={s.at} />
     </Link>

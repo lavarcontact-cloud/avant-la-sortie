@@ -20,8 +20,8 @@ r.get('/config', (_req, res) => {
 });
 
 async function artistProfile() {
-  const a = await one('select name, tagline, bio, avatar_media_id, banner_media_id, links, updated_at from artist_profile where id = 1');
-  return { ...a, avatar: mediaRef(a.avatar_media_id, 'image'), banner: mediaRef(a.banner_media_id, 'image') };
+  const a = await one('select name, tagline, bio, avatar_media_id, banner_media_id, links, gallery, updated_at from artist_profile where id = 1');
+  return { ...a, avatar: mediaRef(a.avatar_media_id, 'image'), banner: mediaRef(a.banner_media_id, 'image'), gallery: (a.gallery || []).map((id) => mediaRef(id, 'image')) };
 }
 const shapeRelease = (x) => ({ ...x, cover: mediaRef(x.cover_media_id, 'image') });
 const shapeEvent = (x) => x;
@@ -33,7 +33,7 @@ r.get('/qg', async (req, res) => {
     listPosts(u, { where: `p.is_pinned and p.kind <> 'story'`, limit: 3 }),
     listPosts(u, { where: `p.kind <> 'story' and not p.is_pinned`, limit: 20 }),
     one(`select * from events where status = 'confirmed' and starts_at > now() order by starts_at limit 1`),
-    one(`select * from releases where is_published and release_date >= current_date order by release_date limit 1`),
+    one(`select * from releases where is_published and coalesce(release_at, release_date::timestamptz) > now() order by coalesce(release_at, release_date::timestamptz) limit 1`),
     many(`select id, title, teaser, kind, opens_at, closes_at, cover_media_id, is_demo from drops
           where is_published and (closes_at is null or closes_at > now()) order by opens_at limit 4`),
     listFanPosts(u, { where: 'f.is_featured', limit: 6 }),
@@ -41,7 +41,7 @@ r.get('/qg', async (req, res) => {
     one(`select id, title, brief, ends_at, is_demo from challenges where is_published and starts_at <= now() and (ends_at is null or ends_at > now()) order by starts_at desc limit 1`),
   ]);
   res.json({
-    artist: { name: artist.name, tagline: artist.tagline, avatar: artist.avatar },
+    artist: { name: artist.name, tagline: artist.tagline, avatar: artist.avatar, banner: artist.banner },
     stories, pinned, feed,
     next_event: nextEvent && shapeEvent(nextEvent),
     next_release: nextRelease && shapeRelease(nextRelease),
@@ -70,7 +70,7 @@ r.get('/posts/:id', async (req, res) => {
 r.get('/artist', async (req, res) => {
   const [artist, releases, upcoming, past, announcements, videos] = await Promise.all([
     artistProfile(),
-    many(`select * from releases where is_published order by release_date desc nulls last`),
+    many(`select * from releases where is_published order by coalesce(release_at, release_date::timestamptz) desc nulls last`),
     many(`select * from events where status in ('confirmed','postponed','cancelled') and coalesce(ends_at, starts_at) >= now() order by starts_at`),
     many(`select * from events where status = 'confirmed' and coalesce(ends_at, starts_at) < now() order by starts_at desc limit 20`),
     listPosts(req.user, { where: `p.kind = 'announcement'`, limit: 5 }),

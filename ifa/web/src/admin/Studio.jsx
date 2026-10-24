@@ -145,7 +145,7 @@ export function Releases() {
           <div className="form-grid">
             <label className="field"><span>Titre</span><input value={edit.title || ''} onChange={(e) => setEdit({ ...edit, title: e.target.value })} required /></label>
             <label className="field"><span>Type</span><select value={edit.kind} onChange={(e) => setEdit({ ...edit, kind: e.target.value })}>{Object.entries(RELEASE_KIND).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
-            <label className="field"><span>Date de sortie</span><input type="date" value={edit.release_date || ''} onChange={(e) => setEdit({ ...edit, release_date: e.target.value })} /></label>
+            <label className="field"><span>Date et heure de sortie</span><input type="datetime-local" value={toLocal(edit.release_at) || (edit.release_date ? `${edit.release_date}T00:00` : '')} onChange={(e) => setEdit({ ...edit, release_at: fromLocal(e.target.value), release_date: e.target.value.slice(0, 10) })} /><small>L'heure sert au compte à rebours du QG.</small></label>
             <div><MediaUpload value={edit.cover} onChange={(m) => setEdit({ ...edit, cover: m })} label="Pochette" accept="image/*" /></div>
             <label className="field full"><span>Description</span><textarea value={edit.description || ''} onChange={(e) => setEdit({ ...edit, description: e.target.value })} /></label>
             {LINKS.map((k) => <label key={k} className="field"><span>Lien {PLATFORM_LABEL[k]}</span><input type="url" placeholder="https://" value={edit.links?.[k] || ''} onChange={(e) => setEdit({ ...edit, links: { ...edit.links, [k]: e.target.value } })} /></label>)}
@@ -394,7 +394,7 @@ export function ArtistAdmin() {
   if (!f) return <Loading />;
   const save = async (e) => {
     e.preventDefault();
-    try { await api.put('/api/admin/artist', { ...f, avatar_media_id: f.avatar?.id || null, banner_media_id: f.banner?.id || null }); toast('Profil officiel mis à jour'); }
+    try { await api.put('/api/admin/artist', { ...f, avatar_media_id: f.avatar?.id || null, banner_media_id: f.banner?.id || null, gallery: (f.gallery || []).map((g) => g.id) }); toast('Profil officiel mis à jour'); }
     catch (ex) { toast(ex.message); }
   };
   const run = async (name) => {
@@ -412,6 +412,21 @@ export function ArtistAdmin() {
           <label className="field full"><span>Présentation</span><textarea value={f.bio || ''} onChange={(e) => setF({ ...f, bio: e.target.value })} rows={6} /><small>À faire relire et valider par Ifa.</small></label>
           <div><MediaUpload value={f.banner} onChange={(m) => setF({ ...f, banner: m })} label="Photo principale (bannière)" accept="image/*" /></div>
           <div><MediaUpload value={f.avatar} onChange={(m) => setF({ ...f, avatar: m })} label="Photo de profil" accept="image/*" /></div>
+          <div className="field full"><span>Galerie (photos officielles)</span>
+            <div className="row wrap" style={{ gap: 8 }}>
+              {(f.gallery || []).map((g, i) => (
+                <div key={g.id} style={{ position: 'relative', width: 96 }}>
+                  <img src={g.url} alt="" style={{ width: 96, height: 144, objectFit: 'cover', borderRadius: 10 }} />
+                  <div className="row" style={{ gap: 4, marginTop: 4 }}>
+                    <button type="button" className="btn ghost sm" disabled={i === 0} onClick={() => { const x = [...f.gallery]; [x[i - 1], x[i]] = [x[i], x[i - 1]]; setF({ ...f, gallery: x }); }} aria-label="Avancer">←</button>
+                    <button type="button" className="btn danger sm" onClick={() => setF({ ...f, gallery: f.gallery.filter((_, k) => k !== i) })} aria-label="Retirer">✕</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <MediaUpload value={null} onChange={(m) => m && setF({ ...f, gallery: [...(f.gallery || []), m] })} label="Ajouter une photo" accept="image/*" />
+            <small>N'enregistre que des photos dont l'usage est autorisé par Ifa et son équipe. Pense à cliquer « Enregistrer le profil ».</small>
+          </div>
           {ALINKS.map((k) => <label key={k} className="field"><span>{PLATFORM_LABEL[k] || k}</span><input type="url" value={f.links?.[k] || ''} placeholder="https://" onChange={(e) => setF({ ...f, links: { ...f.links, [k]: e.target.value } })} /></label>)}
         </div>
         <button className="btn">Enregistrer le profil</button>

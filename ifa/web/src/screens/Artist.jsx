@@ -1,7 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLoad } from '../lib/hooks.js';
 import { DemoTag, Empty, ErrorBox, Icon, Loading } from '../components/ui.jsx';
+
+function Gallery({ photos, name }) {
+  const [open, setOpen] = useState(null);
+  return (
+    <>
+      <div className="gallery">
+        {photos.map((p, i) => (
+          <button key={p.id} className="gallery-item" onClick={() => setOpen(i)} aria-label={`Photo ${i + 1} sur ${photos.length}`}>
+            <img src={p.url} alt={`${name}, photo officielle ${i + 1}`} loading="lazy" />
+          </button>
+        ))}
+      </div>
+      {open !== null && (
+        <div className="viewer" role="dialog" aria-modal="true" aria-label="Photos officielles">
+          <div className="media"><img src={photos[open].url} alt={`${name}, photo officielle ${open + 1}`} /></div>
+          <button className="tap-zone l" style={{ top: 0, bottom: 0, zIndex: 1 }} onClick={() => setOpen(Math.max(0, open - 1))} aria-label="Précédente" />
+          <button className="tap-zone r" style={{ top: 0, bottom: 0, zIndex: 1 }} onClick={() => (open < photos.length - 1 ? setOpen(open + 1) : setOpen(null))} aria-label="Suivante" />
+          <div className="top">
+            <div className="reel-bar" style={{ position: 'static', marginBottom: 12 }}>{photos.map((x, k) => <i key={x.id} className={k === open ? 'on' : k < open ? 'done' : ''} />)}</div>
+            <div className="row between"><span className="mono sodium">Photos officielles</span><button className="icon-btn" onClick={() => setOpen(null)} aria-label="Fermer"><Icon name="x" /></button></div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 import { PostCard } from '../components/Post.jsx';
 import { dayParts, time, EVENT_KIND, RELEASE_KIND, PLATFORM_LABEL } from '../lib/format.js';
 
@@ -46,6 +72,13 @@ export function Artist() {
       </header>
       <div className="page" style={{ paddingTop: 8 }}>
         {a.bio ? <p className="lede" style={{ whiteSpace: 'pre-wrap' }}>{a.bio}</p> : <p className="muted">La présentation officielle sera rédigée et validée par Ifa et son équipe.</p>}
+
+        {a.gallery?.length > 0 && (
+          <section className="section" id="photos">
+            <div className="section-head"><h2 className="display h3">Photos</h2><span className="mono dim">officielles</span></div>
+            <Gallery photos={a.gallery} name={a.name} />
+          </section>
+        )}
 
         <section className="section" id="ecouter">
           <div className="section-head"><h2 className="display h3">Écouter · Suivre</h2></div>

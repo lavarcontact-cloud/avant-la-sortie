@@ -1,0 +1,5 @@
+{
+  "_note": "Photos officielles fournies par le porteur du projet (24/10/2026). Importées une seule fois dans le stockage au démarrage (server/lib/bootstrap.js) : la bannière devient la photo principale du profil Ifa, toutes alimentent la galerie. L'équipe peut ensuite tout changer dans la régie.",
+  "banner": "ifa-portrait.jpg",
+  "gallery": ["ifa-portrait.jpg", "ifa-signe.jpg", "ifa-visage-cache.jpg", "ifa-main-tendue.jpg"]
+}

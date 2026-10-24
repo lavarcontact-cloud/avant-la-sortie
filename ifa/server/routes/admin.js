@@ -165,6 +165,7 @@ function releaseInput(b) {
   return {
     title: str(b.title, { max: 140, field: 'Titre' }), kind: oneOf(b.kind, ['single', 'ep', 'album', 'mixtape', 'clip', 'freestyle'], 'type'),
     release_date: b.release_date ? str(b.release_date, { max: 10, field: 'Date' }) : null,
+    release_at: date(b.release_at, 'Heure de sortie', { optional: true }),
     cover_media_id: uuid(b.cover_media_id, 'pochette', { optional: true }),
     description: str(b.description, { max: 2000, optional: true, field: 'Description' }), links,
     is_published: b.is_published === undefined ? true : bool(b.is_published),
@@ -173,15 +174,15 @@ function releaseInput(b) {
 r.get('/admin/releases', editor, async (_req, res) => res.json(await many('select * from releases order by release_date desc nulls first')));
 r.post('/admin/releases', editor, async (req, res) => {
   const x = releaseInput(req.body || {});
-  const row = await one(`insert into releases (title, kind, release_date, cover_media_id, description, links, is_published) values ($1,$2,$3,$4,$5,$6,$7) returning *`,
-    [x.title, x.kind, x.release_date, x.cover_media_id, x.description, x.links, x.is_published]);
+  const row = await one(`insert into releases (title, kind, release_date, release_at, cover_media_id, description, links, is_published) values ($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
+    [x.title, x.kind, x.release_date || (x.release_at ? x.release_at.toISOString().slice(0, 10) : null), x.release_at, x.cover_media_id, x.description, x.links, x.is_published]);
   await audit(req.user, 'release.create', 'release', row.id);
   res.status(201).json(row);
 });
 r.patch('/admin/releases/:id', editor, async (req, res) => {
   const x = releaseInput(req.body || {});
-  const row = await one(`update releases set title=$2, kind=$3, release_date=$4, cover_media_id=$5, description=$6, links=$7, is_published=$8 where id=$1 returning *`,
-    [uuid(req.params.id), x.title, x.kind, x.release_date, x.cover_media_id, x.description, x.links, x.is_published]);
+  const row = await one(`update releases set title=$2, kind=$3, release_date=$4, cover_media_id=$5, description=$6, links=$7, is_published=$8, release_at=$9 where id=$1 returning *`,
+    [uuid(req.params.id), x.title, x.kind, x.release_date || (x.release_at ? x.release_at.toISOString().slice(0, 10) : null), x.cover_media_id, x.description, x.links, x.is_published, x.release_at]);
   if (!row) fail(404, 'Sortie introuvable');
   await audit(req.user, 'release.update', 'release', row.id);
   res.json(row);
@@ -483,9 +484,10 @@ r.put('/admin/artist', admin, async (req, res) => {
   for (const k of ['instagram', 'tiktok', 'snapchat', 'youtube', 'spotify', 'apple_music', 'deezer', 'soundcloud', 'x', 'website', 'booking']) {
     const v = url(b.links?.[k], `Lien ${k}`); if (v) links[k] = v;
   }
-  const row = await one(`update artist_profile set name=$1, tagline=$2, bio=$3, avatar_media_id=$4, banner_media_id=$5, links=$6, updated_at=now() where id=1 returning *`,
+  const gallery = Array.isArray(b.gallery) ? b.gallery.slice(0, 24).map((g) => uuid(g, 'photo de galerie')) : null;
+  const row = await one(`update artist_profile set name=$1, tagline=$2, bio=$3, avatar_media_id=$4, banner_media_id=$5, links=$6, gallery=coalesce($7, gallery), updated_at=now() where id=1 returning *`,
     [str(b.name, { max: 60, field: 'Nom' }), str(b.tagline, { max: 120, optional: true, field: 'Accroche' }), str(b.bio, { max: 3000, optional: true, field: 'Bio' }),
-      uuid(b.avatar_media_id, 'photo', { optional: true }), uuid(b.banner_media_id, 'bannière', { optional: true }), links]);
+      uuid(b.avatar_media_id, 'photo', { optional: true }), uuid(b.banner_media_id, 'bannière', { optional: true }), links, gallery]);
   await audit(req.user, 'artist.update', 'artist', 1);
   res.json(row);
 });

@@ -5,3 +5,4 @@ ifa/data/
 ifa/web/dist/
 ifa/.env
 ifa/tests/screens/
+ifa/.private/
