@@ -10,10 +10,14 @@ const LOCK_KEY = 19_190_019;
 const POST_CATEGORY = { release: 'release', clip: 'release', freestyle: 'release', event: 'event', announcement: 'announcement' };
 
 export async function tick() {
+  // Verrou lié à une transaction ouverte sur une connexion dédiée : fonctionne
+  // aussi derrière un pooler en mode transaction (Supabase, PgBouncer), où un
+  // verrou de session pourrait rester bloqué sur une autre connexion.
   const client = await pool.connect();
   try {
-    const { rows } = await client.query('select pg_try_advisory_lock($1) as ok', [LOCK_KEY]);
-    if (!rows[0].ok) return { skipped: true };
+    await client.query('begin');
+    const { rows } = await client.query('select pg_try_advisory_xact_lock($1) as ok', [LOCK_KEY]);
+    if (!rows[0].ok) { await client.query('rollback'); return { skipped: true }; }
     try {
       const out = { published: 0, broadcasts: 0, drops: 0, challenges: 0 };
 
@@ -72,7 +76,7 @@ export async function tick() {
       await q(`delete from users where status = 'pending_parent' and created_at < now() - interval '30 days'`);
       return out;
     } finally {
-      await client.query('select pg_advisory_unlock($1)', [LOCK_KEY]);
+      await client.query('commit').catch(() => {});
     }
   } finally {
     client.release();

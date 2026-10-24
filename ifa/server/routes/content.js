@@ -6,6 +6,7 @@ import { listPosts, getPost, listFanPosts, mediaRef } from '../lib/content.js';
 import { getPrefs } from '../lib/notify.js';
 import { fail, uuid, oneOf } from '../lib/http.js';
 import { dropWindow } from '../lib/access.js';
+import { driver as storageDriver } from '../lib/storage.js';
 
 const r = Router();
 export default r;
@@ -13,6 +14,7 @@ export default r;
 r.get('/config', (_req, res) => {
   res.json({
     push: { configured: pushConfigured(), publicKey: pushConfigured() ? config.vapid.publicKey : null },
+    storage: storageDriver,
     minAge: config.minAge, parentalConsentAge: config.parentalConsentAge, termsVersion: config.termsVersion,
   });
 });

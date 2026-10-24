@@ -7,7 +7,7 @@ import multer from 'multer';
 import { q, one, many } from '../db.js';
 import { requireRole, requireAnyRole, ROLE_RANK } from '../lib/auth.js';
 import { fail, str, oneOf, date, url, uuid, bool } from '../lib/http.js';
-import { saveBuffer, LIMITS } from '../lib/storage.js';
+import { saveBuffer, finalizeDirectUpload, LIMITS } from '../lib/storage.js';
 import { scheduleBroadcast } from '../lib/notify.js';
 import { notifyUser } from '../lib/notify.js';
 import { award } from '../lib/badges.js';
@@ -73,9 +73,10 @@ r.get('/admin/stats', editor, async (_req, res) => {
 
 // ------------------------------------------------ médias
 r.post('/admin/media', editor, upload.single('file'), async (req, res) => {
-  if (!req.file) fail(400, 'Aucun fichier');
+  if (!req.file && !req.body.blob_pathname) fail(400, 'Aucun fichier');
   const visibility = oneOf(req.body.visibility || 'public', ['public', 'protected'], 'visibilité');
-  const saved = saveBuffer(req.file.buffer, { limits: LIMITS.staff });
+  const opts = { allowed: ['image', 'video', 'audio'], limits: LIMITS.staff };
+  const saved = req.file ? await saveBuffer(req.file.buffer, opts) : await finalizeDirectUpload(req.body.blob_pathname, req.user.id, opts);
   const m = await one('insert into media (owner_id, kind, mime, size_bytes, storage_key, visibility) values ($1,$2,$3,$4,$5,$6) returning id, kind, mime',
     [req.user.id, saved.kind, saved.mime, saved.size, saved.key, visibility]);
   await audit(req.user, 'media.upload', 'media', m.id, { visibility, kind: m.kind });

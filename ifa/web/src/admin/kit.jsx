@@ -1,6 +1,7 @@
 // Petits composants partagés par la régie.
 import { useState } from 'react';
-import { api } from '../lib/api.js';
+import { sendWithFile } from '../lib/upload.js';
+import { useSession } from '../lib/session.jsx';
 
 export const toLocal = (iso) => {
   if (!iso) return '';
@@ -14,14 +15,12 @@ export const fmt = (iso) => (iso ? new Date(iso).toLocaleString('fr-FR', { day: 
 export function MediaUpload({ value, onChange, visibility = 'public', accept = 'image/*,video/*,audio/*', label = 'Fichier' }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
+  const { user, config } = useSession();
   const pick = async (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
     setBusy(true); setErr(null);
-    const form = new FormData();
-    form.append('file', f);
-    form.append('visibility', visibility);
-    try { onChange(await api.upload('/api/admin/media', form)); } catch (ex) { setErr(ex.message); } finally { setBusy(false); e.target.value = ''; }
+    try { onChange(await sendWithFile('/api/admin/media', f, { visibility }, { config, user, purpose: 'staff' })); } catch (ex) { setErr(ex.message); } finally { setBusy(false); e.target.value = ''; }
   };
   return (
     <div className="field">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useLoad } from '../lib/hooks.js';
 import { api, view } from '../lib/api.js';
+import { sendWithFile } from '../lib/upload.js';
 import { useSession } from '../lib/session.jsx';
 import { Avatar, Comments, DemoTag, Empty, ErrorBox, Icon, Loading, MediaView, Reactions, ReportSheet, useRequireAccount, useToast } from '../components/ui.jsx';
 import { ago, dateLong } from '../lib/format.js';
@@ -160,7 +161,7 @@ export function FanPost() {
 // légende + destination → confirmation des droits → envoi en modération.
 export function Publish() {
   const [params] = useSearchParams();
-  const { user } = useSession();
+  const { user, config } = useSession();
   const circles = useLoad('/api/circles');
   const challenges = useLoad('/api/challenges');
   const [file, setFile] = useState(null);
@@ -183,13 +184,9 @@ export function Publish() {
   };
   const send = async () => {
     setBusy(true); setErr(null);
-    const form = new FormData();
-    form.append('file', file);
-    form.append('caption', caption);
-    form.append('rights', rights ? 'true' : 'false');
-    if (circleId) form.append('circle_id', circleId);
-    if (challengeId) form.append('challenge_id', challengeId);
-    try { setDone(await api.upload('/api/fan-posts', form)); } catch (e) { setErr(e.message); } finally { setBusy(false); }
+    try {
+      setDone(await sendWithFile('/api/fan-posts', file, { caption, rights, circle_id: circleId || undefined, challenge_id: challengeId || undefined }, { config, user, purpose: 'fan' }));
+    } catch (e) { setErr(e.message); } finally { setBusy(false); }
   };
   if (done) {
     return (

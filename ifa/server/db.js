@@ -4,7 +4,16 @@ import { config } from './config.js';
 // Les colonnes "date" restent des chaînes YYYY-MM-DD (pas de décalage de fuseau).
 pg.types.setTypeParser(1082, (v) => v);
 
-export const pool = new pg.Pool({ connectionString: config.databaseUrl, max: 10 });
+// En hébergement sans serveur, peu de connexions par instance (le pooler de la
+// base mutualise). DATABASE_SSL=no-verify : TLS chiffré sans vérification du
+// certificat (pooler Supabase, dont l'AC n'est pas dans le magasin système).
+const serverless = Boolean(process.env.VERCEL);
+export const pool = new pg.Pool({
+  connectionString: config.databaseUrl,
+  max: serverless ? 3 : 10,
+  idleTimeoutMillis: serverless ? 5000 : 10000,
+  ssl: process.env.DATABASE_SSL === 'no-verify' ? { rejectUnauthorized: false } : undefined,
+});
 
 export const q = (text, params) => pool.query(text, params);
 export const one = async (text, params) => (await pool.query(text, params)).rows[0] || null;

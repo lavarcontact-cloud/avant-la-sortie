@@ -6,7 +6,7 @@ import { requireUser, requireActive } from '../lib/auth.js';
 import { fail, str, uuid, bool } from '../lib/http.js';
 import { rateLimit } from '../lib/ratelimit.js';
 import { checkText } from '../lib/moderation.js';
-import { saveBuffer, LIMITS } from '../lib/storage.js';
+import { saveBuffer, finalizeDirectUpload, LIMITS } from '../lib/storage.js';
 import { listFanPosts, mediaRef } from '../lib/content.js';
 import { award } from '../lib/badges.js';
 
@@ -73,7 +73,7 @@ r.get('/fan-posts/:id', async (req, res) => {
 
 // Publication d'une création : toujours en pré-modération.
 r.post('/fan-posts', requireActive, rateLimit({ key: 'fanpost', max: 6, windowMs: 3600e3 }), upload.single('file'), async (req, res) => {
-  if (!req.file) fail(400, 'Ajoute une photo ou une vidéo');
+  if (!req.file && !req.body.blob_pathname) fail(400, 'Ajoute une photo ou une vidéo');
   if (!bool(req.body.rights)) fail(400, 'Il faut confirmer que tu as les droits sur ce contenu');
   const caption = str(req.body.caption, { max: 500, optional: true, field: 'Légende' });
   if (caption) { const c = checkText(caption); if (!c.ok) fail(422, c.reason, 'filtered'); }
@@ -81,7 +81,8 @@ r.post('/fan-posts', requireActive, rateLimit({ key: 'fanpost', max: 6, windowMs
   const challengeId = uuid(req.body.challenge_id, 'défi', { optional: true });
   if (circleId && !(await one('select 1 from circle_members where circle_id=$1 and user_id=$2', [circleId, req.user.id]))) fail(403, 'Rejoins le cercle pour y publier');
   if (challengeId && !(await one(`select 1 from challenges where id=$1 and is_published and starts_at <= now() and (ends_at is null or ends_at > now())`, [challengeId]))) fail(400, 'Ce défi n\'est pas ouvert');
-  const saved = saveBuffer(req.file.buffer, { allowed: ['image', 'video'], limits: LIMITS.fan });
+  const opts = { allowed: ['image', 'video'], limits: LIMITS.fan };
+  const saved = req.file ? await saveBuffer(req.file.buffer, opts) : await finalizeDirectUpload(req.body.blob_pathname, req.user.id, opts);
   const m = await one('insert into media (owner_id, kind, mime, size_bytes, storage_key, visibility) values ($1,$2,$3,$4,$5,$6) returning id',
     [req.user.id, saved.kind, saved.mime, saved.size, saved.key, 'public']);
   const p = await one(`insert into fan_posts (author_id, circle_id, challenge_id, caption, media_id, rights_accepted_at)
