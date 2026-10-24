@@ -11,6 +11,7 @@ import { Me, NotifSettings, Privacy } from './screens/Me.jsx';
 import { Welcome, ParentConsent } from './screens/Auth.jsx';
 import { Legal } from './screens/Legal.jsx';
 import { Regie } from './admin/Regie.jsx';
+import { ReleaseDetail, EventDetail } from './screens/Detail.jsx';
 import { Empty } from './components/ui.jsx';
 
 const NO_CHROME = ['/bienvenue', '/parent/', '/regie'];
@@ -38,6 +39,8 @@ export default function App() {
         <Route path="/cercles/:slug" element={<Circle />} />
         <Route path="/u/:handle" element={<UserProfile />} />
         <Route path="/ifa" element={<Artist />} />
+        <Route path="/sortie/:id" element={<ReleaseDetail />} />
+        <Route path="/date/:id" element={<EventDetail />} />
         <Route path="/signaux" element={<Signaux />} />
         <Route path="/moi" element={<Me />} />
         <Route path="/moi/signaux" element={<NotifSettings />} />

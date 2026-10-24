@@ -22,6 +22,11 @@ export function ensureReady() {
     const { importOfficialPhotos } = await import('./official.js');
     await importOfficialPhotos();
     await (await import('./official.js')).importOfficialContent();
+    // Retrait de la démo en ligne (DEMO_PURGE=1) : ne laisse que le contenu réel.
+    if (process.env.DEMO_PURGE === '1' && process.env.DEMO_SEED !== '1') {
+      const { removeDemo, DEMO_DOMAIN } = await import('./demo.js');
+      if (await one('select 1 from users where email = $1', [`demo_admin@${DEMO_DOMAIN}`])) await removeDemo();
+    }
     if (process.env.DEMO_SEED === '1') {
       const { seedDemoOnce } = await import('./demo.js');
       await seedDemoOnce();

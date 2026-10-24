@@ -9,7 +9,7 @@ export function PostCard({ post, lead = false }) {
   const yt = youtubeId(post.source.url);
   const hasMedia = post.media || yt;
   const isVideo = post.media?.kind === 'video' || yt;
-  const label = post.source.type === 'app' ? null : post.source.type === 'integration' ? `importé de ${PLATFORM_LABEL[post.source.platform] || 'une plateforme'}` : `via ${PLATFORM_LABEL[post.source.platform] || 'un lien'}`;
+  const label = post.source.type === 'app' ? 'officiel' : post.source.type === 'integration' ? `importé de ${PLATFORM_LABEL[post.source.platform] || 'une plateforme'}` : `via ${PLATFORM_LABEL[post.source.platform] || 'un lien'}`;
   return (
     <article className={`post card ${lead ? 'lead' : ''}`}>
       <div className="post-head">
@@ -18,7 +18,7 @@ export function PostCard({ post, lead = false }) {
           <div className="who">{post.author?.official ? 'ifa' : 'équipe ifa'} <span className="verified" title="Compte officiel">✓</span></div>
           <div className="meta">
             <span>{KIND_LABEL[post.kind]} · {ago(post.published_at)}</span>
-            {label && <>· {post.source.url ? <a href={post.source.url} target="_blank" rel="noopener noreferrer">{label} ↗</a> : <span>{label}</span>}</>}
+            <>· {post.source.url ? <a href={post.source.url} target="_blank" rel="noopener noreferrer">{label} ↗</a> : <span>{label}</span>}</>
           </div>
         </div>
         {post.is_pinned && <span className="sticker orange" style={{ fontSize: 12 }}>épinglé</span>}

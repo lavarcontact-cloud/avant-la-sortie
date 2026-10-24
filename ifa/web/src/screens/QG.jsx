@@ -4,7 +4,7 @@ import { useLoad } from '../lib/hooks.js';
 import { api, view } from '../lib/api.js';
 import { useSession } from '../lib/session.jsx';
 import { PostCard, WaveViewer } from '../components/Post.jsx';
-import { Countdown, Empty, ErrorBox, Loading, MediaView, Reactions, SourceLine, KindTag, DemoTag, Comments, Icon, useToast, shareLink } from '../components/ui.jsx';
+import { Countdown, Empty, ErrorBox, Loading, MediaView, Reactions, SourceLine, KindTag, DemoTag, Comments, Icon, useToast, shareLink, ReminderButton, Provenance } from '../components/ui.jsx';
 import { dateLong, time, ago, EVENT_KIND, KIND_LABEL } from '../lib/format.js';
 
 // Le "signal" du moment : la prochaine échéance réelle (sortie ou date), sinon
@@ -36,7 +36,7 @@ function NextDrop({ data, user }) {
     : s.x.kind === 'clip' ? `Le clip sort ${dateLong(s.at)} à ${time(s.at)}` : `Sur toutes les plateformes ${dateLong(s.at)}${s.x.release_at ? ` à ${time(s.at)}` : ''}`;
   return (
     <section>
-      <Link to={s.type === 'event' ? '/ifa#agenda' : '/ifa#discographie'} className={`drop-hero ${photo ? '' : 'plain'}`}>
+      <Link to={s.type === 'event' ? `/date/${s.x.id}` : `/sortie/${s.x.id}`} className={`drop-hero ${photo ? '' : 'plain'}`}>
         <span className="sticker">{s.type === 'event' ? 'date confirmée' : RELEASE_STICKER[s.x.kind] || 'sortie'}</span>
         {photo && <div className="pic"><img src={photo} alt="" /></div>}
         <div className="txt">
@@ -46,9 +46,10 @@ function NextDrop({ data, user }) {
           <Countdown to={s.at} />
         </div>
       </Link>
-      <div className="row" style={{ marginTop: 10 }}>
-        {openDrop && <Link to={`/labo/${openDrop.id}`} className="btn uv" style={{ flex: 1 }}><Icon name="play" fill size={16} /> Écouter en avant-première</Link>}
-        <Link to={user ? '/moi/signaux' : '/bienvenue'} className="btn ghost" style={{ flex: openDrop ? 'none' : 1 }}><Icon name="bell" size={18} /> {openDrop ? '' : 'Me prévenir à la sortie'}</Link>
+      <div className="row wrap" style={{ marginTop: 10, gap: 8 }}>
+        <ReminderButton type={s.type} id={s.x.id} at={s.type === 'event' ? new Date(new Date(s.at) - 2 * 3600e3).toISOString() : s.at} reminder={s.x.reminder} label={s.type === 'event' ? 'Me rappeler 2 h avant' : 'Me prévenir à la sortie'} />
+        {openDrop && <Link to={`/labo/${openDrop.id}`} className="btn uv"><Icon name="play" fill size={16} /> Écouter en avant-première</Link>}
+        <Link to={s.type === 'event' ? `/date/${s.x.id}` : `/sortie/${s.x.id}`} className="btn ghost">Détails</Link>
       </div>
     </section>
   );
@@ -162,12 +163,12 @@ export function PostDetail() {
       <Link to="/" className="mono row" style={{ gap: 4, marginBottom: 16 }}><Icon name="back" size={16} /> Accueil</Link>
       <div className="post-meta">
         <KindTag kind={p.kind} official={p.author?.official} />
+        <Provenance source={p.source} />
         <DemoTag on={p.is_demo} />
       </div>
       <h1 className="display h2" style={{ margin: '14px 0 12px' }}>{p.title}</h1>
       <div className="row between wrap" style={{ marginBottom: 16 }}>
-        <SourceLine source={p.source} date={p.published_at} />
-        {p.author && <span className="mono muted">par @{p.author.handle}</span>}
+        <span className="mono">Publié le {new Date(p.published_at).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })} par l'équipe d'Ifa</span>
       </div>
       {hasMedia && <div className={`post-media ${p.media?.kind === 'image' ? '' : 'wide'}`} style={{ borderRadius: 18, aspectRatio: p.media?.kind === 'image' ? 'auto' : undefined }}><MediaView media={p.media} sourceUrl={p.source.url} wide /></div>}
       {p.body && <div style={{ marginTop: 18, whiteSpace: 'pre-wrap', fontSize: 17 }}>{p.body}</div>}

@@ -72,7 +72,7 @@ await step('Labo visiteur : contenu verrouillé, aucun fichier exposé', async (
 await step('Profil officiel Ifa', async () => {
   await anon.goto(`${BASE}/ifa`);
   await anon.getByText('Profil officiel').waitFor();
-  await anon.locator('a[href="https://www.instagram.com/ifa_pursang"]').waitFor();
+  await anon.locator('a[href="https://www.instagram.com/ifa_pursang"]').first().waitFor();
   await shot(anon, '05-ifa');
 });
 await step('Cercles', async () => {
@@ -129,8 +129,24 @@ await step('Fan : commentaire filtré puis publié', async () => {
   await fan.getByText(`Trop hâte de la suite ! ${RUN}`).waitFor();
   await shot(fan, '12-commentaires');
 });
-await step('Fan : publier une création (pré-modération)', async () => {
-  await fan.goto(`${BASE}/cercles/publier`);
+await step('Fan : page de la sortie et rappel', async () => {
+  await fan.goto(BASE);
+  await fan.getByRole('link', { name: 'Détails' }).click();
+  await fan.waitForURL(/\/sortie\//);
+  await fan.getByRole('button', { name: /Me prévenir|Rappel activé/ }).waitFor();
+  // si un passage précédent l'a déjà activé, on le retire d'abord
+  if (await fan.getByRole('button', { name: 'Rappel activé' }).count()) { await fan.getByRole('button', { name: 'Rappel activé' }).click(); await fan.getByRole('button', { name: /Me prévenir/ }).waitFor(); }
+  await fan.getByRole('button', { name: /Me prévenir/ }).click();
+  await fan.getByRole('button', { name: 'Rappel activé' }).waitFor();
+  await shot(fan, '12b-sortie-rappel');
+  await fan.reload();
+  await fan.getByRole('button', { name: 'Rappel activé' }).waitFor(); // persistant
+});
+await step('Fan : publier une création depuis un défi (pré-modération)', async () => {
+  await fan.goto(`${BASE}/cercles`);
+  await fan.locator('a.panel', { hasText: 'Défi' }).first().click();
+  await fan.getByRole('button', { name: 'Je participe' }).click();
+  await fan.waitForURL(/\/cercles\/publier\?defi=/);
   await fan.locator('input[type=file]').setInputFiles(new URL('./fixtures/img.jpg', import.meta.url).pathname);
   await fan.getByLabel('Légende').fill(`Création e2e ${RUN}`);
   await fan.locator('.check input').check();
@@ -155,6 +171,16 @@ await step('Modérateur : valide la création', async () => {
   const item = modo.locator('.mod-item', { hasText: `Création e2e ${RUN}` });
   await item.getByRole('button', { name: 'Publier' }).click();
   await modo.getByText(`Création e2e ${RUN}`).waitFor({ state: 'detached' });
+});
+await step('Fan : sa création validée apparaît dans le défi et dans la commu', async () => {
+  await fan.goto(`${BASE}/cercles`);
+  await fan.locator('a.panel', { hasText: 'Défi' }).first().click();
+  await fan.getByText('Participations').waitFor();
+  const n = await fan.locator('.fan-tile', { hasText: 'nora.19' }).count();
+  if (!n) throw new Error('création absente du défi');
+  await fan.goto(`${BASE}/moi`);
+  await fan.getByText(`Création e2e ${RUN}`).waitFor();
+  await fan.getByText('En ligne').first().waitFor();
 });
 
 const ed = await context2();
@@ -184,6 +210,28 @@ await step('Édition : signaux, statistiques', async () => {
   await ed.goto(`${BASE}/regie/stats`);
   await ed.getByText('Contenus les plus vus').waitFor();
   await shot(ed, '21-regie-stats');
+});
+await step('Affichage tablette et ordinateur', async () => {
+  for (const [name, w, h] of [['tablette', 820, 1180], ['ordinateur', 1366, 900]]) {
+    const c = await browser.newContext({ viewport: { width: w, height: h }, locale: 'fr-FR', timezoneId: 'Europe/Paris' });
+    const p = await c.newPage();
+    p.on('pageerror', (e) => errors.push(`${name} → ${e.message}`));
+    await p.goto(BASE);
+    await p.getByText('Les news').waitFor();
+    const overflow = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+    if (overflow) throw new Error(`débordement horizontal en ${name}`);
+    await p.screenshot({ path: `${OUT}30-${name}-accueil.png` });
+    await p.goto(`${BASE}/immersion`);
+    await p.waitForTimeout(600);
+    await p.screenshot({ path: `${OUT}31-${name}-clips.png` });
+    await c.close();
+  }
+});
+await step('Clips : pistes visibles sans débordement (mobile)', async () => {
+  await anon.goto(`${BASE}/immersion`);
+  const hidden = await anon.evaluate(() => [...document.querySelectorAll('.tunnel .chip')].filter((c) => { const r = c.getBoundingClientRect(); return r.right > window.innerWidth || r.left < 0; }).length);
+  if (hidden) throw new Error(`${hidden} piste(s) coupée(s)`);
+  await anon.screenshot({ path: `${OUT}03b-clips-pistes.png` });
 });
 await step('PWA : manifeste et service worker', async () => {
   const m = await (await anon.request.get(`${BASE}/manifest.webmanifest`)).json();

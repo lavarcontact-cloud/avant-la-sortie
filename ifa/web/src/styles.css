@@ -249,8 +249,8 @@ p { margin: 0 0 .8em; }
 .shot { flex: none; width: 100%; height: 100%; scroll-snap-align: center; scroll-snap-stop: always; position: relative; overflow: hidden; }
 .shot video, .shot img, .shot iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
 .shot iframe { object-fit: contain; }
-.shot .grad { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgba(0, 0, 0, .45), transparent 18%, transparent 55%, rgba(0, 0, 0, .85)); }
-.shot-info { position: absolute; left: var(--gutter); right: 84px; bottom: calc(var(--tab-h) + var(--safe-b) + 66px); pointer-events: none; }
+.shot .grad { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgba(0, 0, 0, .6), transparent 28%, transparent 60%, rgba(0, 0, 0, .85)); }
+.shot-info { position: absolute; left: var(--gutter); right: 84px; bottom: calc(var(--tab-h) + var(--safe-b) + 20px); pointer-events: none; }
 .shot-info .post-title { font-size: 21px; color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .5); }
 .shot-info > * { pointer-events: auto; }
 .shot-info .tag { background: rgba(255, 255, 255, .2); color: #fff; backdrop-filter: blur(6px); }
@@ -260,7 +260,7 @@ p { margin: 0 0 .8em; }
 .reel-bar i.done { background: rgba(255, 255, 255, .7); }
 .tunnel-controls { position: absolute; left: 0; right: 0; bottom: calc(var(--tab-h) + var(--safe-b) + 12px); padding: 0 var(--gutter); z-index: 3; }
 /* actions empilées à droite, au pouce */
-.tunnel-actions { position: absolute; right: 12px; bottom: 60px; display: flex; flex-direction: column; gap: 22px; align-items: center; }
+.tunnel-actions { position: absolute; right: 12px; bottom: 8px; display: flex; flex-direction: column; gap: 22px; align-items: center; }
 .tunnel-actions .row { flex-direction: column; gap: 22px !important; }
 .round { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, .28); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: relative; color: #fff; }
 .round.on { color: var(--orange); }
@@ -268,7 +268,9 @@ p { margin: 0 0 .8em; }
 .round svg { width: 26px; height: 26px; }
 .tap-zone { position: absolute; top: 20%; bottom: 40%; width: 25%; z-index: 1; }
 .tap-zone.l { left: 0; } .tap-zone.r { right: 0; }
-.tunnel .chips { padding: 0 var(--gutter); margin: 0; }
+/* pistes : en haut de l'écran, sur plusieurs lignes si besoin, jamais coupées ni par-dessus le titre */
+.tunnel .chips { position: fixed; top: calc(var(--safe-t) + 74px); left: 0; right: 0; margin: 0 auto; max-width: 640px; padding: 0 var(--gutter); flex-wrap: wrap; overflow: visible; gap: 6px; z-index: 4; }
+.tunnel .chip { height: 32px; padding: 0 12px; font-size: 13px; }
 .tunnel .chip { background: rgba(0, 0, 0, .35); color: #fff; box-shadow: none; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .tunnel .chip.on { background: #fff; color: #000; }
 
@@ -422,6 +424,18 @@ p { margin: 0 0 .8em; }
   .regie-mobile-bar { display: flex; position: sticky; top: 0; z-index: 60; padding: calc(var(--safe-t) + 10px) 16px 10px; background: var(--card); box-shadow: 0 1px 0 var(--line); justify-content: space-between; align-items: center; }
   .form-grid { grid-template-columns: 1fr; }
   .mod-item { grid-template-columns: 96px 1fr; }
+}
+@media (min-width: 900px) {
+  /* tablette paysage et ordinateur : barre d'onglets centrée, contenu en colonne lisible */
+  .tabbar { left: 50%; right: auto; transform: translateX(-50%); bottom: 14px; width: 560px; border-radius: 22px; box-shadow: var(--shadow), 0 0 0 1px var(--line); padding-bottom: 6px; }
+  .app { padding-bottom: 110px; }
+  .shot-info { bottom: 110px; }
+  .tunnel-controls { bottom: 96px; }
+  .topbar { padding-left: max(var(--gutter), calc(50% - 320px)); padding-right: max(var(--gutter), calc(50% - 320px)); }
+  /* Clips sur grand écran : colonne verticale au format téléphone, comme les applis vidéo sur le web */
+  .tunnel { left: calc(50% - 240px); right: auto; width: 480px; box-shadow: 0 0 0 100vmax #000; }
+  .tunnel .chips { max-width: 480px; }
+  .artist-head { min-height: 60vh; }
 }
 @media (min-width: 720px) {
   .fan-grid { grid-template-columns: repeat(3, 1fr); }

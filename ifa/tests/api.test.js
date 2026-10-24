@@ -371,3 +371,23 @@ test('changement de mot de passe', async () => {
   assert.equal((await fan.c.put('/api/me/password', { current: 'motdepasse1', next: 'nouveaumotdepasse' })).status, 200);
   assert.equal((await fan.c.get('/api/auth/me')).data.user.id, fan.user.id, 'reste connecté sur cet appareil');
 });
+
+test('rappels : sortie à venir, envoi à l\'heure, refus si déjà passé', async () => {
+  const fan = await signup(20);
+  const rel = await one(`insert into releases (title, kind, release_at, release_date) values ('Titre test', 'single', now() + interval '1 day', current_date + 1) returning id`);
+  const page = await fan.c.get(`/api/releases/${rel.id}`);
+  assert.equal(page.status, 200);
+  assert.equal(page.data.reminder, null);
+  assert.equal((await fan.c.post('/api/reminders', { target_type: 'release', target_id: rel.id })).status, 201);
+  assert.ok((await fan.c.get(`/api/releases/${rel.id}`)).data.reminder, 'rappel enregistré');
+  // la sortie arrive : le rappel part une seule fois
+  await q(`update reminders set remind_at = now() - interval '1 second' where target_id = $1`, [rel.id]);
+  await tick(); await tick();
+  const notifs = (await fan.c.get('/api/notifications')).data.items.filter((n) => n.title === 'Titre test est sorti');
+  assert.equal(notifs.length, 1);
+  assert.equal(notifs[0].url, `/sortie/${rel.id}`);
+  const past = await one(`insert into releases (title, kind, release_at) values ('Ancien', 'single', now() - interval '1 day') returning id`);
+  assert.equal((await fan.c.post('/api/reminders', { target_type: 'release', target_id: past.id })).status, 409);
+  assert.equal((await client().post('/api/reminders', { target_type: 'release', target_id: rel.id })).status, 401, 'compte requis');
+  assert.equal((await fan.c.del(`/api/reminders/release/${rel.id}`)).status, 200);
+});

@@ -298,3 +298,42 @@ export function Comments({ type, id }) {
     </div>
   );
 }
+
+// ---------------------------------------------------------------- rappel individuel
+// "Me rappeler" : enregistre un vrai rappel côté serveur. Il arrive dans la
+// boîte de notifications et en push si la personne l'a activé sur son appareil.
+export function ReminderButton({ type, id, at, reminder, label = 'Me rappeler', block = false }) {
+  const { user, config } = useSession();
+  const [on, setOn] = useState(Boolean(reminder && !reminder.sent_at));
+  const [busy, setBusy] = useState(false);
+  const toast = useToast();
+  const nav = useNavigate();
+  useEffect(() => setOn(Boolean(reminder && !reminder.sent_at)), [reminder]);
+  if (at && new Date(at) <= new Date()) return null;
+  const toggle = async () => {
+    if (!user) { nav('/bienvenue', { state: { from: window.location.pathname } }); return; }
+    if (user.status === 'pending_parent') { toast('Il faut l\'accord d\'un parent pour activer un rappel.'); return; }
+    setBusy(true);
+    try {
+      if (on) { await api.del(`/api/reminders/${type}/${id}`); setOn(false); toast('Rappel retiré'); }
+      else {
+        await api.post('/api/reminders', { target_type: type, target_id: id });
+        setOn(true);
+        toast(config?.push?.configured ? 'Rappel activé : tu seras prévenu (active les notifs push dans Réglages pour le téléphone)' : 'Rappel activé : il arrivera dans tes notifications');
+      }
+    } catch (e) { toast(e.message); } finally { setBusy(false); }
+  };
+  return (
+    <button className={`btn ${on ? 'ghost' : 'hot'} ${block ? 'block' : ''}`} onClick={toggle} disabled={busy} aria-pressed={on}>
+      <Icon name={on ? 'check' : 'bell'} size={18} /> {on ? 'Rappel activé' : user ? label : 'Me rappeler (compte gratuit)'}
+    </button>
+  );
+}
+
+// Provenance d'un contenu, en clair.
+export function Provenance({ source, fan = false }) {
+  if (fan) return <span className="tag canal">Création d'un fan</span>;
+  if (source?.type === 'integration') return <span className="tag">Importé de {PLATFORM_LABEL[source.platform] || 'une plateforme'}</span>;
+  if (source?.type === 'manual') return <span className="tag">Repris de {PLATFORM_LABEL[source.platform] || 'l\'extérieur'}</span>;
+  return <span className="tag uv"><span className="verified" style={{ width: 13, height: 13, fontSize: 8 }}>✓</span>Officiel</span>;
+}

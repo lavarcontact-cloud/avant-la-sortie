@@ -42,6 +42,10 @@ r.get('/qg', async (req, res) => {
     artistProfile(),
     one(`select id, title, brief, ends_at, is_demo from challenges where is_published and starts_at <= now() and (ends_at is null or ends_at > now()) order by starts_at desc limit 1`),
   ]);
+  // rappel déjà demandé par la personne sur la prochaine sortie / date
+  const reminderFor = async (type, x) => (u && x ? one('select remind_at, sent_at from reminders where user_id = $1 and target_type = $2 and target_id = $3', [u.id, type, x.id]) : null);
+  if (nextRelease) nextRelease.reminder = await reminderFor('release', nextRelease);
+  if (nextEvent) nextEvent.reminder = await reminderFor('event', nextEvent);
   res.json({
     artist: { name: artist.name, tagline: artist.tagline, avatar: artist.avatar, banner: artist.banner },
     stories, pinned, feed,

@@ -3,7 +3,7 @@
 // garantit qu'une seule instance exécute un tour (pas de double envoi).
 import { pool, q, many } from '../db.js';
 import { config } from '../config.js';
-import { dispatchBroadcast, scheduleBroadcast } from './notify.js';
+import { dispatchBroadcast, scheduleBroadcast, remindUser } from './notify.js';
 
 const LOCK_KEY = 19_190_019;
 
@@ -71,7 +71,29 @@ export async function tick() {
         out.broadcasts++;
       }
 
-      // 6. hygiène : sessions expirées ; comptes sans accord parental au bout de 30 jours
+      // 6. rappels individuels arrivés à échéance
+      for (const rm of await many(`update reminders set sent_at = now()
+          where (user_id, target_type, target_id) in (
+            select user_id, target_type, target_id from reminders where sent_at is null and remind_at <= now() limit 200)
+          returning user_id, target_type, target_id`)) {
+        const u = (await q(`select id, birth_year, birth_month from users where id = $1 and status = 'active'`, [rm.user_id])).rows[0];
+        if (!u) continue;
+        let msg;
+        if (rm.target_type === 'release') {
+          const x = (await q('select title, kind from releases where id = $1', [rm.target_id])).rows[0];
+          if (x) msg = { title: `${x.title} est sorti`, body: x.kind === 'clip' ? 'Le clip est en ligne.' : 'Dispo maintenant sur ta plateforme.', url: `/sortie/${rm.target_id}` };
+        } else if (rm.target_type === 'event') {
+          const x = (await q('select title, venue from events where id = $1', [rm.target_id])).rows[0];
+          if (x) msg = { title: `Dans 2 h : ${x.title}`, body: x.venue || null, url: `/date/${rm.target_id}` };
+        } else {
+          const x = (await q('select title from drops where id = $1', [rm.target_id])).rows[0];
+          if (x) msg = { title: `Le Labo s'ouvre : ${x.title}`, url: `/labo/${rm.target_id}` };
+        }
+        if (msg) await remindUser(u, msg);
+        out.reminders = (out.reminders || 0) + 1;
+      }
+
+      // 7. hygiène : sessions expirées ; comptes sans accord parental au bout de 30 jours
       await q('delete from sessions where expires_at < now()');
       await q(`delete from users where status = 'pending_parent' and created_at < now() - interval '30 days'`);
       return out;

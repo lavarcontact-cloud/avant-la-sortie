@@ -36,7 +36,7 @@ const LINK_ORDER = ['spotify', 'apple_music', 'deezer', 'youtube', 'soundcloud',
 function EventRow({ e }) {
   const d = dayParts(e.starts_at);
   return (
-    <div className="ev-row">
+    <Link to={`/date/${e.id}`} className="ev-row">
       <div className="ev-date"><b>{d.day}</b><span>{d.month}</span></div>
       <div>
         <div className="row wrap" style={{ gap: 6 }}>
@@ -48,8 +48,8 @@ function EventRow({ e }) {
         <div style={{ fontWeight: 800, fontSize: 17, textDecoration: e.status === 'cancelled' ? 'line-through' : 'none' }}>{e.title}</div>
         <div className="muted" style={{ fontSize: 14 }}>{[e.venue, e.city].filter(Boolean).join(' · ')} · {time(e.starts_at)}{e.age_policy ? ` · ${e.age_policy}` : ''}</div>
       </div>
-      {e.ticket_url && e.status === 'confirmed' ? <a href={e.ticket_url} target="_blank" rel="noopener noreferrer" className="btn sm">Billets</a> : <span />}
-    </div>
+      <Icon name="back" size={18} style={{ transform: 'rotate(180deg)' }} />
+    </Link>
   );
 }
 
@@ -105,15 +105,12 @@ export function Artist() {
           {data.releases.length ? (
             <div className="disc">
               {data.releases.map((r) => (
-                <div key={r.id} className="disc-item">
+                <Link key={r.id} to={`/sortie/${r.id}`} className="disc-item">
                   <div className="disc-cover">{r.cover ? <img src={r.cover.url} alt={`Pochette ${r.title}`} loading="lazy" /> : <span className="display h3 dim">{r.title.slice(0, 2)}</span>}</div>
                   <div style={{ fontWeight: 800, marginTop: 8, lineHeight: 1.2 }}>{r.title}</div>
                   <div className="mono muted">{RELEASE_KIND[r.kind]}{r.release_date ? ` · ${new Date(r.release_date).getFullYear()}` : ''}</div>
                   <DemoTag on={r.is_demo} />
-                  <div className="row wrap" style={{ gap: 4, marginTop: 6 }}>
-                    {Object.entries(r.links || {}).map(([k, u]) => <a key={k} href={u} target="_blank" rel="noopener noreferrer" className="tag">{PLATFORM_LABEL[k] || k} ↗</a>)}
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : <Empty title="Discographie à compléter">Les sorties officielles seront ajoutées par l'équipe.</Empty>}

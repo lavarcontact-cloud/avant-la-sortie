@@ -25,6 +25,7 @@ async function shape(user, d, { full = false } = {}) {
     state: dropWindow(d), access: d.access, required_badge: d.required_badge, rights_note: d.rights_note,
     cover: mediaRef(d.cover_media_id, 'image'), is_demo: d.is_demo,
     unlocked: access.allowed, lock_reason: access.allowed ? null : (LOCK_REASONS[access.reason] || 'Accès restreint'),
+    reminder: user ? await one('select remind_at, sent_at from reminders where user_id = $1 and target_type = $2 and target_id = $3', [user.id, 'drop', d.id]) : null,
   };
   if (d.required_badge) base.required_badge_name = (await one('select name from badges where code=$1', [d.required_badge]))?.name;
   if (d.required_circle_id) base.required_circle = await one('select slug, name from circles where id=$1', [d.required_circle_id]);

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useLoad } from '../lib/hooks.js';
 import { api, view } from '../lib/api.js';
-import { Countdown, Empty, ErrorBox, Loading, Icon, DemoTag, useRequireAccount, useToast } from '../components/ui.jsx';
+import { Countdown, Empty, ErrorBox, Loading, Icon, DemoTag, useRequireAccount, useToast, ReminderButton } from '../components/ui.jsx';
 import { dateLong, time } from '../lib/format.js';
 
 const KIND = { preview: 'Avant-première', vote: 'Vote', process: 'Dans le studio', experience: 'Expérience' };
@@ -126,7 +126,7 @@ export function DropDetail() {
           <div className="panel stack" style={{ borderColor: 'rgba(141,107,255,.35)' }}>
             <p className="lock uv" style={{ margin: 0 }}><Icon name="lock" size={18} /> {d.lock_reason}</p>
             {d.teaser && <p style={{ margin: 0 }}>{d.teaser}</p>}
-            {d.state === 'upcoming' && <><span className="mono muted">Ouverture {dateLong(d.opens_at)} à {time(d.opens_at)}</span><Countdown to={d.opens_at} /></>}
+            {d.state === 'upcoming' && <><span className="mono muted">Ouverture {dateLong(d.opens_at)} à {time(d.opens_at)}</span><Countdown to={d.opens_at} /><ReminderButton type="drop" id={d.id} at={d.opens_at} reminder={d.reminder} label="Me prévenir à l'ouverture" block /></>}
             {d.lock_reason?.startsWith('Connecte') && <Link className="btn uv" to="/bienvenue">Me connecter</Link>}
             {d.required_circle && <Link className="btn ghost" to={`/cercles/${d.required_circle.slug}`}>Voir le cercle {d.required_circle.name}</Link>}
           </div>

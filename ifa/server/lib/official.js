@@ -80,6 +80,12 @@ export async function importOfficialContent() {
         // jamais de fichier confidentiel dans le dépôt : le drop est créé vide, l'équipe ajoute le fichier
         await q(`insert into drops (title, teaser, body, kind, opens_at, closes_at, rights_note, is_published, notify_on_open, created_by) values ($1,$2,$3,$4,$5,$6,$7,$8,true,$9)`,
           [it.title, it.teaser || null, it.body || null, it.kind, it.opens_at, it.closes_at || null, it.rights_note || null, Boolean(it.published), author?.id || null]);
+      } else if (it.type === 'circle') {
+        await q(`insert into circles (slug, name, description, kind, ends_at) values ($1,$2,$3,$4,$5) on conflict (slug) do nothing`,
+          [it.slug, it.name, it.description || null, it.kind || 'permanent', it.ends_at || null]);
+      } else if (it.type === 'challenge') {
+        await q(`insert into challenges (title, brief, rules, starts_at, ends_at, reward_badge) values ($1,$2,$3,$4,$5,'defi')`,
+          [it.title, it.brief, it.rules || null, it.starts_at, it.ends_at || null]);
       } else if (it.type === 'broadcast') {
         if (new Date(it.send_at) > new Date()) {
           await q(`insert into broadcasts (category, importance, title, body, url, send_at, origin, created_by) values ($1,$2,$3,$4,$5,$6,$7,$8)`,

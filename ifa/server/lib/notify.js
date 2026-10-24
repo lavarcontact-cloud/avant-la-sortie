@@ -73,6 +73,17 @@ async function pushTo(userId, payload) {
   return { sent, failed, hadSubs: subs.length > 0 };
 }
 
+// Rappel demandé par la personne : boîte de réception + push si configuré,
+// hors heures calmes (le rappel reste alors dans l'appli).
+export async function remindUser(user, { title, body = null, url = null }) {
+  await q('insert into notifications (user_id, category, title, body, url) values ($1,$2,$3,$4,$5)', [user.id, 'reminder', title, body, url]);
+  if (!ensureVapid()) return { push: false };
+  const prefs = await getPrefs(user);
+  if (prefs.frequency === 'off' || inQuietHours(prefs)) return { push: false };
+  const r = await pushTo(user.id, { title, body: body || '', url: url || '/', tag: `rappel:${url}`, important: true });
+  return { push: r.sent > 0 };
+}
+
 // Notification personnelle (badge, modération…) : boîte de réception uniquement.
 export async function notifyUser(userId, { category, title, body = null, url = null }) {
   await q('insert into notifications (user_id, category, title, body, url) values ($1,$2,$3,$4,$5)',

@@ -14,6 +14,7 @@ import notifRoutes from './routes/notifs.js';
 import mediaRoutes from './routes/media.js';
 import adminRoutes from './routes/admin.js';
 import uploadRoutes from './routes/uploads.js';
+import reminderRoutes from './routes/reminders.js';
 
 export function createApp({ serverless = false } = {}) {
   const app = express();
@@ -63,7 +64,7 @@ export function createApp({ serverless = false } = {}) {
     try { await pool.query('select 1'); } catch (e) { db = `erreur : ${e.message}`; }
     res.json({ ok: db === 'ok', db, storage: driver, push: pushConfigured() });
   });
-  for (const r of [uploadRoutes, authRoutes, contentRoutes, interactRoutes, laboRoutes, communityRoutes, notifRoutes, mediaRoutes, adminRoutes]) app.use('/api', r);
+  for (const r of [uploadRoutes, reminderRoutes, authRoutes, contentRoutes, interactRoutes, laboRoutes, communityRoutes, notifRoutes, mediaRoutes, adminRoutes]) app.use('/api', r);
   app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Route inconnue')));
 
   // Front compilé (production). En dev, Vite sert le front et proxifie /api.
