@@ -27,6 +27,10 @@ const P = {
   cal: 'M3 5h18v16H3zM16 3v4M8 3v4M3 10h18',
   user: 'M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10z',
   check: 'M20 6 9 17l-5-5',
+  home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  clips: 'M4 4h16v16H4zM10 8.5v7l6-3.5z',
+  users: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  flask: 'M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3M7.5 14h9',
 };
 export function Icon({ name, size = 20, fill = false, ...rest }) {
   return (
@@ -54,10 +58,12 @@ export const useToast = () => useContext(ToastCtx);
 
 // ---------------------------------------------------------------- petits éléments
 export function Avatar({ style, handle, size = 36, official = false }) {
+  const { config } = useSession() || {};
   const [color, glyph] = String(style || 'craie:◉').split(':');
+  const photo = official ? config?.artist_photo?.url : null;
   return (
-    <span className={`avatar ${official ? 'av-official' : `av-${color}`}`} style={{ width: size, height: size, fontSize: size * 0.45 }} aria-hidden="true">
-      {official ? 'IFA'.slice(0, size > 40 ? 3 : 1) : glyph || handle?.[0]}
+    <span className={`avatar ${official ? 'av-official' : `av-${color}`}`} style={{ width: size, height: size, fontSize: size * (official ? 0.36 : 0.45) }} aria-hidden="true">
+      {photo ? <img src={photo} alt="" /> : official ? 'ifa' : glyph || handle?.[0]}
     </span>
   );
 }

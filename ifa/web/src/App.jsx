@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { Dial, TopBar, InstallPrompt } from './components/Shell.jsx';
+import { TabBar, TopBar, InstallPrompt } from './components/Shell.jsx';
 import { QG, PostDetail, Archives } from './screens/QG.jsx';
 import { Immersion } from './screens/Immersion.jsx';
 import { Labo, DropDetail } from './screens/Labo.jsx';
@@ -20,9 +20,10 @@ export default function App() {
   useEffect(() => { if (!pathname.startsWith('/immersion')) window.scrollTo(0, 0); }, [pathname]);
   const bare = NO_CHROME.some((p) => pathname.startsWith(p));
   const immersive = pathname.startsWith('/immersion');
+  const dark = immersive || pathname.startsWith('/labo');
   return (
-    <div className={bare ? '' : 'app'}>
-      {!bare && <TopBar transparent={immersive} />}
+    <div className={bare ? '' : `app ${dark ? 'dark' : ''} ${immersive ? 'tunnel-mode' : ''}`}>
+      {!bare && <TopBar over={immersive} />}
       <Routes>
         <Route path="/" element={<QG />} />
         <Route path="/qg/archives" element={<Archives />} />
@@ -47,7 +48,7 @@ export default function App() {
         <Route path="/regie/*" element={<Regie />} />
         <Route path="*" element={<div className="page"><Empty title="Hors fréquence">Cette page n'existe pas.</Empty></div>} />
       </Routes>
-      {!bare && <Dial />}
+      {!bare && <TabBar />}
       {!bare && <InstallPrompt />}
     </div>
   );

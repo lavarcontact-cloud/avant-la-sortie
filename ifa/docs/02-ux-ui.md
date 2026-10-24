@@ -6,7 +6,7 @@
                     ┌─────────────── barre du haut ───────────────┐
                     │ FRÉQUENCE 75.019 · IFA      [Signaux] [Moi] │
                     └─────────────────────────────────────────────┘
- 01 QG            02 IMMERSION       03 LABO           04 CERCLES          05 IFA
+ ACCUEIL (/)      CLIPS (/immersion)  [+]  COMMU (/cercles)   LABO (/labo)      IFA (/ifa, via la bulle « ifa »)
  /                /immersion         /labo             /cercles            /ifa
  ├ Signal         ├ Pistes :          ├ Ouvert          ├ Défis ouverts     ├ Profil officiel ✓
  ├ Ondes courtes  │  Pour toi         ├ À venir         │  └ /cercles/defi/:id ├ Écouter · suivre
@@ -24,9 +24,9 @@
                 défis & cercles, modération, comptes, stats, profil officiel, journal)
 ```
 
-## Disposition des onglets : la molette
+## Disposition des onglets
 
-Barre flottante en bas, dans la zone du pouce, avec cinq stations numérotées et une aiguille lumineuse qui glisse vers la station active. Sur la station Labo, l'aiguille passe à l'ultraviolet. Les notifications et le profil sont en haut à droite : ce sont des destinations moins fréquentes, et le pouce reste libre pour les cinq espaces.
+Barre d'onglets classique en bas : **Accueil · Clips · [+] · Commu · Labo**. Le « + » central ouvre la publication d'une création. Le profil officiel d'Ifa est accessible depuis la bulle « ifa » des stories et depuis la carte de sortie ; les notifications et « Moi » sont en haut à droite. Les onglets Clips et Labo passent l'appli en sombre.
 
 ## Écrans principaux (captures dans [`docs/captures/`](captures/), régénérées dans `tests/screens/` par `npm run test:e2e`)
 

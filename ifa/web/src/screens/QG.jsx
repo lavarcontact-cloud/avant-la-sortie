@@ -5,57 +5,52 @@ import { api, view } from '../lib/api.js';
 import { useSession } from '../lib/session.jsx';
 import { PostCard, WaveViewer } from '../components/Post.jsx';
 import { Countdown, Empty, ErrorBox, Loading, MediaView, Reactions, SourceLine, KindTag, DemoTag, Comments, Icon, useToast, shareLink } from '../components/ui.jsx';
-import { dateLong, time, EVENT_KIND, RELEASE_KIND, KIND_LABEL } from '../lib/format.js';
+import { dateLong, time, ago, EVENT_KIND, KIND_LABEL } from '../lib/format.js';
 
 // Le "signal" du moment : la prochaine échéance réelle (sortie ou date), sinon
 // la dernière annonce épinglée. Jamais de compte à rebours inventé.
-function HeroBg({ banner }) {
-  return banner ? <div className="hero-photo" aria-hidden="true"><img src={banner.url} alt="" /></div> : null;
-}
+const RELEASE_STICKER = { single: 'nouveau son', ep: 'nouvel EP', album: 'nouvel album', mixtape: 'nouvelle mixtape', clip: 'nouveau clip', freestyle: 'freestyle' };
 
-function Signal({ data }) {
+// La prochaine échéance réelle (sortie ou date confirmée), sinon l'annonce
+// épinglée. Jamais de compte à rebours inventé.
+function NextDrop({ data, user }) {
   const candidates = [];
-  if (data.next_release?.release_at || data.next_release?.release_date) candidates.push({ type: 'release', at: data.next_release.release_at || `${data.next_release.release_date}T00:00:00`, x: data.next_release });
+  const r = data.next_release;
+  if (r?.release_at || r?.release_date) candidates.push({ type: 'release', at: r.release_at || `${r.release_date}T00:00:00`, x: r });
   if (data.next_event) candidates.push({ type: 'event', at: data.next_event.starts_at, x: data.next_event });
   candidates.sort((a, b) => new Date(a.at) - new Date(b.at));
   const s = candidates[0];
   const pinned = data.pinned[0];
-  if (!s && !pinned) {
-    return (
-      <div className="signal-hero">
-        <HeroBg banner={data.artist.banner} />
-        <div className="scan" />
-        <span className="mono muted">Pas de signal programmé</span>
-        <h1 className="display h1" style={{ marginTop: 10 }}>Reste<br />branché</h1>
-        <p className="muted" style={{ marginTop: 10 }}>Dès qu'Ifa ou son équipe annonce une sortie ou une date, le compte à rebours s'allume ici.</p>
-      </div>
-    );
-  }
+  const photo = (s?.type === 'release' && s.x.cover?.url) || data.artist.banner?.url;
+  const openDrop = data.drops.find((d) => d.state === 'open');
   if (!s) {
+    if (!pinned) return null;
     return (
-      <Link to={`/qg/${pinned.id}`} className="signal-hero">
-        <HeroBg banner={data.artist.banner} />
-        <div className="scan" />
-        <div className="row"><span className="live-dot" /><span className="mono sodium">Annonce épinglée</span><DemoTag on={pinned.is_demo} /></div>
-        <h1 className="display h2" style={{ marginTop: 12 }}>{pinned.title}</h1>
+      <Link to={`/qg/${pinned.id}`} className="drop-hero plain">
+        <div className="txt"><span className="sticker orange">annonce</span><h1 style={{ fontSize: 30 }}>{pinned.title}</h1><DemoTag on={pinned.is_demo} /></div>
       </Link>
     );
   }
+  const when = s.type === 'event'
+    ? `${EVENT_KIND[s.x.kind]} · ${[s.x.venue, s.x.city].filter(Boolean).join(', ')} · ${dateLong(s.at)} à ${time(s.at)}`
+    : s.x.kind === 'clip' ? `Le clip sort ${dateLong(s.at)} à ${time(s.at)}` : `Sur toutes les plateformes ${dateLong(s.at)}${s.x.release_at ? ` à ${time(s.at)}` : ''}`;
   return (
-    <Link to={s.type === 'event' ? '/ifa#agenda' : '/ifa#discographie'} className="signal-hero">
-      <HeroBg banner={data.artist.banner} />
-        <div className="scan" />
-      <div className="row">
-        <span className="live-dot" />
-        <span className="mono sodium">{s.type === 'event' ? `${EVENT_KIND[s.x.kind]} confirmé` : `${RELEASE_KIND[s.x.kind]} annoncé`}</span>
-        <DemoTag on={s.x.is_demo} />
+    <section>
+      <Link to={s.type === 'event' ? '/ifa#agenda' : '/ifa#discographie'} className={`drop-hero ${photo ? '' : 'plain'}`}>
+        <span className="sticker">{s.type === 'event' ? 'date confirmée' : RELEASE_STICKER[s.x.kind] || 'sortie'}</span>
+        {photo && <div className="pic"><img src={photo} alt="" /></div>}
+        <div className="txt">
+          <DemoTag on={s.x.is_demo} />
+          <h1>{s.x.title}</h1>
+          <p className="when">{when}</p>
+          <Countdown to={s.at} />
+        </div>
+      </Link>
+      <div className="row" style={{ marginTop: 10 }}>
+        {openDrop && <Link to={`/labo/${openDrop.id}`} className="btn uv" style={{ flex: 1 }}><Icon name="play" fill size={16} /> Écouter en avant-première</Link>}
+        <Link to={user ? '/moi/signaux' : '/bienvenue'} className="btn ghost" style={{ flex: openDrop ? 'none' : 1 }}><Icon name="bell" size={18} /> {openDrop ? '' : 'Me prévenir à la sortie'}</Link>
       </div>
-      <h1 className="display h1" style={{ marginTop: 10 }}>{s.x.title}</h1>
-      <p className="muted" style={{ margin: '6px 0 0' }}>
-        {s.type === 'event' ? `${[s.x.venue, s.x.city].filter(Boolean).join(' · ')} — ${dateLong(s.at)}, ${time(s.at)}` : `Sortie le ${dateLong(s.at)}${s.x.release_at ? ` à ${time(s.at)}` : ''}`}
-      </p>
-      <Countdown to={s.at} />
-    </Link>
+    </section>
   );
 }
 
@@ -63,75 +58,75 @@ export function QG() {
   const { data, error, loading, reload } = useLoad('/api/qg');
   const [wave, setWave] = useState(null);
   const { user } = useSession();
-  if (loading && !data) return <div className="page stack"><Loading h={260} /><Loading h={180} /><Loading h={320} /></div>;
+  if (loading && !data) return <div className="page stack"><Loading h={90} /><Loading h={380} /><Loading h={320} /></div>;
   if (error) return <div className="page"><ErrorBox error={error} retry={reload} /></div>;
   const nothing = !data.feed.length && !data.pinned.length && !data.stories.length;
+  const pinned = data.pinned.filter((p) => p.id !== (data.next_release || data.next_event ? null : data.pinned[0]?.id));
   return (
     <div className="page">
-      <Signal data={data} />
+      <div className="stories" aria-label="Stories">
+        <Link to="/ifa" className="story">
+          <span className="story-ring">{data.artist.banner ? <img src={data.artist.banner.url} alt="" /> : <span className="ifa-av">ifa</span>}</span>
+          <span>ifa</span>
+        </Link>
+        {data.stories.map((st, i) => (
+          <button key={st.id} className="story" onClick={() => setWave(i)} aria-label={`Story : ${st.title}`}>
+            <span className="story-ring">
+              {st.media?.kind === 'image' && <img src={st.media.url} alt="" />}
+              {st.media?.kind === 'video' && <video src={`${st.media.url}#t=0.1`} muted playsInline preload="metadata" />}
+              {!st.media && <span>{st.title}</span>}
+            </span>
+            <span>{ago(st.published_at).replace('il y a ', '')}</span>
+          </button>
+        ))}
+      </div>
 
-      {data.stories.length > 0 && (
-        <section className="section" style={{ marginTop: 28 }} aria-label="Ondes courtes">
-          <div className="section-head"><h2 className="mono muted" style={{ margin: 0 }}>Ondes courtes · 24 h</h2></div>
-          <div className="waves-strip">
-            {data.stories.map((s, i) => {
-              const total = new Date(s.expires_at) - new Date(s.published_at);
-              const left = Math.max(0, Math.min(1, (new Date(s.expires_at) - Date.now()) / total));
-              return (
-                <button key={s.id} className="wave-card" onClick={() => setWave(i)} aria-label={`Onde courte : ${s.title}`}>
-                  {s.media?.kind === 'image' && <img src={s.media.url} alt="" />}
-                  {s.media?.kind === 'video' && <video src={`${s.media.url}#t=0.1`} muted playsInline preload="metadata" />}
-                  {!s.media && <div className="txtonly">{s.title}</div>}
-                  <div className="shade" />
-                  {s.media && <div className="t">{s.title}</div>}
-                  <div className="life"><i style={{ width: `${left * 100}%` }} /></div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
+      <div style={{ marginTop: 18 }}><NextDrop data={data} user={user} /></div>
 
       {data.drops.length > 0 && (
-        <section className="section" aria-label="Le Labo">
-          <div className="section-head"><h2 className="display h3">Au Labo</h2><Link to="/labo" className="mono uv">Tout voir →</Link></div>
+        <section className="section">
+          <div className="section-head"><h2 className="display h3">Au Labo</h2><Link to="/labo" className="mono">Tout voir</Link></div>
           {data.drops.slice(0, 2).map((d) => (
-            <Link to={`/labo/${d.id}`} key={d.id} className="panel row between" style={{ borderColor: 'rgba(141,107,255,.35)', marginTop: 8 }}>
-              <div>
-                <div className="row" style={{ gap: 6 }}><span className="tag uv">{d.state === 'open' ? 'Ouvert' : 'Bientôt'}</span><DemoTag on={d.is_demo} /></div>
-                <div style={{ fontWeight: 800, marginTop: 6 }}>{d.title}</div>
+            <Link to={`/labo/${d.id}`} key={d.id} className="panel row between" style={{ marginTop: 8 }}>
+              <div className="row" style={{ minWidth: 0 }}>
+                <span className="ring" style={{ background: 'var(--navy)', color: '#fff' }}><Icon name={d.state === 'open' ? 'play' : 'lock'} fill={d.state === 'open'} size={20} /></span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 800 }}>{d.title}</div>
+                  <div className="mono">{d.state === 'open' ? 'ouvert maintenant' : <>ouvre dans <Countdown to={d.opens_at} compact /></>}</div>
+                </div>
               </div>
-              <span className="uv">{d.state === 'open' ? <Icon name="play" fill /> : <Countdown to={d.opens_at} compact />}</span>
+              <DemoTag on={d.is_demo} />
             </Link>
           ))}
         </section>
       )}
 
       {data.challenge && (
-        <Link to={`/cercles/defi/${data.challenge.id}`} className="panel" style={{ display: 'block', marginTop: 24, borderColor: 'rgba(53,217,184,.35)' }}>
-          <div className="row" style={{ gap: 6 }}><span className="tag canal">Défi en cours</span><DemoTag on={data.challenge.is_demo} /></div>
+        <Link to={`/cercles/defi/${data.challenge.id}`} className="panel" style={{ display: 'block', marginTop: 24, background: 'var(--mint)', color: 'var(--mint-ink)' }}>
+          <div className="row between"><span className="sticker orange">défi</span><DemoTag on={data.challenge.is_demo} /></div>
           <div className="display h3" style={{ marginTop: 10 }}>{data.challenge.title}</div>
-          <p className="muted" style={{ margin: '6px 0 0', fontSize: 14 }}>{data.challenge.brief}</p>
+          <p style={{ margin: '6px 0 0', fontSize: 15 }}>{data.challenge.brief}</p>
         </Link>
       )}
 
-      <section className="section" aria-label="Fil officiel">
+      <section className="section" aria-label="Publications">
         <div className="section-head">
-          <h2 className="display h3">Le fil officiel</h2>
-          <Link to="/qg/archives" className="mono sodium">Archives →</Link>
+          <h2 className="display h3">Les news</h2>
+          <Link to="/qg/archives" className="mono">Tout l'historique</Link>
         </div>
-        {nothing && <Empty title="Rien sur les ondes pour l'instant">Les actus, sorties et coulisses d'Ifa arrivent ici dès que l'équipe publie.</Empty>}
-        {data.pinned.map((p) => <PostCard key={p.id} post={p} lead />)}
-        {data.feed.map((p, i) => <PostCard key={p.id} post={p} lead={i === 0 && !data.pinned.length} />)}
+        {nothing && <Empty title="Rien pour l'instant">Les news, sorties et coulisses d'Ifa arrivent ici dès que l'équipe publie.</Empty>}
+        {pinned.map((p) => <PostCard key={p.id} post={p} lead />)}
+        {data.feed.map((p) => <PostCard key={p.id} post={p} />)}
       </section>
 
       {data.featured.length > 0 && (
-        <section className="section" aria-label="Sélection des fans">
-          <div className="section-head"><h2 className="display h3">Sélection de l'équipe</h2><Link to="/cercles" className="mono sodium">Les Cercles →</Link></div>
+        <section className="section" aria-label="Créas de la commu">
+          <div className="section-head"><h2 className="display h3">Les créas de la commu</h2><Link to="/cercles" className="mono">Voir la commu</Link></div>
           <div className="fan-grid">
             {data.featured.map((f) => (
               <Link key={f.id} to={`/cercles/creation/${f.id}`} className="fan-tile">
                 {f.media.kind === 'image' ? <img src={f.media.url} alt="" loading="lazy" /> : <video src={`${f.media.url}#t=0.1`} muted playsInline preload="metadata" />}
+                <span className="sticker star" style={{ fontSize: 12 }}>validé par ifa</span>
                 <span className="who">@{f.author.handle}</span>
               </Link>
             ))}
@@ -140,11 +135,11 @@ export function QG() {
       )}
 
       {!user && (
-        <section className="section panel stack" style={{ '--s': '10px' }}>
-          <span className="mono sodium">Rejoins la fréquence</span>
-          <h2 className="display h3">Avant-premières, votes, défis</h2>
-          <p className="muted" style={{ margin: 0 }}>Un compte gratuit pour accéder au Labo et participer aux Cercles.</p>
-          <Link to="/bienvenue" className="btn">Créer mon compte</Link>
+        <section className="section panel stack" style={{ '--s': '10px', background: 'var(--navy)', color: '#fff' }}>
+          <span className="sticker">gratuit</span>
+          <h2 className="display h3">Crée ton compte</h2>
+          <p style={{ margin: 0, opacity: .85 }}>Les sons en avant-première au Labo, les votes, les défis et les notifs de sortie.</p>
+          <Link to="/bienvenue" className="btn" style={{ background: '#fff', color: '#111633' }}>C'est parti</Link>
         </section>
       )}
       {wave !== null && <WaveViewer items={data.stories} start={wave} onClose={() => setWave(null)} />}
@@ -164,7 +159,7 @@ export function PostDetail() {
   const hasMedia = p.media || p.source.platform === 'youtube';
   return (
     <div className="page">
-      <Link to="/" className="mono muted row" style={{ gap: 4, marginBottom: 16 }}><Icon name="back" size={14} /> QG</Link>
+      <Link to="/" className="mono row" style={{ gap: 4, marginBottom: 16 }}><Icon name="back" size={16} /> Accueil</Link>
       <div className="post-meta">
         <KindTag kind={p.kind} official={p.author?.official} />
         <DemoTag on={p.is_demo} />
@@ -205,8 +200,7 @@ export function Archives() {
   useEffect(() => { setItems(null); load(); }, [kind]); // eslint-disable-line
   return (
     <div className="page">
-      <span className="mono sodium">Historique</span>
-      <h1 className="display h1" style={{ margin: '8px 0 16px' }}>Archives</h1>
+      <h1 className="display h1" style={{ margin: '0 0 16px' }}>Tout l'historique</h1>
       <div className="chips" style={{ marginBottom: 18 }}>
         {FILTERS.map(([k, l]) => <button key={k} className={`chip ${kind === k ? 'on' : ''}`} onClick={() => setKind(k)}>{l}</button>)}
       </div>

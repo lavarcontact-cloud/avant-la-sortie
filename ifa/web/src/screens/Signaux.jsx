@@ -19,7 +19,7 @@ export function Signaux() {
   return (
     <div className="page">
       <div className="row between"><span className="mono sodium">Boîte de réception</span><Link to="/moi/signaux" className="mono muted">Réglages →</Link></div>
-      <h1 className="display h1" style={{ margin: '8px 0 18px' }}>Signaux</h1>
+      <h1 className="display h1" style={{ margin: '8px 0 18px' }}>Notifications</h1>
       {loading && <Loading />}
       {error && <ErrorBox error={error} />}
       {data?.items.length === 0 && <Empty title="Aucun signal">Rien de neuf pour l'instant. Choisis ce que tu veux recevoir dans les réglages.</Empty>}

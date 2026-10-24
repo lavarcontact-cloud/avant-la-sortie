@@ -19,6 +19,8 @@ function ageFrom(y, m) {
 // Parcours nouvel utilisateur : 1. l'univers  2. le compte  3. les signaux.
 export function Welcome() {
   const { user, config, refresh } = useSession();
+  const artist = useLoad('/api/artist');
+  const photo = artist.data?.artist?.gallery?.[1]?.url || artist.data?.artist?.banner?.url;
   const loc = useLocation();
   const nav = useNavigate();
   const [step, setStep] = useState(user ? 2 : 0);
@@ -52,18 +54,19 @@ export function Welcome() {
   const years = Array.from({ length: 70 }, (_, i) => new Date().getFullYear() - minAge + 1 - i);
 
   return (
-    <div className="onb">
+    <div className={`onb ${step === 0 && photo ? 'on-photo' : ''}`}>
+      {step === 0 && photo && <div className="onb-photo"><img src={photo} alt="" /></div>}
       <div className="row between">
         <div className="steps" style={{ width: 120 }}>{[0, 1, 2].map((i) => <i key={i} className={i <= step ? 'on' : ''} />)}</div>
-        <Link to="/" className="mono muted">Passer</Link>
+        <Link to="/" className="mono" style={{ color: 'inherit' }}>Passer</Link>
       </div>
 
       {step === 0 && (
         <>
           <div className="onb-art">
-            <span className="mono sodium">75.019 · Espace officiel</span>
-            <div className="big-freq" style={{ marginTop: 12 }}>Bran&shy;che-toi<br />sur <em>Ifa</em></div>
-            <p className="lede muted" style={{ marginTop: 18 }}>Les actus d'abord ici, les extraits avant tout le monde au Labo, des défis et une communauté qui crée. Pas d'algorithme qui décide à ta place.</p>
+            <span className="sticker">l'appli officielle</span>
+            <div className="big-freq" style={{ marginTop: 14 }}>Tout Ifa,<br /><em>avant</em> tout le monde</div>
+            <p className="lede" style={{ marginTop: 14, opacity: .9 }}>Les news en premier, les sons en avant-première, les défis et la commu. Pas d'algo qui choisit à ta place.</p>
           </div>
           <div className="stack" style={{ '--s': '10px' }}>
             <button className="btn block" onClick={() => { setMode('signup'); setStep(1); }}>Créer mon compte</button>
@@ -75,7 +78,7 @@ export function Welcome() {
       {step === 1 && (
         <form onSubmit={submit} className="stack" style={{ marginTop: 28 }}>
           <div className="seg"><button type="button" className={mode === 'signup' ? 'on' : ''} onClick={() => setMode('signup')}>Inscription</button><button type="button" className={mode === 'login' ? 'on' : ''} onClick={() => setMode('login')}>Connexion</button></div>
-          <h1 className="display h2">{mode === 'signup' ? 'Ton signal' : 'Bon retour'}</h1>
+          <h1 className="display h2">{mode === 'signup' ? 'Crée ton compte' : 'Content de te revoir'}</h1>
           {mode === 'signup' && (
             <>
               <div className="row"><Avatar style={f.avatar_style} size={64} /><span className="muted" style={{ fontSize: 14 }}>Ton avatar, c'est un signal, pas une photo.</span></div>
@@ -107,8 +110,8 @@ export function Welcome() {
 
       {step === 2 && user && (
         <div className="stack" style={{ marginTop: 28 }}>
-          <span className="mono sodium">Bienvenue @{user.handle}</span>
-          <h1 className="display h2">Quels signaux tu veux capter ?</h1>
+          <span className="sticker">bienvenue @{user.handle}</span>
+          <h1 className="display h2">Tu veux être prévenu de quoi ?</h1>
           {user.status === 'pending_parent' ? (
             <p className="lede">On a envoyé un e-mail à ton parent. Dès qu'il valide, tu pourras participer et recevoir les signaux. Tu peux déjà tout explorer.</p>
           ) : (

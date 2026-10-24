@@ -41,14 +41,14 @@ async function login(p, email) {
 const anon = await ctx();
 await step('QG (visiteur) : signal, ondes courtes, fil officiel', async () => {
   await anon.goto(BASE);
-  await anon.getByText('Le fil officiel').waitFor();
+  await anon.getByText('Les news').waitFor();
   await anon.getByText('Exemple · Une annonce importante').first().waitFor();
   await shot(anon, '01-qg');
   await anon.evaluate(() => window.scrollTo(0, 900)); await anon.waitForTimeout(300); await shot(anon, '01b-qg-fil');
 });
 await step('Onde courte en plein écran', async () => {
   await anon.goto(BASE);
-  await anon.locator('.wave-card').first().click();
+  await anon.locator('button.story').first().click();
   await anon.locator('.viewer').waitFor();
   await shot(anon, '02-onde-courte');
   await anon.getByRole('button', { name: 'Fermer' }).click();

@@ -1,36 +1,44 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MediaView, Reactions, SourceLine, KindTag, DemoTag, Icon } from './ui.jsx';
-import { youtubeId } from '../lib/format.js';
+import { MediaView, Reactions, SourceLine, DemoTag, Icon, Avatar } from './ui.jsx';
+import { youtubeId, ago, KIND_LABEL, PLATFORM_LABEL } from '../lib/format.js';
 
+// Une publication officielle présentée comme un post : qui, quand, d'où ça vient.
 export function PostCard({ post, lead = false }) {
   const nav = useNavigate();
-  const hasMedia = post.media || youtubeId(post.source.url);
-  const isVideo = post.media?.kind === 'video' || youtubeId(post.source.url);
+  const yt = youtubeId(post.source.url);
+  const hasMedia = post.media || yt;
+  const isVideo = post.media?.kind === 'video' || yt;
+  const label = post.source.type === 'app' ? null : post.source.type === 'integration' ? `importé de ${PLATFORM_LABEL[post.source.platform] || 'une plateforme'}` : `via ${PLATFORM_LABEL[post.source.platform] || 'un lien'}`;
   return (
     <article className={`post card ${lead ? 'lead' : ''}`}>
-      <Link to={`/qg/${post.id}`} aria-label={post.title}>
-        {hasMedia && (
+      <div className="post-head">
+        <Avatar official size={38} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="who">{post.author?.official ? 'ifa' : 'équipe ifa'} <span className="verified" title="Compte officiel">✓</span></div>
+          <div className="meta">
+            <span>{KIND_LABEL[post.kind]} · {ago(post.published_at)}</span>
+            {label && <>· {post.source.url ? <a href={post.source.url} target="_blank" rel="noopener noreferrer">{label} ↗</a> : <span>{label}</span>}</>}
+          </div>
+        </div>
+        {post.is_pinned && <span className="sticker orange" style={{ fontSize: 12 }}>épinglé</span>}
+        <DemoTag on={post.is_demo} />
+      </div>
+      {hasMedia && (
+        <Link to={`/qg/${post.id}`} aria-label={post.title}>
           <div className={`post-media ${isVideo ? 'wide' : ''}`}>
             {post.media?.kind === 'image' && <img src={post.media.url} alt="" loading="lazy" />}
             {post.media?.kind === 'video' && <video src={`${post.media.url}#t=0.1`} preload="metadata" muted playsInline />}
-            {!post.media && youtubeId(post.source.url) && <img src={`https://i.ytimg.com/vi/${youtubeId(post.source.url)}/hqdefault.jpg`} alt="" loading="lazy" />}
+            {!post.media && yt && <img src={`https://i.ytimg.com/vi/${yt}/hqdefault.jpg`} alt="" loading="lazy" />}
             {isVideo && <div className="play"><span><Icon name="play" fill /></span></div>}
           </div>
-        )}
-      </Link>
-      <div className="card-pad" style={{ paddingTop: hasMedia ? 14 : 18 }}>
-        <div className="post-meta">
-          <KindTag kind={post.kind} official={post.author?.official} />
-          {post.is_pinned && <span className="tag sodium">Épinglé</span>}
-          <DemoTag on={post.is_demo} />
-        </div>
+        </Link>
+      )}
+      <div className="card-pad" style={{ paddingTop: hasMedia ? 6 : 0 }}>
+        {hasMedia && <Reactions type="post" item={post} onComment={() => nav(`/qg/${post.id}#reactions`)} />}
         <Link to={`/qg/${post.id}`}><h3 className="post-title">{post.title}</h3></Link>
         {post.body && <p className="post-body">{post.body}</p>}
-        <div className="row between" style={{ marginTop: 6 }}>
-          <SourceLine source={post.source} date={post.published_at} />
-          <Reactions type="post" item={post} compact onComment={() => nav(`/qg/${post.id}#reactions`)} />
-        </div>
+        {!hasMedia && <div style={{ marginTop: 6 }}><Reactions type="post" item={post} onComment={() => nav(`/qg/${post.id}#reactions`)} /></div>}
       </div>
     </article>
   );
@@ -48,7 +56,7 @@ export function WaveViewer({ items, start, onClose }) {
     <div className="viewer" role="dialog" aria-modal="true" aria-label="Ondes courtes">
       <div className="media">
         {p.media ? <MediaView media={p.media} autoPlay controls={false} /> : (
-          <div style={{ height: '100%', display: 'grid', placeItems: 'center', padding: 32, background: 'radial-gradient(circle at 30% 20%, rgba(255,184,28,.35), transparent 60%), #111' }}>
+          <div style={{ height: '100%', display: 'grid', placeItems: 'center', padding: 32, background: 'linear-gradient(160deg, #1A2350, #FF5A2B)' }}>
             <h2 className="display h1" style={{ textAlign: 'center' }}>{p.title}</h2>
           </div>
         )}
@@ -61,8 +69,8 @@ export function WaveViewer({ items, start, onClose }) {
         </div>
         <div className="row between">
           <div className="row">
-            <span className="mono sodium">Onde courte</span>
-            {left !== null && <span className="mono muted">disparaît dans {left} h</span>}
+            <span style={{ fontWeight: 800 }}>ifa</span><span className="verified">✓</span>
+            {left !== null && <span style={{ opacity: .75, fontSize: 13 }}>encore {left} h</span>}
             <DemoTag on={p.is_demo} />
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Fermer"><Icon name="x" /></button>

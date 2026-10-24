@@ -19,32 +19,25 @@
 > **Pour les fans :** si tu veux savoir ce qui se passe avec Ifa, c'est ici, en premier, et tu peux y participer.
 > **Pour Ifa et son équipe :** un canal qui vous appartient, où vous parlez directement à votre communauté, sans algorithme entre vous, et où vous comprenez ce qui la fait vibrer.
 
-## Concept distinctif
+## Concept et direction artistique (v2, après retour du porteur du projet)
 
-Une **radio pirate de nuit**. L'appli ne copie ni le fil infini de TikTok ni la grille d'Instagram :
-- **La molette** : la navigation est une échelle de fréquences graduée, cinq stations (01 QG · 02 Immersion · 03 Labo · 04 Cercles · 05 Ifa) et une aiguille qui glisse. Elle se manie au pouce.
-- **Le signal** : en haut du QG, la prochaine échéance réelle (sortie ou date confirmée) avec son compte à rebours. S'il n'y a rien de programmé, l'appli le dit (« Reste branché ») au lieu d'inventer de l'urgence.
-- **Les ondes courtes** : stories de 24 h présentées en cartes verticales, avec une jauge de durée de vie (pas de cercles façon Instagram).
-- **Le tunnel (Immersion)** : la vidéo par **pistes thématiques**, qu'on traverse de côté, avec les commandes en bas de l'écran. Pas de défilement vertical sans fin, donc pas d'effet machine à sous.
-- **Le signal crypté (Labo)** : avant l'heure, le contenu est littéralement brouillé (glyphes animés), et le serveur n'envoie même pas le fichier. À l'heure dite, la porte s'ouvre.
+La première version (« radio pirate de nuit » : fond noir, une couleur vive, petites étiquettes en police machine, navigation par molette numérotée) a été jugée **trop typée « design généré »**. La v2 repart de deux sources concrètes :
 
-## Direction artistique
+1. **L'univers réel d'Ifa** : les photos officielles et la pochette de *Reel 1*.
+2. **Les codes des applis que les 12-22 ans utilisent vraiment** : barre d'onglets à icônes avec bouton de création au centre, bulles de stories en haut de l'accueil, publications au format post (avatar, badge ✓, réactions sous l'image), visionneuse plein écran, actions empilées à droite dans la vidéo, ton décontracté.
 
-| Élément | Choix | Raison |
+| Élément | Choix | D'où ça vient |
 |---|---|---|
-| Fond | Bitume `#0A0A0B` | La nuit, la ville ; met la couleur et les visuels en valeur. |
-| Texte | Craie `#EEE9DF` | Moins agressif que le blanc pur, évoque l'affiche et la craie. |
-| Signal | Sodium `#FFB81C` | La lumière orangée des réverbères parisiens. Couleur de l'action principale et du « en direct ». |
-| Exclusif | Ultraviolet `#8D6BFF` | Tout ce qui est crypté ou réservé (Labo). Le passage au violet dit « tu es dans un espace à part ». |
-| Communauté | Canal `#35D9B8` | Clin d'œil au canal de l'Ourcq et au bassin de la Villette, couleur des Cercles et des défis. |
-| Alerte | Brique `#FF5A3C` | Signalement, suppression. |
-| Titres | Archivo en largeur 62, graisse 900, capitales | Typo d'affiche condensée et massive, très « pochette » sans copier une marque. |
-| Texte | Archivo en largeur 100 | Une seule famille, cohérence et poids de page réduit. |
-| Métadonnées | JetBrains Mono, espacé | Le registre « technique » de la radio : fréquences, horaires, sources. |
-| Texture | Grain léger permanent, trames de balayage | Profondeur « affiche collée » et « écran de nuit ». |
-| Animation | Aiguille de la molette, pulsation du signal, brouillage du Labo, jauges | Peu d'animations, mais chacune porte un sens. Toutes coupées si l'utilisateur demande moins de mouvement. |
+| Fond | Clair, béton chaud `#F4F2EE` ; espaces Clips et Labo en bleu nuit `#0D1124` | Lumière naturelle des photos ; le Labo est « la pièce du fond » |
+| Texte | Bleu marine encre `#111633` | Les vestes et coupe-vent des photos |
+| Accent 1 | Vert menthe `#63D8B8` | Le logo VRK brodé sur ses vêtements |
+| Accent 2 | Orange `#FF5A2B` | Les lettres orange des enseignes de rue (« plat à emporter ») sur les photos |
+| Matière | Béton vert-gris `#3A433C` | Le mur de la pochette de *Reel 1* |
+| Typo | Police système du téléphone (SF Pro sur iPhone, Roboto sur Android), titres très gras en minuscules | Une vraie appli, pas une page « designée » |
+| Stickers | Police marqueur (Permanent Marker), légèrement inclinés : « nouveau son », « défi », « accès membres » | Les tags et stickers de rue ; utilisés avec parcimonie |
+| Photo | Les photos officielles sont le premier élément visuel : bulle « ifa » des stories, carte de la prochaine sortie, profil, page d'accueil | L'artiste au centre |
 
-**Ce qui reste à faire avec Ifa :** l'identité doit absorber son univers réel (photos officielles, typographie de ses pochettes, couleur dominante de son projet en cours). Le système de jetons (`web/src/styles.css`, `:root`) permet de changer la couleur sodium en une ligne pour chaque ère de projet.
+Supprimé : grain, lignes de balayage, molette numérotée, compteurs de « fréquence », capitales condensées partout, petites étiquettes en police machine.
 
 ## Pourquoi un fan reviendrait chaque jour
 

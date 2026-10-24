@@ -10,7 +10,7 @@ import { KIND_LABEL, youtubeId, ago } from '../lib/format.js';
 // dans la zone du pouce. Pas de défilement vertical sans fin.
 const TRACKS = [
   ['pour-toi', 'Pour toi'], ['clips', 'Clips & freestyles'], ['coulisses', 'Coulisses'],
-  ['signaux', 'Ondes courtes'], ['selection', 'Sélection équipe'], ['fans', 'Créations fans'], ['defis', 'Défis'],
+  ['signaux', 'Stories'], ['selection', 'Sélection équipe'], ['fans', 'Créations fans'], ['defis', 'Défis'],
 ];
 
 function Shot({ item, active, muted }) {

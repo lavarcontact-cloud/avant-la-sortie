@@ -149,7 +149,7 @@ export function NotifSettings() {
   return (
     <div className="page">
       <Link to="/moi" className="mono muted row" style={{ gap: 4, marginBottom: 16 }}><Icon name="back" size={14} /> Mon espace</Link>
-      <h1 className="display h2">Signaux</h1>
+      <h1 className="display h2">Notifications</h1>
       <p className="muted">Tu choisis ce qui t'arrive, et quand. Tout reste aussi dans ta boîte Signaux dans l'appli.</p>
 
       <section className="section panel">

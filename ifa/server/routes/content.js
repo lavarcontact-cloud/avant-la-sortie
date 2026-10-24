@@ -11,8 +11,10 @@ import { driver as storageDriver } from '../lib/storage.js';
 const r = Router();
 export default r;
 
-r.get('/config', (_req, res) => {
+r.get('/config', async (_req, res) => {
+  const a = await one('select coalesce(avatar_media_id, banner_media_id) as photo from artist_profile where id = 1');
   res.json({
+    artist_photo: mediaRef(a?.photo, 'image'),
     push: { configured: pushConfigured(), publicKey: pushConfigured() ? config.vapid.publicKey : null },
     storage: storageDriver,
     minAge: config.minAge, parentalConsentAge: config.parentalConsentAge, termsVersion: config.termsVersion,

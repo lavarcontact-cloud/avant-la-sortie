@@ -121,7 +121,7 @@ export function Artist() {
 
         {data.videos.length > 0 && (
           <section className="section">
-            <div className="section-head"><h2 className="display h3">Clips & vidéos</h2><Link to="/immersion?piste=clips" className="mono sodium">Immersion →</Link></div>
+            <div className="section-head"><h2 className="display h3">Clips & vidéos</h2><Link to="/immersion?piste=clips" className="mono">Voir dans Clips</Link></div>
             {data.videos.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)}
           </section>
         )}

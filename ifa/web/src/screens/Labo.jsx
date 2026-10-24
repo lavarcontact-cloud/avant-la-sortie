@@ -1,21 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useLoad, useTick } from '../lib/hooks.js';
+import { useLoad } from '../lib/hooks.js';
 import { api, view } from '../lib/api.js';
 import { Countdown, Empty, ErrorBox, Loading, Icon, DemoTag, useRequireAccount, useToast } from '../components/ui.jsx';
 import { dateLong, time } from '../lib/format.js';
 
 const KIND = { preview: 'Avant-première', vote: 'Vote', process: 'Dans le studio', experience: 'Expérience' };
-const GLYPHS = '▓▒░█▄▀■□◆◇○●◘◙';
 
-// Texte "brouillé" : le contenu verrouillé reste illisible, par construction
-// (le vrai texte n'est même pas envoyé par l'API avant l'ouverture).
-function Cipher({ seed = 'x' }) {
-  useTick(140);
-  const len = 72;
-  let out = '';
-  for (let i = 0; i < len; i++) out += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-  return <div className="cipher" aria-hidden="true">{out}<br /><span style={{ letterSpacing: '.3em' }}>{seed.length ? 'SIGNAL CRYPTÉ' : ''}</span></div>;
+// Avant l'ouverture : visuel flouté et cadenas (le vrai contenu n'est même
+// pas envoyé par l'API).
+function Locked({ d }) {
+  return (
+    <div className="cipher">
+      <span className="lock-badge"><Icon name="lock" size={16} />{d.state === 'upcoming' ? 'ouvre bientôt' : 'réservé aux membres'}</span>
+    </div>
+  );
 }
 
 function DropCard({ d }) {
@@ -24,8 +23,8 @@ function DropCard({ d }) {
     <Link to={`/labo/${d.id}`} className={`drop ${locked ? 'locked' : ''}`}>
       <div className="drop-cover">
         {d.cover ? <img src={d.cover.url} alt="" /> : null}
-        {locked && <Cipher seed={d.id} />}
-        {!d.cover && !locked && <div className="cipher" style={{ color: '#B9A6FF' }}>{KIND[d.kind]}</div>}
+        {locked && <Locked d={d} />}
+        {!d.cover && !locked && <div className="cipher"><span className="lock-badge"><Icon name="play" fill size={16} />{KIND[d.kind]}</span></div>}
       </div>
       <div className="drop-body">
         <div className="row wrap" style={{ gap: 6 }}>
@@ -55,15 +54,15 @@ export function Labo() {
   return (
     <div className="labo-bg" style={{ minHeight: '100dvh' }}>
       <div className="page">
-        <span className="mono uv">03 · Accès restreint</span>
-        <h1 className="display h1" style={{ margin: '8px 0 10px' }}>Le<br />Labo</h1>
-        <p className="lede muted">Extraits inédits, votes sur les pochettes, étapes d'un projet. Chaque porte s'ouvre à l'heure fixée par l'équipe d'Ifa, pas avant.</p>
+        <span className="sticker">accès membres</span>
+        <h1 className="display h1" style={{ margin: '12px 0 8px' }}>Le Labo</h1>
+        <p className="lede muted">Les sons avant tout le monde, les votes sur les pochettes, les coulisses des projets. Ça s'ouvre à l'heure fixée par l'équipe, pas avant.</p>
         {loading && <Loading h={300} />}
         {error && <ErrorBox error={error} retry={reload} />}
         {data && data.length === 0 && <div style={{ marginTop: 24 }}><Empty title="Le Labo est fermé">Aucune expérience programmée pour l'instant. Active les signaux « Extraits inédits » pour être prévenu à l'ouverture.</Empty></div>}
-        {groups.open.length > 0 && <section className="section"><h2 className="mono muted">Ouvert maintenant</h2>{groups.open.map((d) => <DropCard key={d.id} d={d} />)}</section>}
-        {groups.upcoming.length > 0 && <section className="section"><h2 className="mono muted">Prochaines ouvertures</h2>{groups.upcoming.map((d) => <DropCard key={d.id} d={d} />)}</section>}
-        {groups.closed.length > 0 && <section className="section"><h2 className="mono muted">Refermé</h2>{groups.closed.map((d) => <DropCard key={d.id} d={d} />)}</section>}
+        {groups.open.length > 0 && <section className="section"><h2 className="display h4" style={{ marginBottom: 12 }}>Ouvert maintenant</h2>{groups.open.map((d) => <DropCard key={d.id} d={d} />)}</section>}
+        {groups.upcoming.length > 0 && <section className="section"><h2 className="display h4" style={{ marginBottom: 12 }}>Bientôt</h2>{groups.upcoming.map((d) => <DropCard key={d.id} d={d} />)}</section>}
+        {groups.closed.length > 0 && <section className="section"><h2 className="display h4" style={{ marginBottom: 12 }}>Refermé</h2>{groups.closed.map((d) => <DropCard key={d.id} d={d} />)}</section>}
       </div>
     </div>
   );

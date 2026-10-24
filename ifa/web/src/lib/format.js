@@ -26,7 +26,7 @@ export const pad = (n) => String(n).padStart(2, '0');
 
 export const KIND_LABEL = {
   news: 'Actu', announcement: 'Annonce', release: 'Sortie', clip: 'Clip', freestyle: 'Freestyle',
-  video: 'Vidéo', backstage: 'Coulisses', story: 'Onde courte', event: 'Événement',
+  video: 'Vidéo', backstage: 'Coulisses', story: 'Story', event: 'Événement',
 };
 export const PLATFORM_LABEL = {
   instagram: 'Instagram', tiktok: 'TikTok', snapchat: 'Snapchat', youtube: 'YouTube', spotify: 'Spotify',

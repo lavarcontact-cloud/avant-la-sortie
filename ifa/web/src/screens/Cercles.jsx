@@ -26,14 +26,11 @@ export function Cercles() {
   const circles = useLoad('/api/circles');
   const challenges = useLoad('/api/challenges');
   const feed = useLoad('/api/fan-posts');
-  const need = useRequireAccount();
-  const nav = useNavigate();
   const open = (challenges.data || []).filter((c) => c.state === 'open');
   return (
     <div className="page">
-      <span className="mono" style={{ color: 'var(--canal)' }}>04 · La communauté</span>
-      <h1 className="display h1" style={{ margin: '8px 0 10px' }}>Les<br />Cercles</h1>
-      <p className="lede muted">Ici on crée, on relève les défis, on se retrouve autour des sorties. Pas de classement, pas de course aux abonnés : l'équipe met en avant les créations, pas les chiffres.</p>
+      <h1 className="display h1" style={{ margin: '0 0 8px' }}>La commu</h1>
+      <p className="lede muted">Tes créas, les défis, les cercles. Pas de classement ni de course aux abonnés : l'équipe met en avant les créas, pas les chiffres.</p>
 
       {open.length > 0 && (
         <section className="section">
@@ -66,11 +63,10 @@ export function Cercles() {
       </section>
 
       <section className="section">
-        <div className="section-head"><h2 className="display h3">Créations</h2></div>
+        <div className="section-head"><h2 className="display h3">Les créas</h2></div>
         {feed.loading ? <Loading /> : feed.error ? <ErrorBox error={feed.error} /> : <FanGrid items={feed.data} />}
       </section>
 
-      <button className="fab" onClick={() => need('publier') && nav('/cercles/publier')}><Icon name="plus" /> Publier</button>
     </div>
   );
 }
