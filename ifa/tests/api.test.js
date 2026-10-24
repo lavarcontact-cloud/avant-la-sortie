@@ -324,3 +324,42 @@ test('RGPD : export puis suppression du compte', async () => {
   assert.equal((await fan.c.del('/api/me', { password: 'motdepasse1' })).status, 200);
   assert.equal(await one('select 1 from users where id = $1', [fan.user.id]), null);
 });
+
+test('push web réel : requête chiffrée et signée VAPID générée pour chaque abonné', async () => {
+  // On ne contacte pas Apple/Google/Mozilla depuis les tests : on intercepte la
+  // requête Web Push construite par la bibliothèque (RFC 8291 chiffrement,
+  // RFC 8292 VAPID). La livraison jusqu'au téléphone se teste sur appareil réel.
+  const crypto = await import('node:crypto');
+  const webpush = (await import('web-push')).default;
+  const notify = await import('../server/lib/notify.js');
+  const { config } = await import('../server/config.js');
+  const keys = webpush.generateVAPIDKeys();
+  Object.assign(config.vapid, { publicKey: keys.publicKey, privateKey: keys.privateKey, subject: 'mailto:test@example.fr' });
+  const sent = [];
+  const original = notify.transport.send;
+  notify.transport.send = async (sub, body, opts) => {
+    sent.push(webpush.generateRequestDetails(sub, body, { ...opts, vapidDetails: { subject: config.vapid.subject, publicKey: keys.publicKey, privateKey: keys.privateKey } }));
+    return { statusCode: 201 };
+  };
+  try {
+    const fan = await signup(20);
+    await fan.c.put('/api/notifications/prefs', { quiet_start: 0, quiet_end: 0 }); // pas d'heures calmes pour le test
+    const ecdh = crypto.createECDH('prime256v1'); ecdh.generateKeys();
+    await q('insert into push_subscriptions (user_id, endpoint, p256dh, auth) values ($1,$2,$3,$4)',
+      [fan.user.id, 'https://push.example.com/abc', ecdh.getPublicKey().toString('base64url'), crypto.randomBytes(16).toString('base64url')]);
+    const e = await staff('editor');
+    await e.c.post('/api/admin/broadcasts', { category: 'release', title: 'Test push réel', url: '/qg' });
+    await tick();
+    const b = await one(`select stats from broadcasts where title = 'Test push réel'`);
+    assert.equal(b.stats.push_configured, true);
+    assert.equal(b.stats.push_sent, 1, JSON.stringify(b.stats));
+    const r = sent[0];
+    assert.equal(r.endpoint, 'https://push.example.com/abc');
+    assert.ok(r.headers.Authorization.startsWith('vapid t='), 'signature VAPID');
+    assert.equal(r.headers['Content-Encoding'], 'aes128gcm');
+    assert.ok(!r.body.toString('latin1').includes('Test push réel'), 'contenu chiffré');
+  } finally {
+    notify.transport.send = original;
+    Object.assign(config.vapid, { publicKey: '', privateKey: '', subject: '' });
+  }
+});

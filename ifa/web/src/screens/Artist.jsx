@@ -42,7 +42,7 @@ export function Artist() {
         <span className="mono sodium row" style={{ gap: 6 }}><span className="verified">✓</span> Profil officiel</span>
         <h1 className="display artist-name">{a.name}</h1>
         {a.tagline && <p style={{ fontSize: 18, fontWeight: 600, margin: '8px 0 0' }}>{a.tagline}</p>}
-        <p className="mono muted" style={{ marginTop: 8 }}>Paris 19e</p>
+        <p className="mono muted" style={{ marginTop: 8, textTransform: "none" }}>Paris 19ᵉ</p>
       </header>
       <div className="page" style={{ paddingTop: 8 }}>
         {a.bio ? <p className="lede" style={{ whiteSpace: 'pre-wrap' }}>{a.bio}</p> : <p className="muted">La présentation officielle sera rédigée et validée par Ifa et son équipe.</p>}

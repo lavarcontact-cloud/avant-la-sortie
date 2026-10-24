@@ -100,7 +100,7 @@ p { margin: 0 0 .8em; }
   pointer-events: none;
 }
 .topbar > * { pointer-events: auto; }
-.brand { display: flex; align-items: center; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; line-height: 1.15; }
 .brand-word { font-family: var(--f-display); font-variation-settings: "wdth" 70; font-weight: 900; font-size: 19px; letter-spacing: .02em; text-transform: uppercase; }
 .freq { font-family: var(--f-mono); font-size: 10px; color: var(--sodium); letter-spacing: .1em; }
 .wave { display: inline-flex; align-items: end; gap: 2px; height: 14px; }

@@ -51,12 +51,15 @@ export function inQuietHours(prefs, d = new Date()) {
   return s < e ? h >= s && h < e : h >= s || h < e;
 }
 
+// Point d'envoi isolé pour pouvoir inspecter les requêtes générées dans les tests.
+export const transport = { send: (sub, body, opts) => webpush.sendNotification(sub, body, opts) };
+
 async function pushTo(userId, payload) {
   const subs = await many('select id, endpoint, p256dh, auth from push_subscriptions where user_id = $1', [userId]);
   let sent = 0, failed = 0;
   for (const s of subs) {
     try {
-      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+      await transport.send({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
         JSON.stringify(payload), { TTL: 60 * 60 * 24, urgency: payload.important ? 'high' : 'normal' });
       sent++;
       await q('update push_subscriptions set last_ok_at = now() where id = $1', [s.id]);
