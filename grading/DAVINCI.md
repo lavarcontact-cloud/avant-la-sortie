@@ -4,6 +4,8 @@
 Project Settings > Color Management > **Open LUT Folder** → copier les `.cube` → **Update Lists**.
 
 - `fp9_nuit_froide_slog2.cube` : tout-en-un, entrée S-Log2 (version rapide, 1 nœud)
+- `fp9_nuit_froide_slog2_v2.cube` : comme ci-dessus, sans la poussée magenta dans les médiums (à préférer si le rush tire déjà vers le magenta)
+- `fp9_nuit_froide_slog2_v2_C2802.cube` : v2 avec la balance des blancs du rush C2802 intégrée (éclairage de rue magenta : R 0.85 / V 1.45 / B 1.1 en linéaire). Valable pour les plans tournés sous le même éclairage.
 - `fp9_nuit_froide.cube` : look seul, entrée Rec.709 (à mettre après un CST, recommandé)
 
 ## Arbre de nœuds (série)
@@ -33,3 +35,7 @@ Un seul nœud avec `fp9_nuit_froide_slog2.cube`. Corriger l'expo/WB **dans un n�
 - L'A7R IV enregistre en 8 bits : ne pas pousser le grade trop fort (banding).
 - S-Log2 bien exposé = +1 à +1.7 IL. Rush sous-exposé → monter l'Offset au nœud 01, sinon bruit dans les noirs.
 - Pour les plans nuit, c'est OK de laisser le sujet sombre : le look vit des noirs écrasés.
+
+## Rushs magenta (éclairage de rue)
+Le look désature fortement : une petite correction de balance ne se voit presque pas après le LUT. Corriger franchement le vert au nœud 01 (Tint vers le vert) ou utiliser le LUT `_v2_C2802`.
+Avec ffmpeg, les fichiers XAVC S de l'A7R IV sont marqués plage complète : ne pas forcer `in_range=tv` (les noirs seraient écrasés). Matrice : `in_color_matrix=bt709`.

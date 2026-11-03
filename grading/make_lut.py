@@ -5,12 +5,24 @@ rouges/peaux légèrement conservés (teinte rosée).
 Usage :
   python3 make_lut.py                 -> fp9_nuit_froide.cube        (entrée Rec.709, à mettre APRÈS un CST)
   python3 make_lut.py slog2           -> fp9_nuit_froide_slog2.cube  (entrée Sony S-Gamut/S-Log2 = PP7, tout-en-un)
+
+Variables d'environnement (optionnelles) :
+  MAG=0                 retire le magenta des médiums (v2, pour les rushs déjà magenta)
+  WB_R/WB_G/WB_B=1.0    gains de balance des blancs en linéaire, appliqués avant le look (mode slog2)
+  OUT=fichier.cube      nom du fichier de sortie
+  ex. v2 C2802 : WB_R=0.85 WB_G=1.45 WB_B=1.1 MAG=0 OUT=fp9_nuit_froide_slog2_v2_C2802.cube python3 make_lut.py slog2
 """
 import numpy as np, sys
 
 mode = sys.argv[1] if len(sys.argv) > 1 else "rec709"
+import os
+MAG = float(os.environ.get("MAG", "1.0"))      # dose du magenta médiums (0 = v2, sans dominante rosée)
+WB_R = float(os.environ.get("WB_R", "1.0"))    # gains de balance des blancs en linéaire, avant le look
+WB_G = float(os.environ.get("WB_G", "1.0"))    # (vert > 1 corrige un rush magenta)
+WB_B = float(os.environ.get("WB_B", "1.0"))
+OUT = os.environ.get("OUT")
 N = 65 if mode == "slog2" else 33
-out = "fp9_nuit_froide_slog2.cube" if mode == "slog2" else "fp9_nuit_froide.cube"
+out = OUT or ("fp9_nuit_froide_slog2.cube" if mode == "slog2" else "fp9_nuit_froide.cube")
 LUMA = np.array([0.2126, 0.7152, 0.0722])
 
 
@@ -46,6 +58,7 @@ SGAMUT_TO_709 = np.linalg.inv(REC709) @ SGAMUT
 
 def slog2_to_rec709(rgb):
     lin = slog2_decode(rgb) @ SGAMUT_TO_709.T
+    lin = lin * np.array([WB_R, WB_G, WB_B])
     # compression douce des couleurs hors gamut 709 (évite les aplats fluo)
     Y = np.maximum(lin @ LUMA, 0)[:, None]
     lin = Y + (lin - Y) * 0.92
@@ -78,7 +91,7 @@ def look(rgb):
     x = x + (1 - smooth(L, 0.0, 0.45))[:, None] * np.array([-0.025, 0.000, 0.045])
     x = x + smooth(L, 0.55, 1.0)[:, None] * np.array([-0.015, 0.005, 0.020])
     # léger magenta dans les médiums (peau rosée des réfs)
-    x = x + np.clip(1 - np.abs(L - 0.4) / 0.4, 0, 1)[:, None] * np.array([0.012, -0.010, 0.010])
+    x = x + np.clip(1 - np.abs(L - 0.4) / 0.4, 0, 1)[:, None] * np.array([0.012, -0.010, 0.010]) * MAG
     return np.clip(x, 0, 1)
 
 
