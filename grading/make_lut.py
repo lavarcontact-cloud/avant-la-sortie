@@ -9,8 +9,13 @@ Usage :
 Variables d'environnement (optionnelles) :
   MAG=0                 retire le magenta des médiums (v2, pour les rushs déjà magenta)
   WB_R/WB_G/WB_B=1.0    gains de balance des blancs en linéaire, appliqués avant le look (mode slog2)
+  BLUE=1.0              dose du bleu acier dans les ombres (0 = noirs neutres comme la réf)
+  SAT=1.0               multiplicateur de saturation du look
+  BP/WP/GAMMA           courbe "réf FP9" sur la luma : noir écrasé à BP, blanc à WP, gamma (off par défaut)
   OUT=fichier.cube      nom du fichier de sortie
   ex. v2 C2802 : WB_R=0.85 WB_G=1.45 WB_B=1.1 MAG=0 OUT=fp9_nuit_froide_slog2_v2_C2802.cube python3 make_lut.py slog2
+  ex. v3 C2802 (calé sur la réf TikTok FP9 - Jsuis Messi) :
+      WB_R=0.85 WB_G=1.45 WB_B=1.1 MAG=1 BLUE=0.15 SAT=1.6 BP=0.08 WP=0.42 GAMMA=2.2       OUT=fp9_nuit_froide_slog2_v3_C2802.cube python3 make_lut.py slog2
 """
 import numpy as np, sys
 
@@ -21,6 +26,10 @@ WB_R = float(os.environ.get("WB_R", "1.0"))    # gains de balance des blancs en 
 WB_G = float(os.environ.get("WB_G", "1.0"))    # (vert > 1 corrige un rush magenta)
 WB_B = float(os.environ.get("WB_B", "1.0"))
 OUT = os.environ.get("OUT")
+BLUE = float(os.environ.get("BLUE", "1.0"))    # dose du bleu acier dans les ombres (0 = noirs neutres)
+SAT = float(os.environ.get("SAT", "1.0"))      # multiplicateur de saturation du look
+# Courbe "réf FP9" (désactivée par défaut) : noir écrasé à BP, blanc à WP, gamma GAMMA, épaule douce
+BP = float(os.environ.get("BP", "0")); WP = float(os.environ.get("WP", "1")); GAMMA = float(os.environ.get("GAMMA", "1"))
 N = 65 if mode == "slog2" else 33
 out = OUT or ("fp9_nuit_froide_slog2.cube" if mode == "slog2" else "fp9_nuit_froide.cube")
 LUMA = np.array([0.2126, 0.7152, 0.0722])
@@ -78,7 +87,7 @@ def look(rgb):
     Y = x @ LUMA
     mx, mn = x.max(1), x.min(1)
     redness = np.clip((x[:, 0] - np.maximum(x[:, 1], x[:, 2])) / (mx - mn + 1e-6), 0, 1)
-    sat = 0.32 + 0.28 * redness
+    sat = (0.32 + 0.28 * redness) * SAT
     x = Y[:, None] + (x - Y[:, None]) * sat[:, None]
 
     # 3) Courbe de contraste : noirs écrasés, épaule douce en haut
@@ -88,11 +97,23 @@ def look(rgb):
 
     # 4) Split toning : ombres bleu acier, hautes lumières blanc légèrement cyan
     L = x @ LUMA
-    x = x + (1 - smooth(L, 0.0, 0.45))[:, None] * np.array([-0.025, 0.000, 0.045])
+    x = x + (1 - smooth(L, 0.0, 0.45))[:, None] * np.array([-0.025, 0.000, 0.045]) * BLUE
     x = x + smooth(L, 0.55, 1.0)[:, None] * np.array([-0.015, 0.005, 0.020])
     # léger magenta dans les médiums (peau rosée des réfs)
     x = x + np.clip(1 - np.abs(L - 0.4) / 0.4, 0, 1)[:, None] * np.array([0.012, -0.010, 0.010]) * MAG
-    return np.clip(x, 0, 1)
+    x = np.clip(x, 0, 1)
+
+    # 5) Courbe réf FP9 : appliquée sur la luma, teinte conservée (ratio RGB / luma)
+    if (BP, WP, GAMMA) != (0, 1, 1):
+        L = np.maximum(x @ LUMA, 1e-6)
+        v = np.clip((L - BP) / (WP - BP), 0, None) ** GAMMA
+        knee = 0.85
+        v = np.where(v > knee, knee + (1 - knee) * np.tanh((v - knee) / (1 - knee)), v)
+        x = x * (v / L)[:, None]
+        # au-delà du blanc, on désature vers le blanc au lieu d'écrêter la teinte
+        over = np.clip(x.max(1) - 1, 0, None)[:, None]
+        x = np.clip(x + over, 0, 1)
+    return x
 
 
 if __name__ == "__main__":

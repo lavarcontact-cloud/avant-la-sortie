@@ -6,6 +6,7 @@ Project Settings > Color Management > **Open LUT Folder** → copier les `.cube`
 - `fp9_nuit_froide_slog2.cube` : tout-en-un, entrée S-Log2 (version rapide, 1 nœud)
 - `fp9_nuit_froide_slog2_v2.cube` : comme ci-dessus, sans la poussée magenta dans les médiums (à préférer si le rush tire déjà vers le magenta)
 - `fp9_nuit_froide_slog2_v2_C2802.cube` : v2 avec la balance des blancs du rush C2802 intégrée (éclairage de rue magenta : R 0.85 / V 1.45 / B 1.1 en linéaire). Valable pour les plans tournés sous le même éclairage.
+- `fp9_nuit_froide_slog2_v3_C2802.cube` : **calé sur la réf FP9 « Jsuis Messi »** (TikTok @fp9.officiel). Balance C2802 + courbe très contrastée : noirs écrasés (sujets en silhouette), mur éclairé clair avec joints blancs, noirs neutres (pas de bleu), briques qui gardent un peu de rouge. À compléter avec aberration, ghosting et grain (nœuds 07-08 ou `grade.sh`).
 - `fp9_nuit_froide.cube` : look seul, entrée Rec.709 (à mettre après un CST, recommandé)
 
 ## Arbre de nœuds (série)
