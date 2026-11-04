@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snap Clip Factory</title>
+<style>
+  :root { --bg:#0d0d10; --panel:#17161b; --line:#26252c; --text:#f2efe8; --muted:#9a96a3; --accent:#ff5b3c; --ok:#3ccf8e; --warn:#f4b740; --err:#ff4d6d; }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid var(--line); }
+  h1 { font-size:16px; letter-spacing:.08em; margin:0; }
+  h2 { font-size:13px; letter-spacing:.12em; color:var(--muted); margin:0 0 12px; font-weight:600; }
+  main { max-width:1100px; margin:0 auto; padding:24px 16px; display:grid; gap:20px; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .stat b { display:block; font-size:26px; font-variant-numeric:tabular-nums; }
+  .stat span { color:var(--muted); font-size:13px; }
+  button { background:var(--accent); color:#111; border:0; border-radius:8px; padding:9px 14px; font-weight:600; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); }
+  button:focus-visible, input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  input { background:#0f0e12; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:9px 12px; width:100%; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td, th { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:500; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:99px; font-size:12px; border:1px solid var(--line); }
+  .s-COMPLETED,.s-VERIFIED,.on { color:var(--ok); } .s-FAILED,.off { color:var(--err); } .s-UPLOADING,.s-PROCESSING { color:var(--warn); }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .muted { color:var(--muted); } .code { font:600 22px ui-monospace, monospace; letter-spacing:.2em; color:var(--accent); }
+  #login { max-width:360px; margin:12vh auto; display:grid; gap:10px; }
+  .bar { height:6px; background:var(--line); border-radius:99px; overflow:hidden; } .bar i { display:block; height:100%; background:var(--accent); }
+  .scroll { overflow-x:auto; }
+</style>
+</head>
+<body>
+<header><h1>SNAP CLIP FACTORY</h1><div class="row"><span id="live" class="muted">hors ligne</span><button class="ghost" id="logout" hidden>Déconnexion</button></div></header>
+
+<form id="login" hidden>
+  <h2>CONNEXION</h2>
+  <input name="email" type="email" placeholder="email" autocomplete="username" required>
+  <input name="password" type="password" placeholder="mot de passe" autocomplete="current-password" required minlength="10">
+  <div class="row"><button type="submit">Se connecter</button><button type="button" class="ghost" id="signup">Créer le compte</button></div>
+  <p id="loginErr" class="off"></p>
+</form>
+
+<main id="app" hidden>
+  <section>
+    <div class="row" style="justify-content:space-between"><h2>APPAREILS</h2>
+      <div class="row"><span id="pairCode" class="code"></span><button class="ghost" id="pair">Appairer un appareil</button></div></div>
+    <div class="scroll"><table><thead><tr><th>Appareil</th><th>Dernière activité</th><th>État</th><th>Espace disque</th><th>Tâche</th><th></th></tr></thead><tbody id="devices"></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="row" style="justify-content:space-between"><h2>SYNCHRONISATION</h2>
+      <div class="row"><button id="syncNow">Synchroniser maintenant</button><button class="ghost" data-cmd="pause">Suspendre</button><button class="ghost" data-cmd="resume">Reprendre</button></div></div>
+    <div class="grid" id="syncStats"></div>
+    <p class="muted" style="margin:12px 0 6px">Progression</p><div class="bar"><i id="syncBar" style="width:0"></i></div>
+    <p class="muted" style="font-size:13px">L'iPhone reçoit la commande la prochaine fois que l'app est ouverte ou réveillée par iOS. iOS ne garantit pas de synchronisation permanente en arrière-plan.</p>
+    <div class="scroll"><table><thead><tr><th>Vidéo</th><th>Date</th><th>Taille</th><th>État</th></tr></thead><tbody id="videos"></tbody></table></div>
+  </section>
+
+  <section>
+    <h2>PRODUCTION</h2>
+    <div class="grid" id="prodStats"></div>
+    <p class="muted" style="font-size:13px">Analyse IA, montage et publication : phases 6 à 9, pas encore construites. Aucun contenu ne pourra être publié sans validation humaine.</p>
+  </section>
+
+  <section><h2>JOURNAL D'ACTIVITÉ</h2><div class="scroll"><table><tbody id="activity"></tbody></table></div></section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+let token = sessionStorage.getItem("scf_token");
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtBytes = n => { if (n == null) return "—"; const u=["o","Ko","Mo","Go","To"]; let i=0; while (n>=1024&&i<u.length-1){n/=1024;i++;} return n.toFixed(i?1:0)+" "+u[i]; };
+const fmtDate = d => d ? new Date(d).toLocaleString("fr-FR") : "—";
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, {...opts, headers: {"Content-Type":"application/json", ...(token ? {Authorization:"Bearer "+token} : {}), ...(opts.headers||{})}});
+  if (r.status === 401) { logout(); throw new Error("session expirée"); }
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail));
+  return body;
+}
+
+function stat(label, value) { return `<div class="stat"><b>${esc(value)}</b><span>${esc(label)}</span></div>`; }
+
+async function refresh() {
+  const [s, vids, act] = await Promise.all([api("/v1/dashboard/summary"), api("/v1/videos?limit=50"), api("/v1/activity?limit=30")]);
+  $("#devices").innerHTML = s.devices.map(d => {
+    const st = d.status || {}; const online = d.last_seen_at && (Date.now() - new Date(d.last_seen_at)) < 5*60e3;
+    const disk = st.disk_free_bytes != null ? `${fmtBytes(st.disk_free_bytes)} libres` : "—";
+    const sync = d.kind === "ios" ? `${st.videos_synced ?? "?"}/${st.videos_available ?? "?"} sync · ${st.videos_failed ?? 0} échecs${st.paused ? " · en pause" : ""}`
+                                  : `${(st.queue && st.queue.pending) ?? 0} en file${st.paused ? " · en pause" : ""}`;
+    return `<tr><td>${d.kind === "ios" ? "iPhone" : "Ordinateur"} · <b>${esc(d.name)}</b><br><span class="muted">${esc(d.platform)}</span></td>
+      <td><span class="${online ? "on" : "off"}">●</span> ${fmtDate(d.last_seen_at)}</td><td>${esc(sync)}</td><td>${esc(disk)}</td>
+      <td>${esc(st.current_task || "—")}</td><td><button class="ghost" data-revoke="${esc(d.id)}">Révoquer</button></td></tr>`;
+  }).join("") || `<tr><td colspan="6" class="muted">Aucun appareil. Génère un code d'appairage.</td></tr>`;
+  const y = s.sync;
+  $("#syncStats").innerHTML = stat("Vidéos détectées", y.detected) + stat("Transférées et vérifiées", y.transferred) + stat("Sur l'ordinateur", y.delivered_to_desktop)
+    + stat("En attente", y.pending) + stat("Erreurs", y.errors) + stat("Volume transféré", fmtBytes(y.bytes_transferred));
+  $("#syncBar").style.width = (y.detected ? Math.round(100 * y.transferred / y.detected) : 0) + "%";
+  const p = s.production;
+  $("#prodStats").innerHTML = stat("Vidéos à analyser", p.to_analyze) + stat("Clips détectés", p.clips_detected) + stat("Clips montés", p.clips_edited)
+    + stat("Clips à valider", p.clips_to_review) + stat("Publications programmées", p.scheduled_posts);
+  $("#videos").innerHTML = vids.map(v => `<tr><td>${esc(v.filename)}${v.error ? `<br><span class="off">${esc(v.error)}</span>` : ""}</td><td>${fmtDate(v.source_created_at)}</td>
+    <td>${fmtBytes(v.size_bytes)}</td><td><span class="pill s-${esc(v.state)}">${esc(v.state)}</span>${v.state === "FAILED" ? ` <button class="ghost" data-retry="${esc(v.id)}">Relancer</button>` : ""}</td></tr>`).join("")
+    || `<tr><td colspan="4" class="muted">Aucune vidéo pour l'instant.</td></tr>`;
+  $("#activity").innerHTML = act.map(a => `<tr><td class="muted">${fmtDate(a.at)}</td><td>${esc(a.action)}</td><td class="muted">${esc([a.detail.filename || a.detail.name, a.detail.state ? "→ " + a.detail.state : ""].filter(Boolean).join(" "))}${a.detail.error ? ` <span class="off">${esc(a.detail.error)}</span>` : ""}</td></tr>`).join("");
+}
+
+let ws, timer;
+function connectWS() {
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  ws = new WebSocket(`${proto}://${location.host}/v1/ws`);
+  ws.onopen = () => ws.send(JSON.stringify({token}));
+  ws.onclose = () => { $("#live").textContent = "reconnexion…"; $("#live").className = "off"; if (token) setTimeout(connectWS, 3000); };
+  ws.onmessage = e => {
+    const ev = JSON.parse(e.data);
+    if (ev.type === "ready") { $("#live").textContent = "temps réel"; $("#live").className = "on"; return; }
+    if (ev.type !== "ping") { clearTimeout(timer); timer = setTimeout(refresh, 400); }
+  };
+}
+
+function show() { const logged = !!token; $("#login").hidden = logged; $("#app").hidden = !logged; $("#logout").hidden = !logged; if (logged) { refresh().catch(console.error); connectWS(); } }
+function logout() { token = null; sessionStorage.removeItem("scf_token"); if (ws) ws.close(); show(); }
+
+$("#login").addEventListener("submit", async e => {
+  e.preventDefault(); const f = new FormData(e.target);
+  try { const r = await api("/v1/auth/login", {method:"POST", body: JSON.stringify(Object.fromEntries(f))}); token = r.access_token; sessionStorage.setItem("scf_token", token); show(); }
+  catch (err) { $("#loginErr").textContent = err.message; }
+});
+$("#signup").addEventListener("click", async () => {
+  const f = new FormData($("#login"));
+  try { await api("/v1/auth/register", {method:"POST", body: JSON.stringify(Object.fromEntries(f))}); $("#loginErr").textContent = "Compte créé, connecte-toi."; }
+  catch (err) { $("#loginErr").textContent = err.message; }
+});
+$("#logout").addEventListener("click", logout);
+$("#pair").addEventListener("click", async () => { const r = await api("/v1/pairing-codes", {method:"POST"}); $("#pairCode").textContent = r.code; $("#pairCode").title = "Expire le " + fmtDate(r.expires_at); });
+$("#syncNow").addEventListener("click", async () => { const r = await api("/v1/sync/sync_now", {method:"POST"}); $("#syncNow").textContent = `Demande envoyée à ${r.queued_for} appareil(s)`; setTimeout(() => $("#syncNow").textContent = "Synchroniser maintenant", 3000); });
+document.addEventListener("click", async e => {
+  const t = e.target;
+  if (t.dataset.cmd) await api(`/v1/sync/${t.dataset.cmd}`, {method:"POST"});
+  if (t.dataset.revoke && confirm("Révoquer cet appareil ? Il devra être appairé à nouveau.")) { await api(`/v1/devices/${t.dataset.revoke}`, {method:"DELETE"}); refresh(); }
+  if (t.dataset.retry) { await api(`/v1/videos/${t.dataset.retry}/retry`, {method:"POST"}); refresh(); }
+});
+show();
+</script>
+</body>
+</html>

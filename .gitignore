@@ -1,3 +1,10 @@
 node_modules/
 .vercel
 .DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+snap-clip-factory/cloud/scf.db*
+snap-clip-factory/cloud/relay/
+snap-clip-factory/cloud/.env
+snap-clip-factory/ios/*.xcodeproj

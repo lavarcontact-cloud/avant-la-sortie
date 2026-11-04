@@ -1,0 +1,29 @@
+# Déploiement minimal : API + PostgreSQL + Caddy (HTTPS automatique).
+# 1. cp .env.example .env et remplir les valeurs
+# 2. docker compose up -d
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: scf
+      POSTGRES_USER: scf
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?définir POSTGRES_PASSWORD}
+    volumes: [pgdata:/var/lib/postgresql/data]
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on: [db]
+    environment:
+      SCF_DATABASE_URL: postgresql+psycopg://scf:${POSTGRES_PASSWORD}@db/scf
+      SCF_SECRET_KEY: ${SCF_SECRET_KEY:?définir SCF_SECRET_KEY (openssl rand -base64 48)}
+      SCF_PUBLIC_BASE_URL: https://${SCF_DOMAIN}
+    volumes: [relay:/data/relay]
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [api]
+    ports: ["80:80", "443:443"]
+    command: caddy reverse-proxy --from ${SCF_DOMAIN:?définir SCF_DOMAIN} --to api:8000
+    volumes: [caddy:/data]
+volumes: { pgdata: {}, relay: {}, caddy: {} }
