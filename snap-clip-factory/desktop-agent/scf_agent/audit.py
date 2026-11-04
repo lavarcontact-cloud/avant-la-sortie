@@ -36,6 +36,27 @@ def _ram_bytes() -> int | None:
         return None
 
 
+def _cpu_name() -> str:
+    """Nom commercial du processeur (platform.processor() donne seulement la famille sous Windows)."""
+    if os.name == "nt":
+        try:
+            import winreg
+
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as k:
+                return str(winreg.QueryValueEx(k, "ProcessorNameString")[0]).strip()
+        except Exception:
+            pass
+    if sys.platform == "darwin":
+        return _run(["sysctl", "-n", "machdep.cpu.brand_string"]) or platform.processor()
+    try:
+        for line in Path("/proc/cpuinfo").read_text().splitlines():
+            if line.startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    except Exception:
+        pass
+    return platform.processor()
+
+
 def _gpu() -> list[str]:
     if sys.platform == "darwin":
         out = _run(["system_profiler", "SPDisplaysDataType", "-json"])
@@ -81,7 +102,7 @@ def audit(library: Path) -> dict:
     return {
         "os": f"{platform.system()} {platform.release()}",
         "machine": platform.machine(),
-        "cpu": platform.processor() or _run(["sysctl", "-n", "machdep.cpu.brand_string"]),
+        "cpu": _cpu_name(),
         "cpu_cores": os.cpu_count(),
         "ram_gb": round(ram / 1024**3, 1) if ram else None,
         "gpus": gpus,
