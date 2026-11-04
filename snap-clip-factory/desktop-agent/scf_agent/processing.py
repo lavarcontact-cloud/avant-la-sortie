@@ -25,7 +25,7 @@ ANALYSIS_SCHEMA = 1
 def probe(path: Path) -> dict:
     out = subprocess.run(
         [_tool("ffprobe"), "-v", "error", "-print_format", "json", "-show_format", "-show_streams", str(path)],
-        capture_output=True, text=True, timeout=120, check=True,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, check=True,
     ).stdout
     data = json.loads(out)
     video = next((s for s in data.get("streams", []) if s.get("codec_type") == "video"), {})

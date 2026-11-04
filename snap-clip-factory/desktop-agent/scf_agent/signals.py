@@ -24,7 +24,7 @@ _STAT = re.compile(r"lavfi\.signalstats\.(YAVG|UAVG|VAVG)=([\d.]+)")
 
 
 def _ffmpeg(args: list[str], timeout: int = 1800) -> str:
-    out = subprocess.run([tool("ffmpeg"), "-hide_banner", "-nostats", *args], capture_output=True, text=True,
+    out = subprocess.run([tool("ffmpeg"), "-hide_banner", "-nostats", *args], capture_output=True, text=True, encoding="utf-8", errors="replace",
                          timeout=timeout)
     if out.returncode != 0:
         raise RuntimeError(f"ffmpeg : {out.stderr.strip()[-400:]}")

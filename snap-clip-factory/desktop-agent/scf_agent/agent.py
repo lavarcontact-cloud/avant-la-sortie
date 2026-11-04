@@ -141,6 +141,13 @@ class Agent:
             log.warning("traitement de %s interrompu (tentative %d) : %s", row["filename"], n, e)
             return
         self.queue.set_stage(vid, "done", attempts=0, last_error=None)
+        tr = (result.get("analysis_input") or {}).get("transcript") or {}
+        if tr:
+            msg = {"ok": f"transcrite ({tr.get('language')}, {len(tr.get('segments', []))} segments)",
+                   "no_speech": "sans parole", "no_audio": "sans piste audio"}.get(tr.get("status"),
+                                                                              f"SANS transcription : {tr.get('note')}")
+            (log.info if tr.get("status") in ("ok", "no_speech", "no_audio") else log.warning)(
+                "traitée : %s — %s", row["filename"], msg)
 
     def send_analysis_input(self, vid: str, payload: dict) -> None:
         """Envoie au Cloud les SEULES données textuelles nécessaires à l'analyse

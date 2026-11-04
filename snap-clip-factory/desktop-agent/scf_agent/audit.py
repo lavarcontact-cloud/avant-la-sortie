@@ -12,7 +12,7 @@ from pathlib import Path
 
 def _run(cmd: list[str]) -> str:
     try:
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=10).stdout.strip()
+        return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10).stdout.strip()
     except Exception:
         return ""
 

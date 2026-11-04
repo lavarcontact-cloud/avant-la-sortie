@@ -40,6 +40,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--library", help="dossier de stockage local des vidéos")
     sub.add_parser("run", help="lancer l'agent (boucle de synchronisation)")
     sub.add_parser("status", help="état de la file locale")
+    ip = sub.add_parser("import", help="importer des vidéos du PC dans le système, sans iPhone (copie, original intact)")
+    ip.add_argument("paths", nargs="+", help="fichiers vidéo ou dossiers")
+    ip.add_argument("--server", help="ex. http://127.0.0.1:8000 (mémorisé après la 1re fois)")
+    ip.add_argument("--code", help="code d'appairage du dashboard (1re fois seulement)")
     bp = sub.add_parser("bench", help="PHASE 6.1 : banc d'essai transcription sur un dossier de vidéos")
     bp.add_argument("--videos", required=True, help="dossier de vidéos (+ <nom>.srt ou <nom>.txt de référence)")
     bp.add_argument("--out", help="dossier du rapport (défaut : <videos>/rapport)")
@@ -66,6 +70,19 @@ def main(argv: list[str] | None = None) -> int:
         cfg.device_id = CloudClient(cfg.server, SecretStore()).pair(args.code, args.name, platform_label())
         cfg.save()
         print(f"Appairé (appareil {cfg.device_id}). Bibliothèque : {cfg.library_dir}")
+        return 0
+    if args.cmd == "import":
+        from .importer import ImportError_, run as import_run
+
+        if args.server and not (args.server.startswith("https://") or args.server.startswith("http://localhost")
+                                or args.server.startswith("http://127.0.0.1")):
+            print("Refus : le serveur doit être en HTTPS (sauf localhost).", file=sys.stderr)
+            return 2
+        try:
+            import_run(args.paths, args.server, args.code)
+        except ImportError_ as e:
+            print(f"Erreur : {e}", file=sys.stderr)
+            return 1
         return 0
     if args.cmd == "bench":
         from .bench import run as bench_run
