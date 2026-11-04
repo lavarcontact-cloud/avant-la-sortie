@@ -108,6 +108,9 @@ def test_faster_whisper_adapter_mapping(monkeypatch, tmp_path):
     monkeypatch.setitem(sys.modules, "faster_whisper", types.SimpleNamespace(WhisperModel=FakeModel))
     FasterWhisperTranscriber._models.clear()
     t = make_transcriber({"transcriber": "auto", "whisper_model": "tiny", "uncertain_word_probability": 0.5})
+    import wave
+    with wave.open(str(tmp_path / "a.wav"), "wb") as w:   # 1 s de silence 16 kHz mono
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(16000); w.writeframes(b"\x00\x00" * 16000)
     out = t.transcribe(tmp_path / "a.wav", None)
     assert calls["init"] == ("tiny", "auto") and calls["kw"]["word_timestamps"] and calls["kw"]["language"] is None
     assert out.status == "ok" and out.language == "fr" and out.segments[0].speaker is None
@@ -314,3 +317,16 @@ def test_handheld_motion_is_not_a_cut_but_hard_cut_is(tmp_path):
                     str(both)], check=True)
     cuts = [c["t"] for c in signals.detect_scenes(both)]
     assert len(cuts) == 1 and abs(cuts[0] - 3.0) <= 0.4, cuts   # la vraie coupe, et elle seule
+
+
+
+def test_wav_loader_bypasses_pyav(tmp_path, dialogue):
+    """faster-whisper 1.2.1 + PyAV 19 : décodage impossible. L'agent fournit les échantillons lui-même."""
+    from scf_agent.transcription import load_wav_16k
+    wav = processing.extract_audio(dialogue.path, tmp_path / "a.wav")
+    x = load_wav_16k(wav)
+    assert x.dtype.name == "float32" and abs(len(x) / 16000 - dialogue.duration) < 0.2 and float(abs(x).max()) <= 1.0
+    bad = tmp_path / "s.wav"
+    subprocess.run([media.FFMPEG, "-v", "error", "-y", "-i", str(dialogue.path), "-ac", "2", "-ar", "44100", str(bad)], check=True)
+    with pytest.raises(ValueError, match="attendu 16 kHz"):
+        load_wav_16k(bad)

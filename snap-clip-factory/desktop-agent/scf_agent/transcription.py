@@ -88,7 +88,7 @@ class FasterWhisperTranscriber:
         import math
 
         segments, info = self.model.transcribe(
-            str(audio), language=language, word_timestamps=True, vad_filter=True,
+            load_wav_16k(audio), language=language, word_timestamps=True, vad_filter=True,
             condition_on_previous_text=False,   # limite les répétitions « hallucinées »
         )
         out = []
@@ -103,6 +103,25 @@ class FasterWhisperTranscriber:
         status = "ok" if any(seg.text for seg in out) else "no_speech"
         return Transcript(status=status, engine=f"faster-whisper:{self.model_name}", language=info.language,
                           language_probability=round(info.language_probability, 3), segments=out)
+
+
+def load_wav_16k(path: Path):
+    """WAV 16 kHz mono 16 bits (produit par ffmpeg dans processing.extract_audio)
+    -> échantillons float32, sans passer par le décodeur PyAV de faster-whisper.
+
+    Constaté en phase 6.1 : faster-whisper 1.2.1 appelle av.open(..., metadata_errors=…),
+    argument refusé par PyAV 19 (« unexpected keyword argument »), ce qui faisait
+    échouer toutes les transcriptions."""
+    import wave
+
+    import numpy as np
+
+    with wave.open(str(path), "rb") as w:
+        if w.getframerate() != 16000 or w.getnchannels() != 1 or w.getsampwidth() != 2:
+            raise ValueError(f"WAV inattendu : {w.getframerate()} Hz, {w.getnchannels()} canal(aux), "
+                             f"{8 * w.getsampwidth()} bits (attendu 16 kHz mono 16 bits)")
+        data = w.readframes(w.getnframes())
+    return np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
 
 
 def make_transcriber(options: dict) -> Transcriber | None:
