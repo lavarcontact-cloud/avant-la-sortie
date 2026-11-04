@@ -97,7 +97,7 @@ class DemoProvider:
     model = "heuristique-v1"
     simulated = True
 
-    LAUGH = re.compile(r"\b(laugh\w*|funny|haha|lol|rire|rigol\w*|drôle|mdr|ptdr)\b", re.I)
+    LAUGH = re.compile(r"\b(laugh\w*|funny|haha|lol|rire|rigol\w*|drôle|mdr|ptdr|mort de rire)\b", re.I)
     STORY = re.compile(r"\b(because|then|so|parce que|alors|ensuite|du coup|quand)\b", re.I)
 
     def complete(self, req: LLMRequest) -> LLMResponse:
@@ -111,7 +111,7 @@ class DemoProvider:
             if not words:
                 continue
             if self.LAUGH.search(text):
-                cat, score, why = "humour", 62, "mot lié au rire détecté"
+                cat, score, why = "moment_drole", 62, "mot lié au rire détecté"
             elif "?" in text or "!" in text:
                 cat, score, why = "reaction", 55, "question ou exclamation"
             elif words >= 14 and self.STORY.search(text):
@@ -128,7 +128,7 @@ class DemoProvider:
                           "scene_description": "[DÉMO] non analysée"})
         if not clips:   # pas de parole : on s'appuie sur les pics sonores
             for t in ctx.get("loudness_peaks_s", [])[:2]:
-                clips.append({"start_s": t - 3, "end_s": t + 4, "category": "moment_fort", "tags": ["démo", "son"],
+                clips.append({"start_s": t - 3, "end_s": t + 4, "category": "moment_inattendu", "tags": ["démo", "son"],
                               "title": f"[DÉMO] pic sonore à {t} s",
                               "explanation": "[DÉMO — règle heuristique] passage parmi les plus forts en volume.",
                               "score": 30, "score_justification": "[DÉMO] niveau sonore uniquement",

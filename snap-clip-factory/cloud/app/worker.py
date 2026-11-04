@@ -126,6 +126,13 @@ def _process(db: Session, c: AppContext, job: AnalysisJob, http) -> None:
             return _block(db, c, job, f"budget du jour ({cfg.daily_budget_usd} $) atteint")
 
     provider = make_provider(cfg, http)
+    if cfg.use_feedback_guidance:   # opt-in explicite : résumé chiffré, pas d'entraînement
+        from .evaluation import guidance
+
+        note = guidance(db, job.user_id)
+        if note:
+            for r in requests:
+                r.user += "\n\n" + note
     progress = dict(job.progress or {})
     done: list[int] = progress.get("done", [])
     raw: list[dict] = progress.get("raw", [])
@@ -139,7 +146,8 @@ def _process(db: Session, c: AppContext, job: AnalysisJob, http) -> None:
         # on ne garde que les propositions qui tombent dans la fenêtre interrogée
         raw.extend(cl for cl in clips if _in_window(cl, win.start, win.end))
         done.append(win.index)
-        job.progress = {"done": list(done), "raw": list(raw), "windows": len(windows)}
+        job.progress = {"done": list(done), "raw": list(raw), "windows": len(windows),
+                        "guidance_used": cfg.use_feedback_guidance}
         job.cost_usd = estimate_cost(cfg, job.input_tokens, job.output_tokens)
         db.commit()   # point de reprise
 

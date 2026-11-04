@@ -18,7 +18,8 @@ from ..ai.config import AIConfig, provider_status
 from ..ai.moments import _norm, excerpt
 from ..clips import CATEGORIES, ClipState, ClipTransitionError, approve, transition
 from ..deps import AppContext, Principal, ctx, get_db, log_activity, require_desktop, require_user
-from ..models import AIConfigRow, AnalysisInput, AnalysisJob, Clip, Video, now
+from ..evaluation import REJECT_REASONS, adjusted_scores, report
+from ..models import AIConfigRow, AnalysisInput, AnalysisJob, Clip, ClipFeedback, ManualSelection, Video, now
 from ..worker import enqueue, load_config
 from .videos import get_owned_video
 
@@ -172,7 +173,20 @@ def list_clips(video_id: str | None = None, category: str | None = None, min_sco
         q = q.where(Clip.category == category)
     if state:
         q = q.where(Clip.state == state)
-    return [clip_out(cl) for cl in db.scalars(q.order_by(Clip.score.desc(), Clip.start_s).limit(limit)).all()]
+    rows = db.scalars(q.order_by(Clip.score.desc(), Clip.start_s).limit(limit)).all()
+    out = [clip_out(cl) for cl in rows]
+    if load_config(db, p.user_id).rank_with_feedback and rows:   # opt-in
+        adj = adjusted_scores(db, p.user_id, rows)
+        for o in out:
+            o["adjusted_score"] = adj[o["id"]]
+        out.sort(key=lambda o: (-o["adjusted_score"], o["start_s"]))
+    return out
+
+
+def record_feedback(db: Session, cl: Clip, user_id: str, decision: str, reasons=(), note: str = "") -> None:
+    db.add(ClipFeedback(user_id=user_id, clip_id=cl.id, video_id=cl.video_id, decision=decision,
+                        reasons=list(reasons), note=note, start_s=cl.start_s, end_s=cl.end_s, score=cl.score,
+                        category=cl.category, provider=cl.provider, model=cl.model, simulated=cl.simulated))
 
 
 def _owned_clip(db: Session, p: Principal, clip_id: str) -> Clip:
@@ -215,6 +229,7 @@ def edit_clip(clip_id: str, body: ClipEdit, p: Principal = Depends(require_user)
     else:
         cl.history = [*(cl.history or []), {"from": cl.state, "to": cl.state, "by": f"user:{p.user_id}",
                                             "at": now().isoformat(), "note": "modifié"}]
+    record_feedback(db, cl, p.user_id, "edit")
     log_activity(db, c, user_id=p.user_id, action="clip.edited", clip_id=cl.id, state=cl.state)
     db.commit()
     return clip_out(cl)
@@ -222,6 +237,7 @@ def edit_clip(clip_id: str, body: ClipEdit, p: Principal = Depends(require_user)
 
 class Review(BaseModel):
     note: str = Field(default="", max_length=500)
+    reasons: list[str] = Field(default_factory=list, max_length=10)   # motifs de refus (phase 6.1)
 
 
 @router.post("/clips/{clip_id}/{action}")
@@ -230,6 +246,12 @@ def review_clip(clip_id: str, action: Literal["approve", "reject", "reopen"], bo
     """Validation humaine : uniquement avec un jeton de COMPTE UTILISATEUR."""
     cl = _owned_clip(db, p, clip_id)
     note = body.note if body else ""
+    reasons = body.reasons if body else []
+    unknown = [r for r in reasons if r not in REJECT_REASONS]
+    if unknown:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"motifs inconnus : {unknown}")
+    if reasons and action != "reject":
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "les motifs ne concernent que le refus")
     try:
         if action == "approve":
             approve(cl, user_id=p.user_id, note=note)
@@ -240,9 +262,80 @@ def review_clip(clip_id: str, action: Literal["approve", "reject", "reopen"], bo
     except ClipTransitionError as e:
         raise HTTPException(status.HTTP_409_CONFLICT, str(e))
     cl.review_note = note
+    record_feedback(db, cl, p.user_id, action, reasons, note)
     log_activity(db, c, user_id=p.user_id, action=f"clip.{action}", clip_id=cl.id, state=cl.state, filename=cl.title)
     db.commit()
     return clip_out(cl)
+
+
+# --- Sélections manuelles et évaluation (phase 6.1) ------------------------------
+class SelectionIn(BaseModel):
+    start_s: float = Field(ge=0)
+    end_s: float = Field(gt=0)
+    category: str = Field(default="", max_length=24)
+    note: str = Field(default="", max_length=500)
+
+
+def selection_out(s: ManualSelection) -> dict:
+    return {"id": s.id, "video_id": s.video_id, "start_s": s.start_s, "end_s": s.end_s, "category": s.category,
+            "note": s.note, "created_at": s.created_at}
+
+
+@router.get("/studio/videos/{video_id}/selections")
+def list_selections(video_id: str, p: Principal = Depends(require_user), db: Session = Depends(get_db)):
+    v = get_owned_video(db, p, video_id)
+    return [selection_out(s) for s in db.scalars(select(ManualSelection).where(ManualSelection.video_id == v.id)
+                                                  .order_by(ManualSelection.start_s))]
+
+
+@router.post("/studio/videos/{video_id}/selections", status_code=201)
+def add_selection(video_id: str, body: SelectionIn, p: Principal = Depends(require_user), c: AppContext = Depends(ctx),
+                  db: Session = Depends(get_db)):
+    """« Le passage que j'aurais choisi » : sert UNIQUEMENT de référence pour mesurer l'IA."""
+    v = get_owned_video(db, p, video_id)
+    limit = v.duration_s or (v.probe or {}).get("duration_s") or 1e9
+    if body.end_s <= body.start_s or body.end_s > limit + 0.05:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"timecodes invalides (0 ≤ début < fin ≤ {limit:.2f} s)")
+    if body.category and body.category not in CATEGORIES:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "catégorie inconnue")
+    s = ManualSelection(user_id=p.user_id, video_id=v.id, **body.model_dump())
+    db.add(s)
+    log_activity(db, c, user_id=p.user_id, action="selection.added", video_id=v.id, filename=v.filename)
+    db.commit()
+    return selection_out(s)
+
+
+@router.delete("/studio/selections/{selection_id}")
+def delete_selection(selection_id: str, p: Principal = Depends(require_user), db: Session = Depends(get_db)):
+    s = db.get(ManualSelection, selection_id)
+    if s is None or s.user_id != p.user_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "sélection inconnue")
+    db.delete(s)
+    db.commit()
+    return {"deleted": True}
+
+
+@router.get("/evaluation/report")
+def evaluation_report(days: int | None = Query(None, ge=1, le=3650), provider: str | None = None,
+                      include_simulated: bool = False, p: Principal = Depends(require_user),
+                      db: Session = Depends(get_db)):
+    return report(db, p.user_id, days=days, provider=provider, include_simulated=include_simulated)
+
+
+@router.get("/evaluation/reasons")
+def evaluation_reasons(p: Principal = Depends(require_user)):
+    return REJECT_REASONS
+
+
+@router.get("/evaluation/export")
+def evaluation_export(p: Principal = Depends(require_user), db: Session = Depends(get_db)):
+    """Tes décisions brutes, pour les analyser toi-même. Rien n'est envoyé ailleurs."""
+    fb = db.scalars(select(ClipFeedback).where(ClipFeedback.user_id == p.user_id).order_by(ClipFeedback.id)).all()
+    sels = db.scalars(select(ManualSelection).where(ManualSelection.user_id == p.user_id)).all()
+    return {"feedback": [{k: getattr(f, k) for k in ("clip_id", "video_id", "decision", "reasons", "note", "start_s",
+                                                     "end_s", "score", "category", "provider", "model", "simulated",
+                                                     "created_at")} for f in fb],
+            "manual_selections": [selection_out(s) for s in sels]}
 
 
 # --- Réglages IA ------------------------------------------------------------------

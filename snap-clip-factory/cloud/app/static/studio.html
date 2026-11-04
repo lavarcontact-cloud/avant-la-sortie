@@ -41,6 +41,8 @@
   .excerpt { background:var(--panel2); border-radius:8px; padding:8px 10px; font-size:14px; }
   .unc { color:var(--warn); text-decoration:underline dotted; }
   .warn { color:var(--warn); font-size:13px; }
+  .h3 { margin:0 0 8px; font-size:14px; }
+  table th, table td { padding:6px 4px; border-bottom:1px solid var(--line); text-align:center; } table td:first-child { text-align:left; }
   .seg { display:grid; grid-template-columns:94px 1fr; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); font-size:14px; }
   .seg time { color:var(--muted); font-variant-numeric:tabular-nums; font-size:12px; }
   details summary { cursor:pointer; color:var(--muted); font-size:13px; }
@@ -54,6 +56,7 @@
   <nav role="tablist">
     <button role="tab" data-tab="videos" aria-selected="true">Vidéos</button>
     <button role="tab" data-tab="clips">Clips</button>
+    <button role="tab" data-tab="eval">Évaluation</button>
     <button role="tab" data-tab="settings">Réglages IA</button>
   </nav>
   <a href="/" class="small muted">← Synchronisation</a>
@@ -85,6 +88,13 @@
     <div id="clipList" style="display:grid;gap:12px"></div>
   </section>
 
+  <!-- ÉVALUATION -->
+  <section id="tab-eval" hidden style="display:grid;gap:12px">
+    <div class="card row between"><label class="row small" style="color:var(--text)"><input type="checkbox" id="evSim" style="min-height:auto"> Inclure les résultats simulés (démo)</label>
+      <button class="ghost" id="evExport">Exporter mes décisions (JSON)</button></div>
+    <div id="evOut" style="display:grid;gap:12px"></div>
+  </section>
+
   <!-- RÉGLAGES -->
   <section id="tab-settings" hidden>
     <form id="cfgForm" class="card" style="display:grid;gap:14px">
@@ -105,6 +115,12 @@
         <label>Tarif sortie ($ / million de jetons) <input name="price_output_per_mtok" type="number" step="0.01" min="0" placeholder="non renseigné"></label>
       </div>
       <label class="row" style="color:var(--text)"><input type="checkbox" name="auto_analyze" style="min-height:auto"> Analyser automatiquement chaque nouvelle vidéo</label>
+      <fieldset class="card" style="background:var(--panel2);display:grid;gap:8px;margin:0">
+        <legend class="small muted">Utiliser mes retours (désactivé par défaut)</legend>
+        <label class="row" style="color:var(--text)"><input type="checkbox" name="use_feedback_guidance" style="min-height:auto"> Ajouter à la consigne un résumé chiffré de mes décisions</label>
+        <label class="row" style="color:var(--text)"><input type="checkbox" name="rank_with_feedback" style="min-height:auto"> Réordonner les clips selon mes taux d'acceptation par catégorie (±10 points)</label>
+        <p class="small muted" style="margin:0">Aucun modèle n'est entraîné. Le résumé ne contient que des taux et des motifs de refus, jamais tes transcriptions. Il n'est envoyé au fournisseur que si tu coches la première case.</p>
+      </fieldset>
       <p class="small muted" style="margin:0">Les clés API ne se saisissent jamais ici : elles se configurent sur le serveur
         (<code>SCF_ANTHROPIC_API_KEY</code>, <code>SCF_OPENAI_API_KEY</code>, <code>SCF_OPENAI_COMPAT_BASE_URL</code>…).
         Sans tarif renseigné, le coût est affiché « inconnu » et seule la limite de taille s'applique.</p>
@@ -118,7 +134,12 @@
 const $ = s => document.querySelector(s);
 const token = sessionStorage.getItem("scf_token");
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const CAT = {punchline:"Punchline", anecdote:"Anecdote", humour:"Humour", reaction:"Réaction", performance:"Performance", moment_fort:"Moment fort"};
+const CAT = {punchline:"Punchline", moment_drole:"Moment drôle", anecdote:"Anecdote", reaction:"Réaction", debat:"Débat",
+  moment_inattendu:"Moment inattendu", coulisses:"Coulisses", performance:"Performance", moment_emotionnel:"Moment émotionnel",
+  phrase_polemique:"Phrase polémique"};
+const LEGACY = {humour:"Humour (ancienne catégorie)", moment_fort:"Moment fort (ancienne catégorie)"};
+const catLabel = c => CAT[c] || LEGACY[c] || c;
+let REASONS = {};
 const STATE = {DETECTED:"Détecté", ANALYZED:"Analysé", READY_FOR_REVIEW:"À valider", APPROVED:"Validé", REJECTED:"Refusé", RENDERED:"Rendu"};
 const JOB = {queued:"en file", running:"en cours", done:"terminée", failed:"échec", blocked:"bloquée (limite)"};
 const TR = {ok:"transcrite", no_speech:"sans parole", no_audio:"sans son", unavailable:"pas de moteur de transcription", error:"erreur de transcription"};
@@ -175,19 +196,75 @@ async function openVideo(id, scroll = true) {
       ${d.summary ? ` · ${d.summary.scene_changes} changement(s) de plan · ${Math.round(d.summary.silence_ratio * 100)} % de silence` : ""}</p>
     ${j ? `<div class="row" style="margin-bottom:8px">${jobLine(j)}</div>${j.rejected && j.rejected.length ? `<details><summary>${j.rejected.length} proposition(s) écartée(s) par le serveur</summary><ul class="small muted">${j.rejected.map(r => `<li>${esc(r)}</li>`).join("")}</ul></details>` : ""}` : ""}
     <details ${segs ? "open" : ""} style="margin-top:8px"><summary>Transcription horodatée (mots incertains soulignés)</summary>${segs || '<p class="muted small">Aucune parole transcrite.</p>'}</details>
+    <h3 style="font-size:14px;margin:14px 0 8px">Passages que tu aurais choisis</h3>
+    <p class="small muted" style="margin:0 0 6px">Note ici les moments que tu sélectionnerais toi-même : ils servent de référence pour mesurer ce que l'IA trouve ou rate. Ils ne créent pas de clip.</p>
+    <div id="sels" class="small" style="display:grid;gap:4px;margin-bottom:8px"></div>
+    <form id="selForm" class="row small" data-video="${esc(id)}">
+      <label>Début <input class="tc" name="start" placeholder="0:12.0" required></label>
+      <label>Fin <input class="tc" name="end" placeholder="0:31.5" required></label>
+      <label>Catégorie <select name="category"><option value="">—</option>${Object.entries(CAT).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></label>
+      <label style="flex:1;min-width:160px">Note <input name="note" maxlength="500" placeholder="pourquoi ce passage"></label>
+      <button type="submit" class="ghost">Ajouter</button>
+    </form>
     <h3 style="font-size:14px;margin:14px 0 8px">Clips de cette vidéo</h3>
     <div style="display:grid;gap:10px">${d.clips.map(clipCard).join("") || '<p class="muted small">Aucun clip.</p>'}</div>`;
+  loadSelections(id);
   if (scroll) $("#videoDetail").scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+async function loadSelections(id) {
+  const list = await api(`/v1/studio/videos/${id}/selections`);
+  $("#sels").innerHTML = list.map(s => `<div class="row"><span class="pill">${fmtT(s.start_s)} → ${fmtT(s.end_s)}</span>
+    ${s.category ? `<span class="pill">${esc(catLabel(s.category))}</span>` : ""}<span class="muted">${esc(s.note)}</span>
+    <button class="ghost" data-delsel="${esc(s.id)}" style="min-height:28px;padding:2px 8px">Supprimer</button></div>`).join("") || '<span class="muted">Aucun pour l\'instant.</span>';
+}
+
+const pct = v => v == null ? "—" : `${Math.round(v * 100)} %`;
+const st = o => !o || !o.n ? "—" : `moy. ${o.mean} · méd. ${o.median} · max ${o.max} (n=${o.n})`;
+function rateTable(obj, label) {
+  const rows = Object.entries(obj).sort((a, b) => b[1].proposed - a[1].proposed);
+  if (!rows.length) return '<p class="muted small">Aucune donnée.</p>';
+  return `<div style="overflow-x:auto"><table class="small" style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left">${label}</th><th>Proposés</th><th>Acceptés</th><th>Refusés</th><th>Taux</th></tr></thead><tbody>
+    ${rows.map(([k, g]) => `<tr><td>${esc(catLabel(k))}</td><td>${g.proposed}</td><td>${g.approved}</td><td>${g.rejected}</td><td>${pct(g.acceptance_rate)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+async function loadEval() {
+  const r = await api("/v1/evaluation/report?" + new URLSearchParams({include_simulated: $("#evSim").checked}));
+  const t = r.totals, m = r.manual_comparison, pr = r.processing, tc = r.timecodes;
+  $("#evOut").innerHTML = `
+    <div class="card"><h3 class="h3">Décisions</h3>
+      <p>${t.proposed} proposition(s) · ${t.approved} acceptée(s) · ${t.rejected} refusée(s) · ${t.pending_review} à examiner ·
+      <b>taux d'acceptation ${pct(t.acceptance_rate)}</b></p>
+      ${t.simulated_excluded ? `<p class="small" style="color:var(--demo)">${t.simulated_excluded} proposition(s) simulée(s) (démo) exclue(s) des mesures.</p>` : ""}
+      ${t.approved + t.rejected < 30 ? '<p class="warn">Moins de 30 décisions : les taux sont encore très incertains.</p>' : ""}</div>
+    <div class="card"><h3 class="h3">Par catégorie</h3>${rateTable(r.by_category, "Catégorie")}</div>
+    <div class="card"><h3 class="h3">Par score proposé</h3><p class="small muted">Si le score est utile, le taux d'acceptation doit monter avec lui.</p>${rateTable(r.by_score_bucket, "Score")}</div>
+    <div class="card"><h3 class="h3">Motifs de refus</h3>${Object.values(r.rejection_reasons).map(x => `<div class="row small"><span class="pill">${x.count}</span>${esc(x.label)}</div>`).join("") || '<p class="muted small">Aucun refus motivé.</p>'}
+      ${r.rejected_without_reason ? `<p class="small muted">${r.rejected_without_reason} refus sans motif.</p>` : ""}</div>
+    <div class="card"><h3 class="h3">Qualité des timecodes (clips acceptés)</h3>
+      <p class="small">Inchangés : ${pct(tc.unchanged_share)} · déplacés de 1 s au plus : ${pct(tc.within_1s_share)}<br>
+      Décalage du début : ${st(tc.start_shift_s)} s<br>Décalage de la fin : ${st(tc.end_shift_s)} s</p></div>
+    <div class="card"><h3 class="h3">Tes sélections vs l'IA</h3>
+      ${m.manual_selections ? `<p>${m.found_by_ai}/${m.manual_selections} passage(s) choisis par toi retrouvés par l'IA (<b>${pct(m.recall)}</b>), sur ${m.videos} vidéo(s) ·
+        catégorie identique : ${pct(m.category_agreement)} · ${m.ai_proposals_matching_manual}/${m.ai_proposals_on_these_videos} propositions correspondent à un de tes choix.</p>
+        <p class="small muted">Règle : ${esc(m.match_rule)}.${m.not_yet_analyzed ? ` ${m.not_yet_analyzed} sélection(s) sur des vidéos pas encore analysées.` : ""}</p>
+        ${m.missed.length ? `<details><summary>${m.missed.length} passage(s) manqué(s) par l'IA</summary>${m.missed.map(x => `<div class="small">${fmtT(x.start_s)} → ${fmtT(x.end_s)} ${x.category ? "· " + esc(catLabel(x.category)) : ""} ${esc(x.note)}</div>`).join("")}</details>` : ""}`
+        : '<p class="muted small">Ajoute « les passages que tu aurais choisis » dans le détail d\'une vidéo pour mesurer ce que l\'IA rate.</p>'}</div>
+    <div class="card"><h3 class="h3">Traitement</h3>
+      <p class="small">${pr.videos} vidéo(s) · traitement local ${st(pr.local_processing_s)} s · facteur temps réel ${st(pr.realtime_factor)}<br>
+      Analyse Cloud ${st(pr.cloud_analysis_s)} s · coût par vidéo ${st(pr.cost_per_video_usd)} $${pr.videos_with_unknown_cost ? ` · ${pr.videos_with_unknown_cost} sans tarif` : ""} · clips par vidéo ${st(pr.clips_per_video)}</p>
+      <div style="overflow-x:auto"><table class="small" style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left">Vidéo</th><th>Durée</th><th>Transcription</th><th>Local</th><th>Cloud</th><th>Coût</th><th>Clips</th></tr></thead><tbody>
+      ${pr.per_video.map(v => `<tr><td>${esc(v.filename)}${v.simulated ? ' <span class="pill demo">DÉMO</span>' : ""}</td><td>${v.duration_s ? fmtT(v.duration_s) : "—"}</td><td>${esc(v.transcript_status || "—")}</td>
+        <td>${v.local_processing_s ?? "—"} s</td><td>${v.cloud_analysis_s ?? "—"} s</td><td>${money(v.cost_usd)}</td><td>${v.clips}</td></tr>`).join("")}</tbody></table></div></div>`;
 }
 
 function clipCard(c) {
   const locked = c.state === "REJECTED";
   return `<article class="card" style="display:grid;gap:8px;background:var(--panel2)" data-clip="${esc(c.id)}">
     <div class="row between"><div class="row">${c.simulated ? '<span class="pill demo">DÉMO · simulé</span>' : ""}
-      <span class="pill">${esc(CAT[c.category] || c.category)}</span>${(c.tags || []).map(t => `<span class="pill muted">${esc(t)}</span>`).join("")}</div>
+      <span class="pill">${esc(catLabel(c.category))}</span>${(c.tags || []).map(t => `<span class="pill muted">${esc(t)}</span>`).join("")}</div>
       <span class="pill s-${esc(c.state)}">${esc(STATE[c.state] || c.state)}</span></div>
     <b>${esc(c.title)}</b>
-    <div class="row small"><span>Potentiel éditorial <b>${c.score}</b>/100</span><span class="muted">· confiance ${Math.round(c.confidence * 100)} %</span>
+    <div class="row small"><span>Potentiel éditorial <b>${c.score}</b>/100</span>${c.adjusted_score != null ? `<span class="muted">· classement ajusté par tes retours : ${c.adjusted_score}</span>` : ""}<span class="muted">· confiance ${Math.round(c.confidence * 100)} %</span>
       <span class="muted">· ${esc(c.output_format)} · ${c.estimated_duration_s.toFixed(1)} s</span></div>
     <div class="score"><i style="width:${c.score}%"></i></div>
     <div class="row small">
@@ -204,9 +281,15 @@ function clipCard(c) {
     ${(c.warnings || []).map(w => `<div class="warn">⚠ ${esc(w)}</div>`).join("")}
     <div class="row">
       ${c.state === "READY_FOR_REVIEW" ? `${c.simulated ? '<span class="small" style="color:var(--demo)">Résultat simulé : validation impossible</span>' : `<button class="ok" data-act="approve" data-id="${esc(c.id)}">Accepter</button>`}
-        <button class="no" data-act="reject" data-id="${esc(c.id)}">Refuser</button>` : ""}
+        <button class="no" data-rejectopen="${esc(c.id)}">Refuser…</button>` : ""}
       ${["APPROVED", "REJECTED", "RENDERED"].includes(c.state) ? `<button class="ghost" data-act="reopen" data-id="${esc(c.id)}">Remettre en revue</button>` : ""}
       <span class="small muted">${esc(c.provider)} · ${esc(c.model)}</span>
+    </div>
+    <div class="reject-panel excerpt" data-rejectpanel="${esc(c.id)}" hidden style="display:grid;gap:6px">
+      <b class="small">Pourquoi refuses-tu ce passage ? (sert à mesurer et améliorer la sélection)</b>
+      ${Object.entries(REASONS).map(([k, v]) => `<label class="row small" style="color:var(--text)"><input type="checkbox" value="${esc(k)}" style="min-height:auto"> ${esc(v)}</label>`).join("")}
+      <input data-rejectnote placeholder="Précision (facultatif)" maxlength="500">
+      <div class="row"><button class="no" data-rejectgo="${esc(c.id)}">Confirmer le refus</button><button class="ghost" data-rejectopen="${esc(c.id)}">Annuler</button></div>
     </div>
   </article>`;
 }
@@ -258,9 +341,21 @@ document.addEventListener("click", async e => {
     else if (t.dataset.open) openVideo(t.dataset.open);
     else if (t.id === "closeDetail") { current = null; $("#videoDetail").hidden = true; }
     else if (t.dataset.analyze) { await api(`/v1/studio/videos/${t.dataset.analyze}/analyze`, {method: "POST"}); loadVideos(); }
+    else if (t.dataset.rejectopen) { const pnl = t.closest("[data-clip]").querySelector("[data-rejectpanel]"); pnl.hidden = !pnl.hidden; }
+    else if (t.dataset.rejectgo) {
+      const pnl = t.closest("[data-rejectpanel]");
+      const reasons = [...pnl.querySelectorAll("input[type=checkbox]:checked")].map(x => x.value);
+      await api(`/v1/clips/${t.dataset.rejectgo}/reject`, {method: "POST", body: JSON.stringify({reasons, note: pnl.querySelector("[data-rejectnote]").value})});
+      refresh(); if (current) openVideo(current, false);
+    }
+    else if (t.dataset.delsel) { await api(`/v1/studio/selections/${t.dataset.delsel}`, {method: "DELETE"}); loadSelections(current); }
+    else if (t.id === "evExport") {
+      const data = await api("/v1/evaluation/export");
+      const a = Object.assign(document.createElement("a"), {href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: "application/json"})), download: "snapclip-decisions.json"});
+      a.click(); URL.revokeObjectURL(a.href);
+    }
     else if (t.dataset.act) {
-      if (t.dataset.act === "reject" && !confirm("Refuser cette proposition ?")) return;
-      await api(`/v1/clips/${t.dataset.id}/${t.dataset.act}`, {method: "POST", body: "{}"}); refresh();
+      await api(`/v1/clips/${t.dataset.id}/${t.dataset.act}`, {method: "POST", body: "{}"}); refresh(); if (current && tab === "videos") openVideo(current, false);
     } else if (t.dataset.save) {
       const card = t.closest("[data-clip]");
       const start = parseT(card.querySelector('[data-f="start"]').value), end = parseT(card.querySelector('[data-f="end"]').value);
@@ -270,6 +365,15 @@ document.addEventListener("click", async e => {
   } catch (err) { if (err.message !== "session") alert(err.message); }
 });
 for (const id of ["#fCat", "#fState", "#fVideo"]) $(id).addEventListener("change", loadClips);
+$("#evSim").addEventListener("change", () => loadEval().catch(console.error));
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "selForm") return;
+  e.preventDefault();
+  const f = e.target, start = parseT(f.elements.start.value), end = parseT(f.elements.end.value);
+  if (!(end > start)) return alert("La fin doit être après le début.");
+  try { await api(`/v1/studio/videos/${f.dataset.video}/selections`, {method: "POST", body: JSON.stringify({start_s: start, end_s: end, category: f.elements.category.value, note: f.elements.note.value})});
+    f.reset(); loadSelections(f.dataset.video); } catch (err) { alert(err.message); }
+});
 $("#fScore").addEventListener("input", () => { $("#fScoreV").textContent = $("#fScore").value; });
 $("#fScore").addEventListener("change", loadClips);
 
@@ -277,11 +381,11 @@ let tab = "videos";
 function showTab(name) {
   tab = name;
   for (const b of document.querySelectorAll("nav button")) b.setAttribute("aria-selected", b.dataset.tab === name);
-  for (const s of ["videos", "clips", "settings"]) $("#tab-" + s).hidden = s !== name;
+  for (const s of ["videos", "clips", "eval", "settings"]) $("#tab-" + s).hidden = s !== name;
   refresh();
 }
 function refresh() {
-  const p = tab === "videos" ? loadVideos() : tab === "clips" ? loadClips() : loadSettings();
+  const p = tab === "videos" ? loadVideos() : tab === "clips" ? loadClips() : tab === "eval" ? loadEval() : loadSettings();
   p.catch(err => { if (err.message !== "session") console.error(err); });
 }
 
@@ -290,7 +394,7 @@ function connectWS() {
   let timer;
   ws.onopen = () => ws.send(JSON.stringify({token}));
   ws.onmessage = e => { const ev = JSON.parse(e.data);
-    if (ev.type === "activity" && /^(analysis|clip)\./.test(ev.action || "")) { clearTimeout(timer); timer = setTimeout(refresh, 500); } };
+    if (ev.type === "activity" && /^(analysis|clip|selection)\./.test(ev.action || "")) { clearTimeout(timer); timer = setTimeout(refresh, 500); } };
   ws.onclose = () => setTimeout(connectWS, 4000);
 }
 
@@ -298,7 +402,7 @@ if (!token) { $("#needLogin").hidden = false; }
 else {
   $("#fCat").innerHTML += Object.entries(CAT).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
   api("/v1/ai/config").then(c => { $("#demoBanner").hidden = c.provider !== "demo"; }).catch(() => {});
-  refresh(); connectWS();
+  api("/v1/evaluation/reasons").then(r => { REASONS = r; }).catch(() => {}).finally(() => { refresh(); connectWS(); });
 }
 </script>
 </body>

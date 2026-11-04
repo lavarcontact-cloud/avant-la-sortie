@@ -36,7 +36,11 @@ ALLOWED: dict[ClipState, set[ClipState]] = {
     C.RENDERED: {C.READY_FOR_REVIEW, C.REJECTED},
 }
 
-CATEGORIES = ("punchline", "anecdote", "humour", "reaction", "performance", "moment_fort")
+# Catégories éditoriales (phase 6.1), pensées pour les formats courts des réseaux sociaux.
+CATEGORIES = ("punchline", "moment_drole", "anecdote", "reaction", "debat", "moment_inattendu",
+              "coulisses", "performance", "moment_emotionnel", "phrase_polemique")
+# Anciennes catégories (phase 6) : encore acceptées en entrée et converties.
+LEGACY_CATEGORIES = {"humour": "moment_drole", "moment_fort": "moment_inattendu"}
 
 
 class ClipTransitionError(ValueError):

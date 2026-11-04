@@ -91,12 +91,22 @@ publication exigera une validation humaine (`assert_publishable`).
 Réglages de l'agent (`config.json` dans le dossier de l'agent) : `transcriber`, `whisper_model`
 (`small` par défaut ; `medium` ou `large-v3` si `scf-agent audit` recommande le local), `language`.
 
+## Phase 6.1 — mesurer la qualité
+
+Rapport et protocole du test sur 10 vidéos réelles : [`docs/PHASE6_1_QUALITE.md`](docs/PHASE6_1_QUALITE.md).
+
+```bash
+scf-agent bench --videos ~/Bench --model small --language fr   # transcription : temps, WER, incertitudes, timecodes
+```
+
+Studio → *Évaluation* : taux d'acceptation, motifs de refus, comparaison avec les passages que tu aurais choisis, temps et coûts.
+
 ## Tests
 
 ```bash
 pip install fastapi sqlalchemy pyjwt httpx pytest websockets
-cd cloud && pytest            # 62 tests : synchronisation, sécurité, fournisseurs IA, clips, validation
-cd ../desktop-agent && pytest # 20 tests : chaîne réelle + analyse sur vidéos synthétiques (ffmpeg + flite)
+cd cloud && pytest            # 71 tests : synchronisation, sécurité, fournisseurs IA, clips, validation
+cd ../desktop-agent && pytest # 27 tests : chaîne réelle + analyse sur vidéos synthétiques (ffmpeg + flite)
 ```
 
 ## Ce qui est vérifié, et ce qui ne l'est pas encore

@@ -16,7 +16,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 
-from ..clips import CATEGORIES
+from ..clips import CATEGORIES, LEGACY_CATEGORIES
 from .base import LLMRequest, TransientAIError
 from .config import AIConfig
 
@@ -39,11 +39,23 @@ Règles impératives :
 6. `quote` : recopie mot pour mot la phrase clé telle qu'elle figure dans la transcription.
 7. `confidence` (0-1) : ta certitude que le passage existe et se comprend comme tu le décris.
 8. Si rien ne mérite d'être extrait, renvoie {"clips": []}. Mieux vaut peu de propositions solides.
+9. `explanation` est OBLIGATOIRE : dis concrètement pourquoi ce passage mérite d'être extrait
+   (ce qui se passe, ce qui accroche, pourquoi il tient seul). Une proposition sans explication est rejetée.
+10. Le français parlé, l'argot et les expressions urbaines sont normaux : ne les « corrige » pas,
+    ne les juge pas, cite-les tels quels.
 
-Catégories autorisées (champ `category`) : punchline, anecdote, humour, reaction, performance, moment_fort.
-Précise dans `tags` : phrase_marquante, tension, surprise, emotion, musique, rire… si pertinent.
-Rattachements : phrase marquante -> punchline ; tension ou surprise -> reaction ou moment_fort ;
-moment émotionnel -> moment_fort ; musique, chant, danse -> performance.
+Catégories autorisées (champ `category`) :
+- punchline : phrase courte et forte, qui marque
+- moment_drole : rire, blague, situation comique
+- anecdote : petite histoire racontée avec un début et une chute
+- reaction : réaction vive à ce qui vient d'être dit ou fait
+- debat : échange d'avis opposés, argumentation
+- moment_inattendu : surprise, retournement, imprévu
+- coulisses : envers du décor, préparation, studio, ce qu'on ne voit pas d'habitude
+- performance : rap, chant, freestyle, musique, danse
+- moment_emotionnel : émotion sincère (fierté, tristesse, gratitude…)
+- phrase_polemique : propos clivant ou provocateur. Signale-le ; la personne décidera.
+Précise des nuances dans `tags` si utile (rire, tension, surprise, musique…).
 
 Réponds UNIQUEMENT par un objet JSON :
 {"clips": [{"start_s": 0.0, "end_s": 0.0, "category": "", "tags": [], "title": "", "explanation": "",
@@ -189,7 +201,8 @@ def validate(raw: list[dict], payload: dict, cfg: AIConfig) -> tuple[list[Valida
         except (TypeError, ValueError):
             rejected.append("timecodes absents ou non numériques")
             continue
-        cat = str(c.get("category", "")).strip().lower()
+        cat = str(c.get("category", "")).strip().lower().replace(" ", "_").replace("é", "e").replace("è", "e")
+        cat = LEGACY_CATEGORIES.get(cat, cat)
         if cat not in CATEGORIES:
             rejected.append(f"catégorie inconnue : {cat!r}")
             continue
@@ -199,7 +212,12 @@ def validate(raw: list[dict], payload: dict, cfg: AIConfig) -> tuple[list[Valida
         if ps >= duration or pe <= 0:
             rejected.append(f"hors de la vidéo ({ps}–{pe} s pour {duration} s)")
             continue
+        if not str(c.get("explanation") or "").strip():
+            rejected.append("pas d'explication fournie")
+            continue
         warnings = []
+        if cat == "phrase_polemique":
+            warnings.append("propos potentiellement polémique : vérifier le contexte et les personnes citées avant toute diffusion")
         s, e = max(0.0, ps), min(duration, pe)
         if (s, e) != (ps, pe):
             warnings.append("timecodes ramenés dans la durée de la vidéo")

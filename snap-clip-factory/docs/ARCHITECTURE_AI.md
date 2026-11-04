@@ -128,9 +128,9 @@ Fichier : `cloud/app/ai/moments.py`.
    - les motifs de rejet sont visibles dans le Studio.
 4. Une réponse illisible n'est **jamais** lue comme « 0 clip » : c'est une erreur passagère.
 
-Catégories : `punchline`, `anecdote`, `humour`, `reaction`, `performance`, `moment_fort`.
-Rattachements : phrase marquante → punchline ; tension ou surprise → reaction ou moment_fort ;
-émotion → moment_fort ; musique, chant, danse → performance. Les nuances vont dans `tags`.
+Catégories (révisées en phase 6.1) : `punchline`, `moment_drole`, `anecdote`, `reaction`, `debat`,
+`moment_inattendu`, `coulisses`, `performance`, `moment_emotionnel`, `phrase_polemique`. Les anciennes
+(`humour`, `moment_fort`) sont converties. Explication obligatoire. Voir `PHASE6_1_QUALITE.md`.
 
 **Limite assumée** : sans image, la `scene_description` ne décrit que ce que le son et le texte
 permettent d'affirmer. Une analyse visuelle (images clés envoyées à un modèle de vision) demanderait

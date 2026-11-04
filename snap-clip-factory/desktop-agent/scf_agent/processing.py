@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import time
 from pathlib import Path
 
 from . import signals
@@ -71,35 +72,56 @@ def extract_audio(video: Path, out: Path) -> Path:
 
 def analyze(video: Path, info: dict, cache: Path, options: dict, transcriber: Transcriber | None = None) -> dict:
     duration = info["duration_s"]
+    timings: dict[str, float] = {}
+    t0 = time.perf_counter()
     scenes = signals.detect_scenes(video, options.get("scene_threshold", 10.0))
+    timings["scenes"] = time.perf_counter() - t0
     silences, rms = [], []
     if not info["has_audio"]:
         transcript = Transcript(status="no_audio", engine="none", note="vidéo sans piste audio")
     else:
+        t0 = time.perf_counter()
         audio = extract_audio(video, cache / "audio.wav")
+        timings["audio_extract"] = time.perf_counter() - t0
         try:
-            silences = signals.detect_silences(audio, duration=duration)
+            t0 = time.perf_counter()
             rms = signals.loudness_per_second(audio)
+            noise_floor = signals.adaptive_noise_floor(rms)
+            silences = signals.detect_silences(audio, noise_db=noise_floor, duration=duration)
+            timings["audio_signals"] = time.perf_counter() - t0
             silent = sum(x["end"] - x["start"] for x in silences)
             if duration and silent / duration >= 0.98:
                 transcript = Transcript(status="no_speech", engine="none", note="audio silencieux")
             else:
-                engine = transcriber if transcriber is not None else make_transcriber(options)
+                engine, load_error = transcriber, None
                 if engine is None:
+                    try:
+                        engine = make_transcriber(options)
+                    except Exception as e:   # modèle non téléchargeable (hors ligne), GPU absent…
+                        load_error = f"moteur de transcription indisponible : {type(e).__name__} {e}"[:300]
+                if load_error:
+                    transcript = Transcript(status="error", engine=options.get("transcriber", "auto"), note=load_error)
+                elif engine is None:
                     transcript = Transcript(status="unavailable", engine="none",
                                             note="aucun moteur de transcription installé (faster-whisper)")
                 else:
                     lang = None if options.get("language", "auto") == "auto" else options["language"]
                     try:
+                        t0 = time.perf_counter()
                         transcript = engine.transcribe(audio, lang)
+                        timings["transcription"] = time.perf_counter() - t0
                     except Exception as e:  # le reste de l'analyse reste utile
                         transcript = Transcript(status="error", engine=getattr(engine, "name", "?"), note=str(e)[:300])
         finally:
             audio.unlink(missing_ok=True)   # l'audio extrait ne sert qu'au calcul local
 
     (cache / "transcript.json").write_text(json.dumps(transcript.to_dict(), ensure_ascii=False, indent=1))
-    sig = {"scenes": scenes, "silences": silences, "loudness_per_second": rms,
-           "summary": signals.summarize(scenes, silences, rms, duration)}
+    summary = signals.summarize(scenes, silences, rms, duration)
+    summary["silence_threshold_db"] = locals().get("noise_floor")
+    summary["timings_s"] = {k: round(v, 3) for k, v in timings.items()}
+    summary["timings_s"]["total"] = round(sum(timings.values()), 3)
+    summary["engine"] = transcript.engine
+    sig = {"scenes": scenes, "silences": silences, "loudness_per_second": rms, "summary": summary}
     (cache / "signals.json").write_text(json.dumps(sig, ensure_ascii=False))
 
     return {

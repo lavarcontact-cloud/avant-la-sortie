@@ -82,6 +82,19 @@ def loudness_per_second(audio: Path) -> list[float]:
     return vals
 
 
+def adaptive_noise_floor(rms: list[float], default: float = -35.0) -> float:
+    """Seuil de silence relatif au niveau de la vidéo (phase 6.1).
+
+    Mesuré : avec un seuil fixe de -35 dB, une voix enregistrée faiblement était
+    en partie classée « silence ». On prend le 75e centile du niveau des secondes
+    non muettes, moins 22 dB, borné entre -60 et -30 dB."""
+    voiced = sorted(v for v in rms if v > -85)
+    if len(voiced) < 3:
+        return default
+    ref = voiced[int(0.75 * (len(voiced) - 1))]
+    return round(max(-60.0, min(-30.0, ref - 22.0)), 1)
+
+
 def summarize(scenes: list[dict], silences: list[dict], rms: list[float], duration: float) -> dict:
     silent = sum(s["end"] - s["start"] for s in silences)
     loud = [i for i, v in enumerate(rms) if v > -91]
@@ -93,6 +106,6 @@ def summarize(scenes: list[dict], silences: list[dict], rms: list[float], durati
     return {
         "duration_s": round(duration, 2),
         "scene_changes": len(scenes),
-        "silence_ratio": round(silent / duration, 3) if duration else 0,
+        "silence_ratio": min(1.0, round(silent / duration, 3)) if duration else 0,
         "loudness_peaks_s": peaks[:50],
     }

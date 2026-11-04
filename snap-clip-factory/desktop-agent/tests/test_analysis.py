@@ -262,3 +262,28 @@ def test_dashboard_retry_reprocessed_without_restart(world, dialogue, monkeypatc
     world.http.post(f"/v1/videos/{vid}/retry", headers=world.user)
     agent.tick()                                                  # même processus, sans redémarrage
     assert world.http.get(f"/v1/videos/{vid}", headers=world.user).json()["state"] == "COMPLETED"
+
+
+def test_model_load_failure_does_not_fail_the_video(dialogue, tmp_path, monkeypatch):
+    """Constaté en phase 6.1 : faster-whisper installé mais modèle non téléchargeable
+    (hors ligne) faisait échouer toute la vidéo. L'analyse doit continuer sans transcription."""
+    def boom(opts):
+        raise OSError("ProxyError 403 Forbidden")
+    monkeypatch.setattr(processing, "make_transcriber", boom)
+    p = processing.run_pipeline(dialogue.path, tmp_path, sha256="offline", options=OPTS)["analysis_input"]
+    assert p["transcript"]["status"] == "error" and "403" in p["transcript"]["note"]
+    assert p["scenes"] and p["silences"]
+
+
+def test_faint_voice_not_taken_for_silence(tmp_path):
+    """Mesuré en phase 6.1 : à -24 dB, le seuil fixe classait des phrases en silence."""
+    m = media.build(tmp_path / "n.mp4")
+    faint = tmp_path / "faible.mp4"
+    subprocess.run([media.FFMPEG, "-v", "error", "-y", "-i", str(m.path), "-c:v", "copy", "-af", "volume=0.06",
+                    "-c:a", "aac", str(faint)], check=True)
+    p = processing.run_pipeline(faint, tmp_path, sha256="faible", options=OPTS,
+                                transcriber=ScriptedTranscriber(m))["analysis_input"]
+    expected = sum(s.duration for s in m.segments if s.kind == "silence") / m.duration
+    assert p["summary"]["silence_ratio"] == pytest.approx(expected, abs=0.05)
+    assert p["summary"]["silence_threshold_db"] < -35
+    assert len(p["silences"]) == 2

@@ -95,5 +95,22 @@ def test_no_transcript_uses_signals_only():
     p = payload(segments=[], status="unavailable")
     req = build_request(build_windows([], 22.6, 24_000)[0], p, CFG, 1)
     assert "aucune parole transcrite" in req.user
-    k = validate([{**GOOD_CLIP, "quote": "", "category": "moment_fort"}], p, CFG)[0][0]
+    k = validate([{**GOOD_CLIP, "quote": "", "category": "moment_inattendu"}], p, CFG)[0][0]
     assert any("aucune transcription" in w for w in k.warnings)
+
+
+def test_new_categories_legacy_mapping_and_required_explanation():
+    cats = ["punchline", "moment_drole", "anecdote", "reaction", "debat", "moment_inattendu", "coulisses",
+            "performance", "moment_emotionnel", "phrase_polemique"]
+    for i, cat in enumerate(cats):
+        kept, rej = validate([{**GOOD_CLIP, "category": cat}], payload(), CFG)
+        assert kept and kept[0].category == cat, (cat, rej)
+    # anciennes catégories et variantes d'écriture converties
+    assert validate([{**GOOD_CLIP, "category": "humour"}], payload(), CFG)[0][0].category == "moment_drole"
+    assert validate([{**GOOD_CLIP, "category": "Moment émotionnel"}], payload(), CFG)[0][0].category == "moment_emotionnel"
+    # pas d'explication -> rejet motivé
+    kept, rej = validate([{**GOOD_CLIP, "explanation": "  "}], payload(), CFG)
+    assert kept == [] and "explication" in rej[0]
+    # polémique -> avertissement systématique
+    k = validate([{**GOOD_CLIP, "category": "phrase_polemique"}], payload(), CFG)[0][0]
+    assert any("polémique" in w for w in k.warnings)

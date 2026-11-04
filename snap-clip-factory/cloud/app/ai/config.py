@@ -34,6 +34,11 @@ class AIConfig(BaseModel):
     language: str = Field(default="auto", pattern=r"^(auto|[a-z]{2}(-[A-Z]{2})?)$")
     level: Level = "standard"
     auto_analyze: bool = True
+    # Phase 6.1 — retours humains. DÉSACTIVÉS par défaut : rien ne change sans ton accord.
+    # Guidage : ajoute à la consigne un résumé chiffré de tes décisions (aucune transcription).
+    use_feedback_guidance: bool = False
+    # Classement ajusté : réordonne le Studio selon ton taux d'acceptation par catégorie (±10 points).
+    rank_with_feedback: bool = False
     # Limites
     max_cost_per_video_usd: float | None = Field(default=0.50, ge=0)
     daily_budget_usd: float | None = Field(default=5.0, ge=0)

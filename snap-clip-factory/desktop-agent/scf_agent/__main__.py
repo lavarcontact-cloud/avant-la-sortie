@@ -40,6 +40,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--library", help="dossier de stockage local des vidéos")
     sub.add_parser("run", help="lancer l'agent (boucle de synchronisation)")
     sub.add_parser("status", help="état de la file locale")
+    bp = sub.add_parser("bench", help="PHASE 6.1 : banc d'essai transcription sur un dossier de vidéos")
+    bp.add_argument("--videos", required=True, help="dossier de vidéos (+ <nom>.srt ou <nom>.txt de référence)")
+    bp.add_argument("--out", help="dossier du rapport (défaut : <videos>/rapport)")
+    bp.add_argument("--model", default=None, help="tiny | base | small | medium | large-v3")
+    bp.add_argument("--language", default=None, help="auto ou code (fr, en…)")
+    bp.add_argument("--device", default=None, help="auto | cpu | cuda")
     a = sub.add_parser("autostart", help="démarrage automatique à l'ouverture de session")
     a.add_argument("action", choices=["enable", "disable"])
     args = ap.parse_args(argv)
@@ -60,6 +66,15 @@ def main(argv: list[str] | None = None) -> int:
         cfg.device_id = CloudClient(cfg.server, SecretStore()).pair(args.code, args.name, platform_label())
         cfg.save()
         print(f"Appairé (appareil {cfg.device_id}). Bibliothèque : {cfg.library_dir}")
+        return 0
+    if args.cmd == "bench":
+        from .bench import run as bench_run
+
+        opts = cfg.analysis_options()
+        opts.update({k: v for k, v in {"whisper_model": args.model, "language": args.language,
+                                       "whisper_device": args.device}.items() if v})
+        videos = Path(args.videos).expanduser()
+        bench_run(videos, Path(args.out).expanduser() if args.out else videos / "rapport", opts)
         return 0
     if args.cmd == "autostart":
         (install_autostart if args.action == "enable" else uninstall_autostart)()
