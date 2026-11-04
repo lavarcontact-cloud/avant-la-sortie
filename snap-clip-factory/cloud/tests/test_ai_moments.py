@@ -114,3 +114,12 @@ def test_new_categories_legacy_mapping_and_required_explanation():
     # polémique -> avertissement systématique
     k = validate([{**GOOD_CLIP, "category": "phrase_polemique"}], payload(), CFG)[0][0]
     assert any("polémique" in w for w in k.warnings)
+
+
+def test_orientation_uses_rotation_like_iphone_files():
+    """Fichier iPhone réel : stocké 1920x1080, rotation -90 -> vertical à l'affichage."""
+    p = payload(width=1920, height=1080, rotation=-90)
+    req = build_request(build_windows(p["transcript"]["segments"], 22.6, 24_000)[0], p, CFG, 1)
+    assert "verticale" in req.user
+    p2 = payload(width=1920, height=1080, rotation=0)
+    assert "horizontale" in build_request(build_windows(p2["transcript"]["segments"], 22.6, 24_000)[0], p2, CFG, 1).user

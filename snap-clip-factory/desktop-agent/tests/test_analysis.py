@@ -287,3 +287,30 @@ def test_faint_voice_not_taken_for_silence(tmp_path):
     assert p["summary"]["silence_ratio"] == pytest.approx(expected, abs=0.05)
     assert p["summary"]["silence_threshold_db"] < -35
     assert len(p["silences"]) == 2
+
+
+def _moving_shot(out, src, seconds, flash=False, extra=""):
+    """Plan « tenu à la main » : balayage horizontal rapide (+ éclat de lumière facultatif)."""
+    vf = "scale=1600:-2,crop=320:568:x='min(1280,t*400)':y=0" + extra
+    if flash:
+        vf += ",eq=brightness='if(between(t,1.4,1.8),0.35,0)':eval=frame"
+    subprocess.run([media.FFMPEG, "-v", "error", "-y", "-f", "lavfi", "-i", f"{src}:size=1280x720:rate=25",
+                    "-t", str(seconds),
+                    "-vf", vf, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "ultrafast", str(out)], check=True)
+
+
+def test_handheld_motion_is_not_a_cut_but_hard_cut_is(tmp_path):
+    """Phase 6.1 : sur de vraies vidéos d'iPhone tournées à la main, les balayages et éclats
+    de lumière étaient pris pour des coupes. Reproduction synthétique du défaut."""
+    a, b = tmp_path / "a.mp4", tmp_path / "b.mp4"
+    # dégradés qui évoluent lentement : plus proche d'une scène réelle qu'une mire à bandes
+    _moving_shot(a, "gradients=speed=0.02:seed=7", 3, flash=True)
+    _moving_shot(b, "gradients=speed=0.02:seed=7", 3, extra=",negate,hue=h=120")   # autre plan, autres couleurs
+    assert signals.detect_scenes(a) == []                        # plan continu : aucune coupe
+    lst = tmp_path / "l.txt"
+    lst.write_text(f"file '{a.name}'\nfile '{b.name}'\n")
+    both = tmp_path / "both.mp4"
+    subprocess.run([media.FFMPEG, "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy",
+                    str(both)], check=True)
+    cuts = [c["t"] for c in signals.detect_scenes(both)]
+    assert len(cuts) == 1 and abs(cuts[0] - 3.0) <= 0.4, cuts   # la vraie coupe, et elle seule

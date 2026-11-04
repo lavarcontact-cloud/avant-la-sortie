@@ -47,11 +47,55 @@ Constats mesurés :
   vidéo**. **Corrigé** : la transcription passe en `error` avec le motif, le reste de l'analyse continue.
 
 Tests automatisés exécutés (aucune clé API, aucun réseau) :
-- Cloud : **71 réussis** (62 de la phase 6, dont un adapté aux nouvelles catégories, et 9 nouveaux : 8 pour l'évaluation, 1 pour les catégories).
-- Agent : **27 réussis** (20 de la phase 6, et 7 nouveaux : modèle introuvable hors ligne, voix faible, 4 sur les mesures de qualité de transcription, 1 banc complet).
+- Cloud : **72 réussis** (62 de la phase 6, dont un adapté aux nouvelles catégories, et 10 nouveaux : 8 pour l'évaluation, 1 pour les catégories, 1 pour l'orientation).
+- Agent : **31 réussis** (20 de la phase 6, et 11 nouveaux : modèle introuvable hors ligne, voix faible, 4 sur les mesures de qualité de transcription, 1 banc complet, 3 pour l'import PC, 1 pour les mouvements de caméra).
 - Studio vérifié dans un navigateur (ordinateur et iPhone 13 émulé) : sélection manuelle, refus avec
   motifs, onglet Évaluation, exclusion des clips simulés, options de retour désactivées par défaut,
   aucune erreur JavaScript, aucun débordement horizontal.
+
+## 1 bis. Premiers résultats sur 9 VRAIES vidéos (2026-11-04)
+
+Neuf vidéos envoyées par l'utilisateur : 2 tournées à l'iPhone 15 (HEVC 10 bits HDR, stockées
+1920×1080 avec rotation −90°, donc verticales), 7 exports H.264 verticaux (1080×1920 ou 720×1280),
+de 8 à 39 s, 208 s au total. Plans continus filmés à la main, en extérieur ou dans la foule. Les
+fichiers ne sont pas dans le dépôt et n'ont été envoyés à aucun service.
+
+**Transcription : non réalisée.** Le téléchargement du modèle Whisper reste refusé par la politique
+réseau de l'environnement de développement (hôte `huggingface.co`).
+
+Mesures réelles (conteneur 4 cœurs, sans GPU, transcription exclue) :
+
+| Mesure | Résultat |
+|---|---|
+| Traitement local total | 28,0 s pour 208 s de vidéo |
+| Facteur temps réel, H.264 | 0,085 à 0,14 |
+| Facteur temps réel, HEVC HDR iPhone | 0,23 à 0,34 : le décodage HEVC 10 bits coûte 2 à 3 fois plus |
+| Premier fichier d'un lot | ~9 s de plus, une seule fois (démarrage à froid avec tentative de chargement du modèle) ; disparu au 2e passage |
+| Silences détectés | 0 % sur les 9 vidéos : bruit d'ambiance continu (foule, rue) |
+| Volume médian | −18 à −22 dB, sauf une vidéo à −32 dB |
+| Rotation iPhone | lue correctement (−90°) |
+
+**Défaut majeur trouvé : fausses coupes.** Sur ces plans continus, le détecteur de la phase 6 signalait
+**37 « changements de plan »**. L'examen des images juste avant et juste après chacun n'en montre aucun
+vrai : il s'agit de mouvements de caméra, de rapprochements et d'éclats de lumière. Cause : le détecteur
+n'avait été réglé que sur des plans fixes synthétiques. Ces faux indices auraient été transmis à l'IA.
+
+Correction : une coupe n'est retenue que si l'image est stable environ 1 s avant et 1 s après, avec un
+écart net entre les deux. Réglage choisi sur ces vidéos et sur un montage de 8 extraits de ces mêmes
+vidéos, avec 7 vraies coupes franches à des instants connus :
+
+| Détecteur | Fausses coupes sur les 9 plans continus | Vraies coupes trouvées (montage) | Fausses coupes (montage) |
+|---|---|---|---|
+| phase 6 | 35 à 37 | 7/7 | 8 |
+| phase 6.1 (retenu) | **9** | **6/7** | **0** |
+
+Échantillon réduit : 9 vidéos et 7 coupes. Le signal reste indicatif, et la consigne prévient désormais
+l'IA que des mouvements brusques de caméra peuvent y figurer. Test de non-régression ajouté (plan en
+mouvement avec éclat de lumière : l'ancien détecteur y voyait 2 coupes, le nouveau aucune).
+
+**Deuxième défaut trouvé : orientation.** La consigne envoyée à l'IA calculait l'orientation sans la
+rotation : les vidéos verticales de l'iPhone y auraient été décrites comme « horizontales ».
+Corrigé et testé. Le format du clip (9:16) était déjà juste.
 
 ## 2. Résultats simulés (ne mesurent pas la qualité)
 

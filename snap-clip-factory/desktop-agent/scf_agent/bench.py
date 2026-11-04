@@ -41,7 +41,9 @@ def run(videos: Path, out: Path, options: dict, transcriber=None) -> dict:
         tr = json.loads((cache / "transcript.json").read_text()) if (cache / "transcript.json").exists() else {}
         words = [w for s in tr.get("segments", []) for w in (s.get("words") or [])]
         row = {
-            "file": f.name, "duration_s": info["duration_s"], "resolution": f"{info.get('width')}x{info.get('height')}",
+            "file": f.name, "duration_s": info["duration_s"],
+            "resolution": f"{info.get('width')}x{info.get('height')}"
+                          + (f" rot.{info.get('rotation')}" if info.get("rotation") else ""),
             "codec": info.get("video_codec"), "has_audio": info["has_audio"], "error": error,
             "timings_s": {"probe": round(t_probe, 3), **((payload or {}).get("summary", {}).get("timings_s", {})),
                           "wall_total": round(total, 3)},

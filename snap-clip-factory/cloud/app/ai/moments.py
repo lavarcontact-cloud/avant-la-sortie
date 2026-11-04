@@ -111,7 +111,7 @@ def build_request(win: Window, payload: dict, cfg: AIConfig, total_windows: int)
     peaks = [t for t in payload.get("summary", {}).get("loudness_peaks_s", []) if in_win(t)]
     lines = [f"[{_fmt(s['start'])}–{_fmt(s['end'])}]"
              f"{' (' + s['speaker'] + ')' if s.get('speaker') else ''} {s['text']}" for s in win.segments]
-    orientation = "verticale" if (payload.get("height") or 0) > (payload.get("width") or 0) else "horizontale"
+    orientation = "verticale" if is_vertical(payload) else "horizontale"
     user = "\n".join([
         f"Vidéo : {payload.get('duration_s', 0):.1f} s, {orientation}. Langue détectée : {tr.get('language') or 'inconnue'}.",
         f"État de la transcription : {tr.get('status')} {('— ' + tr['note']) if tr.get('note') else ''}",
@@ -122,7 +122,8 @@ def build_request(win: Window, payload: dict, cfg: AIConfig, total_windows: int)
         "TRANSCRIPTION :",
         *(lines or ["(aucune parole transcrite dans cette fenêtre)"]),
         "",
-        f"CHANGEMENTS DE PLAN (s) : {scenes or 'aucun'}",
+        f"CHANGEMENTS DE PLAN PROBABLES (s, détection automatique imparfaite : un mouvement brusque de caméra "
+        f"peut y figurer) : {scenes or 'aucun'}",
         f"SILENCES : {[(round(s['start'], 1), round(s['end'], 1)) for s in silences] or 'aucun'}",
         f"PICS DE VOLUME (s) : {peaks or 'aucun'}",
         f"VOLUME RMS PAR SECONDE (dBFS, -91 = silence) : {rms[int(win.start):int(win.end) + 1] or 'indisponible'}",
@@ -130,6 +131,15 @@ def build_request(win: Window, payload: dict, cfg: AIConfig, total_windows: int)
     return LLMRequest(system=SYSTEM_PROMPT, user=user, max_output_tokens=params["max_output_tokens"],
                       context={"segments": win.segments, "loudness_peaks_s": peaks,
                                "clips_per_window": params["clips_per_window"], "window": [win.start, win.end]})
+
+
+def is_vertical(payload: dict) -> bool:
+    """Orientation À L'AFFICHAGE. Les iPhone stockent souvent une vidéo verticale en
+    1920×1080 avec une rotation de ±90° (constaté sur de vraies vidéos en phase 6.1)."""
+    w, h = payload.get("width") or 0, payload.get("height") or 0
+    if abs(int(payload.get("rotation") or 0)) % 180 == 90:
+        w, h = h, w
+    return h > w
 
 
 _FENCE = re.compile(r"```(?:json)?\s*(.*?)```", re.S)

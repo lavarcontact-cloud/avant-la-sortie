@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 
 from .ai.base import PermanentAIError, TransientAIError
 from .ai.config import AIConfig, estimate_cost, estimate_tokens
-from .ai.moments import ValidatedClip, build_request, build_windows, dedupe, parse_response, validate
+from .ai.moments import ValidatedClip, build_request, build_windows, dedupe, is_vertical, parse_response, validate
 from .ai.providers import make_provider
 from .clips import ClipState, transition
 from .deps import AppContext, log_activity
@@ -177,9 +177,7 @@ def _store_clips(db: Session, job: AnalysisJob, video: Video, kept: list[Validat
                                              Clip.job_id != job.id)).all():
         if len(old.history or []) <= 3:
             db.delete(old)
-    vertical = (payload.get("height") or 0) >= (payload.get("width") or 0)
-    if abs(int(payload.get("rotation") or 0)) % 180 == 90:
-        vertical = not vertical
+    vertical = is_vertical(payload)
     by = f"ai:{job.provider}"
     for k in kept:
         clip = Clip(user_id=job.user_id, video_id=video.id, job_id=job.id, provider=job.provider, model=job.model,
