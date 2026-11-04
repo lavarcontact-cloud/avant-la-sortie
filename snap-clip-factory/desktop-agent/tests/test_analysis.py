@@ -355,3 +355,16 @@ def test_render_keeps_whisper_spacing():
     toks = [(" T", 0.9), ("'es", 0.9), (" mal,", 0.4), (" c", 0.9), ("'est", 0.9), (" bon", 0.9)]
     seg = TranscriptSegment(0, 2, "", words=mark_uncertain([Word(0, 0, t, p) for t, p in toks], 0.5))
     assert render_text(seg) == "T'es [mal,?] c'est bon"
+
+
+def test_vocabulary_echo_is_dropped():
+    """Constaté : avec le vocabulaire, Whisper « entendait » la liste sur des vidéos sans parole."""
+    from scf_agent.transcription import clean_transcript, is_vocabulary_echo
+    vocab = ["Lahyster", "B.019", "Dooky"]
+    assert is_vocabulary_echo(" B.019, B.019, Dooky", vocab)
+    assert not is_vocabulary_echo("merci Dooky, c'est lui le prochain", vocab)
+    assert not is_vocabulary_echo("B.019 Dooky", [])
+    echo = TranscriptSegment(7.0, 9.0, " B.019, B.019, Dooky")
+    real = TranscriptSegment(0.0, 3.0, " Lahyster, il est de retour les gars")
+    kept, notes = clean_transcript([real, echo], vocabulary=vocab)
+    assert kept == [real] and "vocabulaire" in notes[0]

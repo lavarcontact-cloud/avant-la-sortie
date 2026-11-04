@@ -100,14 +100,37 @@ def is_hallucination(text: str) -> bool:
     return any(p.search(t) for p in _HALLU)
 
 
+def _norm_tokens(text: str) -> list[str]:
+    import re
+    import unicodedata
+
+    t = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
+    return [w for w in re.split(r"[^a-z0-9]+", t) if w]
+
+
+def is_vocabulary_echo(text: str, vocabulary: list[str]) -> bool:
+    """Segment qui ne contient QUE des mots du vocabulaire fourni : Whisper répète la liste.
+    Constaté en phase 6.1 sur 2 vidéos sans parole : « B.019, B.019, Dooky »."""
+    if not vocabulary:
+        return False
+    vocab = {w for v in vocabulary for w in _norm_tokens(v)}
+    words = _norm_tokens(text)
+    return bool(words) and all(w in vocab for w in words)
+
+
 def clean_transcript(segments: list[TranscriptSegment], no_speech_threshold: float = 0.6,
-                     low_confidence: float = 0.35) -> tuple[list[TranscriptSegment], list[str]]:
+                     low_confidence: float = 0.35, vocabulary: list[str] | None = None
+                     ) -> tuple[list[TranscriptSegment], list[str]]:
     """Écarte les hallucinations connues et rend incertains les segments douteux.
     Rien n'est réécrit : un segment est gardé tel quel, marqué, ou écarté avec un motif."""
     kept, notes = [], []
     for seg in segments:
         if is_hallucination(seg.text):
             notes.append(f"{seg.start:.1f}-{seg.end:.1f} s écarté (phrase typique d'hallucination de Whisper) : "
+                         f"« {seg.text.strip()[:80]} »")
+            continue
+        if is_vocabulary_echo(seg.text, vocabulary or []):
+            notes.append(f"{seg.start:.1f}-{seg.end:.1f} s écarté (répète seulement le vocabulaire fourni) : "
                          f"« {seg.text.strip()[:80]} »")
             continue
         doubtful = (seg.no_speech_probability or 0) >= no_speech_threshold or \
@@ -161,7 +184,7 @@ class FasterWhisperTranscriber:
                 confidence=round(math.exp(float(s.avg_logprob)), 3) if s.avg_logprob is not None else None,
                 no_speech_probability=round(float(s.no_speech_prob), 3), words=words,
             ))
-        out, notes = clean_transcript(out)
+        out, notes = clean_transcript(out, vocabulary=self.vocabulary)
         status = "ok" if any(seg.text for seg in out) else "no_speech"
         return Transcript(status=status, engine=f"faster-whisper:{self.model_name}", language=str(info.language),
                           language_probability=round(float(info.language_probability), 3), segments=out,
