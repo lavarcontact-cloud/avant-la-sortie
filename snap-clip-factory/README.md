@@ -111,7 +111,7 @@ Studio → *Évaluation* : taux d'acceptation, motifs de refus, comparaison avec
 ```bash
 pip install fastapi sqlalchemy pyjwt httpx pytest websockets
 cd cloud && pytest            # 72 tests : synchronisation, sécurité, fournisseurs IA, clips, validation
-cd ../desktop-agent && pytest # 31 tests : chaîne réelle + analyse sur vidéos synthétiques (ffmpeg + flite)
+cd ../desktop-agent && pytest # 34 tests : chaîne réelle + analyse sur vidéos synthétiques (ffmpeg + flite)
 ```
 
 ## Ce qui est vérifié, et ce qui ne l'est pas encore

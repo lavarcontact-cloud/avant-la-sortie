@@ -332,3 +332,26 @@ def test_wav_loader_bypasses_pyav(tmp_path, dialogue):
     subprocess.run([media.FFMPEG, "-v", "error", "-y", "-i", str(dialogue.path), "-ac", "2", "-ar", "44100", str(bad)], check=True)
     with pytest.raises(ValueError, match="attendu 16 kHz"):
         load_wav_16k(bad)
+
+
+def test_whisper_hallucinations_removed_and_reported():
+    """Constaté sur 4 vraies vidéos sur 9 : phrase inventée par Whisper sur la musique ou le bruit."""
+    from scf_agent.transcription import clean_transcript, is_hallucination
+    real = [" Sous", "-titres", " réalisés", " par", " la", " communauté", " d", "'Amara", ".org"]
+    seg = TranscriptSegment(10.3, 13.8, "".join(real), words=[Word(0, 0, t, 0.9) for t in real])
+    assert is_hallucination(seg.text) and is_hallucination("Merci d'avoir regardé cette vidéo !")
+    assert not is_hallucination("merci merci Duki, c'est lui le prochain")
+    keep = TranscriptSegment(0, 3, "c'est lui le prochain", confidence=0.7, words=[Word(0, 1, " c'est", 0.9)])
+    doubt = TranscriptSegment(3, 5, "peut-être", confidence=0.3, words=[Word(3, 4, " peut-être", 0.9)])
+    borderline = TranscriptSegment(5, 6, "ouais", confidence=0.45, words=[Word(5, 6, " ouais", 0.9)])
+    clean_transcript([borderline])
+    assert not borderline.words[0].uncertain          # 0,45 : pas assez bas pour tout marquer
+    kept, notes = clean_transcript([keep, seg, doubt])
+    assert kept == [keep, doubt] and len(notes) == 1 and "Amara" in notes[0]
+    assert doubt.words[0].uncertain and not keep.words[0].uncertain        # segment douteux : tout incertain
+
+
+def test_render_keeps_whisper_spacing():
+    toks = [(" T", 0.9), ("'es", 0.9), (" mal,", 0.4), (" c", 0.9), ("'est", 0.9), (" bon", 0.9)]
+    seg = TranscriptSegment(0, 2, "", words=mark_uncertain([Word(0, 0, t, p) for t, p in toks], 0.5))
+    assert render_text(seg) == "T'es [mal,?] c'est bon"

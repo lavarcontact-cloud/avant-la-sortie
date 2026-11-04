@@ -48,7 +48,7 @@ Constats mesurés :
 
 Tests automatisés exécutés (aucune clé API, aucun réseau) :
 - Cloud : **72 réussis** (62 de la phase 6, dont un adapté aux nouvelles catégories, et 10 nouveaux : 8 pour l'évaluation, 1 pour les catégories, 1 pour l'orientation).
-- Agent : **31 réussis** (20 de la phase 6, et 11 nouveaux : modèle introuvable hors ligne, voix faible, 4 sur les mesures de qualité de transcription, 1 banc complet, 3 pour l'import PC, 1 pour les mouvements de caméra).
+- Agent : **34 réussis** (au 2026-11-04, après la transcription réelle) ; précédemment **31 réussis** (20 de la phase 6, et 11 nouveaux : modèle introuvable hors ligne, voix faible, 4 sur les mesures de qualité de transcription, 1 banc complet, 3 pour l'import PC, 1 pour les mouvements de caméra).
 - Studio vérifié dans un navigateur (ordinateur et iPhone 13 émulé) : sélection manuelle, refus avec
   motifs, onglet Évaluation, exclusion des clips simulés, options de retour désactivées par défaut,
   aucune erreur JavaScript, aucun débordement horizontal.
@@ -96,6 +96,46 @@ mouvement avec éclat de lumière : l'ancien détecteur y voyait 2 coupes, le no
 **Deuxième défaut trouvé : orientation.** La consigne envoyée à l'IA calculait l'orientation sans la
 rotation : les vidéos verticales de l'iPhone y auraient été décrites comme « horizontales ».
 Corrigé et testé. Le format du clip (9:16) était déjà juste.
+
+## 1 ter. Première transcription française RÉELLE (2026-11-04)
+
+Accès à `huggingface.co` ouvert par l'utilisateur ; modèle `small`, langue imposée `fr`, processeur
+4 cœurs sans GPU, mode de calcul par défaut. Mêmes 9 vidéos.
+
+**Trois défauts bloquants trouvés et corrigés en lançant la première vraie transcription** :
+
+| Défaut | Effet | Correction |
+|---|---|---|
+| faster-whisper 1.2.1 appelle PyAV avec un argument (`metadata_errors`) refusé par PyAV 19 | **toutes** les transcriptions échouaient (« unexpected keyword argument ») ; arriverait aussi sur une installation neuve du PC | l'agent fournit lui-même les échantillons du WAV 16 kHz qu'il extrait déjà : PyAV n'est plus utilisé pour décoder |
+| probabilités renvoyées au format numpy | l'écriture de `transcript.json` échouait : **toutes** les transcriptions étaient perdues | conversion en types Python standard |
+| **hallucination de Whisper** : « Sous-titres réalisés par la communauté d'Amara.org » | phrase **inventée** sur **4 vidéos sur 9** (musique, ambiance), seul le 1er mot marqué incertain : elle aurait été présentée à l'IA comme presque sûre | liste de phrases d'hallucination connues : segment écarté, motif conservé dans la note ; segment de confiance < 35 % ou probablement sans parole : tous ses mots marqués incertains |
+
+Plus un défaut d'affichage corrigé : les apostrophes étaient séparées (« c 'est », « T 'es »).
+
+Mesures (banc relancé seul, après corrections) :
+
+| Mesure | Résultat |
+|---|---|
+| Statut | 9/9 `ok` ; 3 vidéos sans aucune parole retenue (01, 08, 09 : seule l'hallucination y avait été « entendue ») |
+| Temps total | **208 s de vidéo → 83 s** (0,40 × temps réel), dont Whisper 52 s |
+| Par vidéo | 0,23 à 0,69 × temps réel ; HEVC iPhone plus lent (décodage) |
+| Mots transcrits | 231 sur 6 vidéos parlées |
+| Mots marqués incertains | 7 % à 31 % selon la vidéo |
+| Calcul `int8` (essai sur la vidéo 02) | 25 % plus rapide (0,26 contre 0,36 ×), mais abaisse les confiances : non activé par défaut |
+
+**Qualité : non mesurable sans référence**, et pourtant déjà instructive :
+- un même nom propre est écrit de 4 ou 5 façons d'une vidéo à l'autre (« La hysterre », « I-STER »,
+  « is-terre », « hystère ») ; même chose pour un sigle (« B-19 », « B-0-19 », « b019 ») ;
+- plusieurs mots probablement faux ne sont **pas** marqués incertains (« chromeur », « Trochers »,
+  « gaîtaient », « craigouant ») : c'est le défaut le plus gênant pour la sélection et les sous-titres ;
+- l'ambiance de foule et la musique couvrent une grande partie de la parole : le filtre de voix de
+  Whisper retire plusieurs secondes par vidéo.
+
+Nouvelle option : `vocabulary` (liste de noms propres et surnoms dans `config.json` de l'agent),
+transmise à Whisper pour qu'il les orthographie de façon constante. **Son effet n'est pas encore mesuré.**
+
+**Pour mesurer la précision**, il faut que l'utilisateur fournisse ce qui est réellement dit dans 2 ou 3
+vidéos (et l'orthographe des noms) : le banc calculera alors WER, CER et part des mots faux signalés.
 
 ## 2. Résultats simulés (ne mesurent pas la qualité)
 

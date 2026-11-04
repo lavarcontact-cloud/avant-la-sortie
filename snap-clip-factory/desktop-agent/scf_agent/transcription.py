@@ -64,25 +64,82 @@ def mark_uncertain(words: list[Word], threshold: float) -> list[Word]:
 
 
 def render_text(seg: TranscriptSegment) -> str:
-    """Texte avec les mots incertains entre crochets : « je suis [allé?] ». """
+    """Texte avec les mots incertains entre crochets : « je suis [allé?] ».
+
+    Whisper découpe en jetons qui portent leur propre espace (« c », « 'est »,
+    « Amara », « .org ») : on les recolle tels quels, sans ajouter d'espace
+    (constaté en phase 6.1 : « c 'est », « d 'Amara »)."""
     if not seg.words:
         return seg.text.strip()
-    return " ".join(f"[{w.text.strip()}?]" if w.uncertain else w.text.strip() for w in seg.words).strip()
+    whisper_style = any(w.text[:1].isspace() for w in seg.words[1:])
+    out = []
+    for k, w in enumerate(seg.words):
+        lead = " " if (w.text[:1].isspace() if whisper_style else k > 0) else ""
+        token = w.text.strip()
+        out.append(f"{lead}[{token}?]" if w.uncertain and token else lead + token)
+    return "".join(out).strip()
+
+
+# Phrases que Whisper « invente » sur de la musique, du bruit ou du silence, parce
+# qu'elles apparaissent en fin de nombreux sous-titres de son corpus d'entraînement.
+# Constaté en phase 6.1 sur 4 vidéos réelles sur 9 : « Sous-titres réalisés par la
+# communauté d'Amara.org », alors que rien de tel n'était prononcé.
+HALLUCINATIONS = [
+    r"sous-?titr(es|age).{0,40}(amara|radio-canada|st' ?501|societe|société)",
+    r"r[ée]alis[ée]s par la communaut[ée] d'?\s*amara",
+    r"merci d'avoir regard[ée] (cette vid[ée]o)?",
+    r"abonnez-vous( à la cha[iî]ne)?\W*$",
+    r"thanks? (you )?for watching",
+    r"subtitles? by the amara",
+]
+_HALLU = [__import__("re").compile(p, __import__("re").I) for p in HALLUCINATIONS]
+
+
+def is_hallucination(text: str) -> bool:
+    t = __import__("re").sub(r"\s+", " ", text.replace(" '", "'").replace(" .", ".")).strip()
+    return any(p.search(t) for p in _HALLU)
+
+
+def clean_transcript(segments: list[TranscriptSegment], no_speech_threshold: float = 0.6,
+                     low_confidence: float = 0.35) -> tuple[list[TranscriptSegment], list[str]]:
+    """Écarte les hallucinations connues et rend incertains les segments douteux.
+    Rien n'est réécrit : un segment est gardé tel quel, marqué, ou écarté avec un motif."""
+    kept, notes = [], []
+    for seg in segments:
+        if is_hallucination(seg.text):
+            notes.append(f"{seg.start:.1f}-{seg.end:.1f} s écarté (phrase typique d'hallucination de Whisper) : "
+                         f"« {seg.text.strip()[:80]} »")
+            continue
+        doubtful = (seg.no_speech_probability or 0) >= no_speech_threshold or \
+            (seg.confidence is not None and seg.confidence < low_confidence)
+        if doubtful:
+            for w in seg.words:
+                w.uncertain = True
+        kept.append(seg)
+    return kept, notes
 
 
 class FasterWhisperTranscriber:
     name = "faster-whisper"
     _models: dict = {}
 
-    def __init__(self, model: str = "small", device: str = "auto", uncertain_below: float = 0.5):
+    def __init__(self, model: str = "small", device: str = "auto", uncertain_below: float = 0.5,
+                 compute_type: str = "auto", vocabulary: list[str] | None = None):
         from faster_whisper import WhisperModel  # import paresseux : dépendance optionnelle
 
-        key = (model, device)
+        # « auto » = choix du moteur. Mesuré en phase 6.1 (4 cœurs, vidéo de 32,7 s) : int8 est
+        # ~25 % plus rapide (0,26 contre 0,36 × temps réel) mais abaisse les confiances ; à n'activer
+        # qu'après avoir recalibré les incertitudes sur tes vidéos.
+        if compute_type == "auto":
+            compute_type = "default"
+        key = (model, device, compute_type)
         if key not in self._models:
-            self._models[key] = WhisperModel(model, device=device, compute_type="default")
+            self._models[key] = WhisperModel(model, device=device, compute_type=compute_type)
         self.model = self._models[key]
         self.model_name = model
         self.uncertain_below = uncertain_below
+        # Noms propres, surnoms, argot récurrent : aide Whisper à les écrire toujours pareil.
+        self.vocabulary = [v.strip() for v in (vocabulary or []) if v.strip()][:60]
 
     def transcribe(self, audio: Path, language: str | None) -> Transcript:
         import math
@@ -90,6 +147,7 @@ class FasterWhisperTranscriber:
         segments, info = self.model.transcribe(
             load_wav_16k(audio), language=language, word_timestamps=True, vad_filter=True,
             condition_on_previous_text=False,   # limite les répétitions « hallucinées »
+            hotwords=", ".join(self.vocabulary) or None,
         )
         out = []
         for s in segments:
@@ -103,9 +161,11 @@ class FasterWhisperTranscriber:
                 confidence=round(math.exp(float(s.avg_logprob)), 3) if s.avg_logprob is not None else None,
                 no_speech_probability=round(float(s.no_speech_prob), 3), words=words,
             ))
+        out, notes = clean_transcript(out)
         status = "ok" if any(seg.text for seg in out) else "no_speech"
         return Transcript(status=status, engine=f"faster-whisper:{self.model_name}", language=str(info.language),
-                          language_probability=round(float(info.language_probability), 3), segments=out)
+                          language_probability=round(float(info.language_probability), 3), segments=out,
+                          note=" ; ".join(notes)[:500])
 
 
 def load_wav_16k(path: Path):
@@ -135,7 +195,8 @@ def make_transcriber(options: dict) -> Transcriber | None:
         return None
     try:
         return FasterWhisperTranscriber(options.get("whisper_model", "small"), options.get("whisper_device", "auto"),
-                                        options.get("uncertain_word_probability", 0.5))
+                                        options.get("uncertain_word_probability", 0.5),
+                                        options.get("whisper_compute_type", "auto"), options.get("vocabulary"))
     except ImportError:
         if choice == "faster-whisper":
             raise
