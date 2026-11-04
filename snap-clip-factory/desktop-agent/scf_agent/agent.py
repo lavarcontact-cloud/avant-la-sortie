@@ -28,6 +28,7 @@ class Agent:
         self.stop = threading.Event()
         self.wake = threading.Event()
         self.current_task = "inactif"
+        self._missing_warned: set[str] = set()
 
     # ------------------------------------------------------------------ état
     @property
@@ -62,11 +63,15 @@ class Agent:
 
     # ------------------------------------------------------------- étapes
     def reconcile(self) -> None:
-        """Après redémarrage : reprend les vidéos déjà livrées mais pas finies."""
+        """Reprend les vidéos livrées à cet ordinateur mais pas terminées : après
+        un redémarrage, ou après une relance depuis le dashboard (correctif B1,
+        appelé désormais à chaque cycle)."""
         for v in self.client.get("/v1/agent/assigned").json():
             row = self.queue.get(v["id"])
             if row is None or not row["local_path"] or not Path(row["local_path"]).is_file():
-                log.warning("vidéo %s livrée mais absente localement", v["id"])
+                if v["id"] not in self._missing_warned:
+                    self._missing_warned.add(v["id"])
+                    log.warning("vidéo %s livrée mais absente localement", v["id"])
                 continue
             if row["stage"] in ("delivered", "processing", "failed") and self.cfg.process_after_download:
                 self.queue.set_stage(v["id"], "delivered", next_attempt_at=0)
@@ -115,19 +120,41 @@ class Agent:
         vid, path = row["id"], Path(row["local_path"])
         self.current_task = f"traitement {row['filename']}"
         self.queue.set_stage(vid, "processing")
-        self.client.post(f"/v1/videos/{vid}/state", json={"state": "PROCESSING"}).raise_for_status()
         try:
-            result = processing.run_pipeline(path, self.home / "work")
-        except Exception as e:  # ffmpeg absent, fichier illisible…
-            self.queue.fail(vid, str(e), stage="failed")
-            self.client.post(f"/v1/videos/{vid}/state", json={"state": "FAILED", "error": str(e)[:500]})
+            self.client.post(f"/v1/videos/{vid}/state", json={"state": "PROCESSING"}).raise_for_status()
+            try:
+                # Résultats mis en cache sur disque : une reprise ne refait pas la transcription.
+                result = processing.run_pipeline(path, self.home / "work", video_id=vid, sha256=row["sha256"],
+                                                 options=self.cfg.analysis_options())
+            except Exception as e:  # ffmpeg absent, fichier illisible…
+                self.queue.fail(vid, str(e), stage="failed")
+                self.client.post(f"/v1/videos/{vid}/state", json={"state": "FAILED", "error": str(e)[:500]})
+                return
+            if result.get("analysis_input"):
+                self.send_analysis_input(vid, result["analysis_input"])
+            self.client.post(f"/v1/videos/{vid}/state",
+                             json={"state": "COMPLETED", "probe": result["probe"]}).raise_for_status()
+        except httpx.HTTPError as e:
+            # Correctif B2 : coupure réseau pendant le traitement -> nouvel essai différé,
+            # au lieu de rester bloqué à l'étape « processing ».
+            n = self.queue.fail(vid, str(e), stage="delivered")
+            log.warning("traitement de %s interrompu (tentative %d) : %s", row["filename"], n, e)
             return
-        self.client.post(f"/v1/videos/{vid}/state", json={"state": "COMPLETED", "probe": result["probe"]}).raise_for_status()
-        self.queue.set_stage(vid, "done")
+        self.queue.set_stage(vid, "done", attempts=0, last_error=None)
+
+    def send_analysis_input(self, vid: str, payload: dict) -> None:
+        """Envoie au Cloud les SEULES données textuelles nécessaires à l'analyse
+        (transcription, timecodes, signaux). Jamais la vidéo ni l'audio."""
+        r = self.client.post(f"/v1/videos/{vid}/analysis-input", json=payload)
+        if r.status_code == 404 and "Not Found" in r.text:
+            log.warning("serveur sans module d'analyse : données conservées localement")
+            return
+        r.raise_for_status()
 
     # --------------------------------------------------------------- boucle
     def tick(self) -> None:
         self.handle_commands()
+        self.reconcile()
         self.confirm_downloaded()
         if not self.paused:
             by_id = {it["video"]["id"]: it for it in self.fetch_inbox()}

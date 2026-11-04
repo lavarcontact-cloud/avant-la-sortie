@@ -32,6 +32,8 @@ class Settings:
     allow_signup: bool = False
     public_base_url: str = ""
     cors_origins: list[str] = field(default_factory=list)
+    # Phase 6 : worker d'analyse IA dans le processus de l'API (False = lancer `python -m app.worker`)
+    ai_worker: bool = True
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -43,6 +45,7 @@ class Settings:
             purge_relay_after_delivery=_env("PURGE_RELAY", "1") == "1",
             public_base_url=_env("PUBLIC_BASE_URL", "") or "",
             cors_origins=[o for o in (_env("CORS_ORIGINS", "") or "").split(",") if o],
+            ai_worker=_env("AI_WORKER", "1") == "1",
         )
         if _env("DEFAULT_CHUNK_SIZE"):
             s.default_chunk_size = int(_env("DEFAULT_CHUNK_SIZE"))

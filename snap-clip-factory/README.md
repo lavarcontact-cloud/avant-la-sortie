@@ -68,12 +68,35 @@ python tools/phase3_validate.py --server https://ton-serveur --email toi@… \
 
 Le script lit l'état réel du Cloud et re-hache les fichiers reçus sur l'ordinateur.
 
+## Phase 6 — détection des clips
+
+Documentation : [`docs/ARCHITECTURE_AI.md`](docs/ARCHITECTURE_AI.md). Audit préalable : [`docs/AUDIT_PHASE6.md`](docs/AUDIT_PHASE6.md).
+
+```bash
+# Ordinateur : transcription locale (facultative mais recommandée)
+pip install "./desktop-agent[transcription]"     # faster-whisper ; le modèle se télécharge au premier usage
+scf-agent run                                     # chaque vidéo reçue est analysée puis envoyée en texte
+
+# Serveur : choisir un fournisseur (sinon mode DÉMO, résultats simulés)
+export SCF_ANTHROPIC_API_KEY=…                    # ou SCF_OPENAI_API_KEY, ou SCF_OPENAI_COMPAT_BASE_URL
+uvicorn app.main:app --host 0.0.0.0 --port 8000   # le worker d'analyse tourne dans le même processus
+# (variante : SCF_AI_WORKER=0 pour l'API, et `python -m app.worker` à part)
+```
+
+Puis ouvre **http://localhost:8000/studio** → *Réglages IA* : fournisseur, modèle, langue,
+niveau, limites et tarifs. Les clips proposés arrivent dans l'onglet *Clips*, où tu les acceptes,
+refuses ou recadres. Rien n'est publié : aucune publication n'existe à ce stade, et la future
+publication exigera une validation humaine (`assert_publishable`).
+
+Réglages de l'agent (`config.json` dans le dossier de l'agent) : `transcriber`, `whisper_model`
+(`small` par défaut ; `medium` ou `large-v3` si `scf-agent audit` recommande le local), `language`.
+
 ## Tests
 
 ```bash
 pip install fastapi sqlalchemy pyjwt httpx pytest websockets
-cd cloud && pytest            # 20 tests : protocole, reprise, intégrité, sécurité
-cd ../desktop-agent && pytest # 6 tests de bout en bout (vraie vidéo H.264 via ffmpeg)
+cd cloud && pytest            # 62 tests : synchronisation, sécurité, fournisseurs IA, clips, validation
+cd ../desktop-agent && pytest # 20 tests : chaîne réelle + analyse sur vidéos synthétiques (ffmpeg + flite)
 ```
 
 ## Ce qui est vérifié, et ce qui ne l'est pas encore

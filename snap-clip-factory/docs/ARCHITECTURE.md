@@ -203,7 +203,8 @@ class LLMProvider(Protocol):                # interchangeable (Claude, autre…)
 | 3. Synchronisation | Protocole complet, testé de bout en bout côté serveur et agent. **Validation avec 10 vraies vidéos d'iPhone : à faire** (`tools/phase3_validate.py`). |
 | 4. Agent desktop | Livré, testé sous Linux. **À tester sur ton Windows ou Mac.** |
 | 5. Cloud | Livré (comptes, appareils, files, dashboard). Déploiement : `docker-compose.yml`. |
-| 6–9. IA, montage, validation, publication | Non commencées, volontairement. |
+| 6. Analyse IA | Préparée : transcription locale, signaux, fournisseurs interchangeables, clips, Studio de validation. Voir `ARCHITECTURE_AI.md`. **Transcription et fournisseurs réels non encore essayés.** |
+| 7–9. Montage, rendu, publication | Non commencées, volontairement. |
 
 ## 9. Critères de validation du MVP
 
@@ -215,7 +216,7 @@ class LLMProvider(Protocol):                # interchangeable (Claude, autre…)
 | 4 | Reprise après interruption | testée (serveur : morceaux perdus ; agent : `.part`, redémarrage) |
 | 5 | Intégrité vérifiée | testée (morceau corrompu, fichier global faux, `.part` corrompu) |
 | 6 | L'ordinateur reçoit les vidéos | testé (agent Linux) ; à refaire sur ton ordinateur |
-| 7 | L'IA analyse | non construit |
+| 7 | L'IA analyse | chaîne construite et testée en mode démo / avec réponses simulées ; à essayer avec un vrai modèle |
 | 8 | Extraits montés | non construit |
 | 9 | Visionnage dans le dashboard | non construit |
-| 10 | Aucune publication sans validation | aucune publication n'existe encore |
+| 10 | Aucune publication sans validation | garde `assert_publishable` testée ; aucune publication n'existe encore |

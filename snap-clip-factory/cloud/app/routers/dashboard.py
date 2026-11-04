@@ -23,6 +23,11 @@ def dashboard_page():
     return FileResponse(STATIC / "dashboard.html", headers={"Cache-Control": "no-store"})
 
 
+@router.get("/studio", include_in_schema=False)
+def studio_page():
+    return FileResponse(STATIC / "studio.html", headers={"Cache-Control": "no-store"})
+
+
 @router.get("/v1/dashboard/summary")
 def summary(p: Principal = Depends(require_user), db: Session = Depends(get_db)):
     devices = db.scalars(select(Device).where(Device.user_id == p.user_id, Device.revoked_at.is_(None))).all()

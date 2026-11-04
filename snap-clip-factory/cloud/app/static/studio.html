@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snap Clip Studio</title>
+<style>
+  :root { --bg:#0d0d10; --panel:#17161b; --panel2:#1e1d23; --line:#2a2930; --text:#f2efe8; --muted:#9a96a3;
+          --accent:#ff5b3c; --ok:#3ccf8e; --warn:#f4b740; --err:#ff4d6d; --demo:#8b7cff; }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header { position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line);
+           padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  h1 { font-size:15px; letter-spacing:.08em; margin:0; }
+  nav { display:flex; gap:4px; }
+  nav button { background:transparent; color:var(--muted); border:1px solid transparent; }
+  nav button[aria-selected="true"] { color:var(--text); border-color:var(--line); background:var(--panel); }
+  main { max-width:980px; margin:0 auto; padding:16px; display:grid; gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px; }
+  button { background:var(--accent); color:#111; border:0; border-radius:8px; padding:8px 12px; font:600 14px system-ui,sans-serif; cursor:pointer; min-height:36px; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); }
+  button.ok { background:var(--ok); } button.no { background:transparent; color:var(--err); border:1px solid var(--err); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  input, select { background:#0f0e12; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font:inherit; min-height:36px; }
+  label { display:grid; gap:4px; font-size:13px; color:var(--muted); }
+  label > input:not([type=checkbox]):not(.tc), label > select { width:100%; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .between { justify-content:space-between; }
+  .muted { color:var(--muted); } .small { font-size:13px; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:99px; font-size:12px; border:1px solid var(--line); white-space:nowrap; }
+  .demo { color:var(--demo); border-color:var(--demo); }
+  .s-APPROVED, .s-done, .s-RENDERED, .t-ok { color:var(--ok); border-color:var(--ok); }
+  .s-REJECTED, .s-failed, .t-error { color:var(--err); border-color:var(--err); }
+  .s-queued, .s-running, .s-blocked, .t-unavailable { color:var(--warn); border-color:var(--warn); }
+  .filters { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; align-items:end; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .score { height:6px; background:var(--line); border-radius:99px; overflow:hidden; } .score i { display:block; height:100%; background:var(--accent); }
+  .tc { width:92px; font-variant-numeric:tabular-nums; }
+  .excerpt { background:var(--panel2); border-radius:8px; padding:8px 10px; font-size:14px; }
+  .unc { color:var(--warn); text-decoration:underline dotted; }
+  .warn { color:var(--warn); font-size:13px; }
+  .seg { display:grid; grid-template-columns:94px 1fr; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); font-size:14px; }
+  .seg time { color:var(--muted); font-variant-numeric:tabular-nums; font-size:12px; }
+  details summary { cursor:pointer; color:var(--muted); font-size:13px; }
+  .empty { color:var(--muted); text-align:center; padding:24px; }
+  @media (max-width:560px) { header { padding:10px 12px; } main { padding:12px; } .seg { grid-template-columns:1fr; gap:2px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>SNAP CLIP · STUDIO</h1>
+  <nav role="tablist">
+    <button role="tab" data-tab="videos" aria-selected="true">Vidéos</button>
+    <button role="tab" data-tab="clips">Clips</button>
+    <button role="tab" data-tab="settings">Réglages IA</button>
+  </nav>
+  <a href="/" class="small muted">← Synchronisation</a>
+</header>
+
+<main>
+  <div id="needLogin" class="card" hidden>Session absente ou expirée. <a href="/" style="color:var(--accent)">Se connecter</a>, puis revenir ici.</div>
+  <div id="demoBanner" class="card small" hidden style="border-color:var(--demo)">
+    <b style="color:var(--demo)">MODE DÉMO</b> — les propositions marquées DÉMO viennent de règles simples, pas d'une IA.
+    Elles servent à essayer l'interface et ne peuvent pas être validées. Choisis un fournisseur dans « Réglages IA ».
+  </div>
+
+  <!-- VIDÉOS -->
+  <section id="tab-videos">
+    <div id="videoList" class="grid2"></div>
+    <div id="videoDetail" class="card" hidden></div>
+  </section>
+
+  <!-- CLIPS -->
+  <section id="tab-clips" hidden>
+    <div class="card filters">
+      <label>Catégorie <select id="fCat"><option value="">Toutes</option></select></label>
+      <label>Score minimum : <b id="fScoreV">0</b> <input id="fScore" type="range" min="0" max="100" step="5" value="0"></label>
+      <label>État <select id="fState">
+        <option value="READY_FOR_REVIEW">À valider</option><option value="APPROVED">Validés</option>
+        <option value="REJECTED">Refusés</option><option value="">Tous</option></select></label>
+      <label>Vidéo <select id="fVideo"><option value="">Toutes</option></select></label>
+    </div>
+    <div id="clipList" style="display:grid;gap:12px"></div>
+  </section>
+
+  <!-- RÉGLAGES -->
+  <section id="tab-settings" hidden>
+    <form id="cfgForm" class="card" style="display:grid;gap:14px">
+      <div class="grid2">
+        <label>Fournisseur <select name="provider" id="cfgProvider"></select></label>
+        <label>Modèle <input name="model" list="modelList" placeholder="par défaut"><datalist id="modelList"></datalist></label>
+        <label>Langue des titres <input name="language" placeholder="auto, fr, en…"></label>
+        <label>Niveau d'analyse <select name="level"><option value="rapide">Rapide</option><option value="standard">Standard</option><option value="approfondi">Approfondi</option></select></label>
+      </div>
+      <div class="grid2">
+        <label>Limite de coût par vidéo ($) <input name="max_cost_per_video_usd" type="number" step="0.01" min="0"></label>
+        <label>Budget par jour ($) <input name="daily_budget_usd" type="number" step="0.1" min="0"></label>
+        <label>Taille max. de transcription (caractères) <input name="max_input_chars" type="number" min="1000"></label>
+        <label>Clips max. par vidéo <input name="max_clips_per_video" type="number" min="1" max="50"></label>
+        <label>Durée min. d'un clip (s) <input name="min_clip_s" type="number" min="1" step="0.5"></label>
+        <label>Durée max. d'un clip (s) <input name="max_clip_s" type="number" min="5" step="1"></label>
+        <label>Tarif entrée ($ / million de jetons) <input name="price_input_per_mtok" type="number" step="0.01" min="0" placeholder="non renseigné"></label>
+        <label>Tarif sortie ($ / million de jetons) <input name="price_output_per_mtok" type="number" step="0.01" min="0" placeholder="non renseigné"></label>
+      </div>
+      <label class="row" style="color:var(--text)"><input type="checkbox" name="auto_analyze" style="min-height:auto"> Analyser automatiquement chaque nouvelle vidéo</label>
+      <p class="small muted" style="margin:0">Les clés API ne se saisissent jamais ici : elles se configurent sur le serveur
+        (<code>SCF_ANTHROPIC_API_KEY</code>, <code>SCF_OPENAI_API_KEY</code>, <code>SCF_OPENAI_COMPAT_BASE_URL</code>…).
+        Sans tarif renseigné, le coût est affiché « inconnu » et seule la limite de taille s'applique.</p>
+      <div class="row"><button type="submit">Enregistrer</button><span id="cfgMsg" class="small"></span></div>
+    </form>
+    <div class="card"><h3 style="margin:0 0 8px;font-size:14px">Consommation</h3><div id="usage" class="small muted"></div></div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const token = sessionStorage.getItem("scf_token");
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const CAT = {punchline:"Punchline", anecdote:"Anecdote", humour:"Humour", reaction:"Réaction", performance:"Performance", moment_fort:"Moment fort"};
+const STATE = {DETECTED:"Détecté", ANALYZED:"Analysé", READY_FOR_REVIEW:"À valider", APPROVED:"Validé", REJECTED:"Refusé", RENDERED:"Rendu"};
+const JOB = {queued:"en file", running:"en cours", done:"terminée", failed:"échec", blocked:"bloquée (limite)"};
+const TR = {ok:"transcrite", no_speech:"sans parole", no_audio:"sans son", unavailable:"pas de moteur de transcription", error:"erreur de transcription"};
+const fmtT = t => { t = Math.max(0, +t || 0); const m = Math.floor(t / 60); return `${m}:${(t - m * 60).toFixed(1).padStart(4, "0")}`; };
+const parseT = s => { s = String(s).trim().replace(",", "."); if (s.includes(":")) { const [m, x] = s.split(":"); return +m * 60 + +x; } return +s; };
+const money = v => v == null ? "inconnu" : (v === 0 ? "0 $" : v < 0.01 ? `${(v * 100).toFixed(3)} ¢` : `${v.toFixed(3)} $`);
+const uncertain = txt => esc(txt).replace(/\[([^\]]*?)\?\]/g, '<span class="unc" title="mot incertain">$1</span>');
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, {...opts, headers: {"Content-Type": "application/json", Authorization: "Bearer " + token, ...(opts.headers || {})}});
+  if (r.status === 401) { $("#needLogin").hidden = false; throw new Error("session"); }
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail));
+  return body;
+}
+
+let videos = [], current = null, providers = [];
+
+function jobLine(j) {
+  if (!j) return `<span class="pill">pas encore analysée</span>`;
+  return `<span class="pill s-${esc(j.status)}">${esc(JOB[j.status] || j.status)}</span>
+    ${j.simulated ? '<span class="pill demo">DÉMO</span>' : ""}
+    <span class="small muted">${esc(j.provider)} · ${esc(j.model)} · coût ${money(j.cost_usd ?? (j.status === "done" ? null : j.estimated_cost_usd))}</span>
+    ${j.error ? `<div class="warn">${esc(j.error)}</div>` : ""}`;
+}
+
+async function loadVideos() {
+  videos = await api("/v1/studio/videos");
+  $("#videoList").innerHTML = videos.map(v => `
+    <article class="card" style="display:grid;gap:6px">
+      <div class="row between"><b style="word-break:break-all">${esc(v.filename)}</b><span class="small muted">${v.source_created_at ? new Date(v.source_created_at).toLocaleDateString("fr-FR") : ""}</span></div>
+      <div class="row small"><span class="pill">${esc(v.state)}</span>
+        ${v.transcript_status ? `<span class="pill t-${esc(v.transcript_status)}">${esc(TR[v.transcript_status])}${v.language ? " · " + esc(v.language) : ""}</span>` : '<span class="pill">en attente de l\'ordinateur</span>'}
+        <span class="muted">${v.clips} clip(s)</span></div>
+      <div class="row">${jobLine(v.job)}</div>
+      <div class="row"><button class="ghost" data-open="${esc(v.id)}">Transcription et clips</button>
+        <button class="ghost" data-analyze="${esc(v.id)}" ${v.transcript_status && !(v.job && ["queued","running"].includes(v.job.status)) ? "" : "disabled"}>Analyser à nouveau</button></div>
+    </article>`).join("") || `<div class="empty card">Aucune vidéo synchronisée pour l'instant.</div>`;
+  $("#fVideo").innerHTML = `<option value="">Toutes</option>` + videos.map(v => `<option value="${esc(v.id)}">${esc(v.filename)}</option>`).join("");
+  if (current) openVideo(current, false);
+}
+
+async function openVideo(id, scroll = true) {
+  current = id;
+  const d = await api(`/v1/studio/videos/${id}`);
+  const t = d.transcript;
+  const segs = (t && t.segments || []).map(s => `<div class="seg"><time>${fmtT(s.start)} → ${fmtT(s.end)}</time>
+    <div>${s.speaker ? `<span class="pill">${esc(s.speaker)}</span> ` : ""}${uncertain(s.text)}</div></div>`).join("");
+  const j = d.jobs[0];
+  $("#videoDetail").hidden = false;
+  $("#videoDetail").innerHTML = `
+    <div class="row between"><h2 style="margin:0;font-size:16px;word-break:break-all">${esc(d.video.filename)}</h2><button class="ghost" id="closeDetail">Fermer</button></div>
+    <p class="small muted">${t ? `${esc(TR[t.status] || t.status)} · moteur ${esc(t.engine)}${t.language ? ` · langue ${esc(t.language)} (${Math.round((t.language_probability || 0) * 100)} %)` : ""}${t.note ? " · " + esc(t.note) : ""}` : "Transcription pas encore reçue de l'ordinateur."}
+      ${d.summary ? ` · ${d.summary.scene_changes} changement(s) de plan · ${Math.round(d.summary.silence_ratio * 100)} % de silence` : ""}</p>
+    ${j ? `<div class="row" style="margin-bottom:8px">${jobLine(j)}</div>${j.rejected && j.rejected.length ? `<details><summary>${j.rejected.length} proposition(s) écartée(s) par le serveur</summary><ul class="small muted">${j.rejected.map(r => `<li>${esc(r)}</li>`).join("")}</ul></details>` : ""}` : ""}
+    <details ${segs ? "open" : ""} style="margin-top:8px"><summary>Transcription horodatée (mots incertains soulignés)</summary>${segs || '<p class="muted small">Aucune parole transcrite.</p>'}</details>
+    <h3 style="font-size:14px;margin:14px 0 8px">Clips de cette vidéo</h3>
+    <div style="display:grid;gap:10px">${d.clips.map(clipCard).join("") || '<p class="muted small">Aucun clip.</p>'}</div>`;
+  if (scroll) $("#videoDetail").scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function clipCard(c) {
+  const locked = c.state === "REJECTED";
+  return `<article class="card" style="display:grid;gap:8px;background:var(--panel2)" data-clip="${esc(c.id)}">
+    <div class="row between"><div class="row">${c.simulated ? '<span class="pill demo">DÉMO · simulé</span>' : ""}
+      <span class="pill">${esc(CAT[c.category] || c.category)}</span>${(c.tags || []).map(t => `<span class="pill muted">${esc(t)}</span>`).join("")}</div>
+      <span class="pill s-${esc(c.state)}">${esc(STATE[c.state] || c.state)}</span></div>
+    <b>${esc(c.title)}</b>
+    <div class="row small"><span>Potentiel éditorial <b>${c.score}</b>/100</span><span class="muted">· confiance ${Math.round(c.confidence * 100)} %</span>
+      <span class="muted">· ${esc(c.output_format)} · ${c.estimated_duration_s.toFixed(1)} s</span></div>
+    <div class="score"><i style="width:${c.score}%"></i></div>
+    <div class="row small">
+      <label>Début <input class="tc" data-f="start" value="${fmtT(c.start_s)}" ${locked ? "disabled" : ""}></label>
+      <label>Fin <input class="tc" data-f="end" value="${fmtT(c.end_s)}" ${locked ? "disabled" : ""}></label>
+      <button class="ghost" data-save="${esc(c.id)}" ${locked ? "disabled" : ""}>Enregistrer les timecodes</button>
+      ${(c.start_s !== c.proposed_start_s || c.end_s !== c.proposed_end_s) ? `<span class="muted">proposé : ${fmtT(c.proposed_start_s)} → ${fmtT(c.proposed_end_s)}</span>` : ""}
+    </div>
+    ${c.transcript_excerpt ? `<div class="excerpt">${uncertain(c.transcript_excerpt)}</div>` : ""}
+    ${c.quote ? `<div class="small">${c.quote_verified ? "✔ citation retrouvée dans la transcription" : '<span class="warn">⚠ citation introuvable dans la transcription</span>'}</div>` : ""}
+    <div class="small"><b>Pourquoi :</b> ${esc(c.explanation)}</div>
+    <div class="small muted"><b>Justification du score :</b> ${esc(c.score_justification)}</div>
+    ${c.scene_description ? `<div class="small muted"><b>Scène (d'après le son et le texte) :</b> ${esc(c.scene_description)}</div>` : ""}
+    ${(c.warnings || []).map(w => `<div class="warn">⚠ ${esc(w)}</div>`).join("")}
+    <div class="row">
+      ${c.state === "READY_FOR_REVIEW" ? `${c.simulated ? '<span class="small" style="color:var(--demo)">Résultat simulé : validation impossible</span>' : `<button class="ok" data-act="approve" data-id="${esc(c.id)}">Accepter</button>`}
+        <button class="no" data-act="reject" data-id="${esc(c.id)}">Refuser</button>` : ""}
+      ${["APPROVED", "REJECTED", "RENDERED"].includes(c.state) ? `<button class="ghost" data-act="reopen" data-id="${esc(c.id)}">Remettre en revue</button>` : ""}
+      <span class="small muted">${esc(c.provider)} · ${esc(c.model)}</span>
+    </div>
+  </article>`;
+}
+
+async function loadClips() {
+  const q = new URLSearchParams({min_score: $("#fScore").value});
+  if ($("#fCat").value) q.set("category", $("#fCat").value);
+  if ($("#fState").value) q.set("state", $("#fState").value);
+  if ($("#fVideo").value) q.set("video_id", $("#fVideo").value);
+  const list = await api("/v1/clips?" + q);
+  $("#clipList").innerHTML = list.map(clipCard).join("") || `<div class="empty card">Aucun clip pour ces filtres.</div>`;
+}
+
+async function loadSettings() {
+  const [pr, cfg, use] = await Promise.all([api("/v1/ai/providers"), api("/v1/ai/config"), api("/v1/ai/usage")]);
+  providers = pr.providers;
+  $("#cfgProvider").innerHTML = providers.map(p => `<option value="${esc(p.name)}">${esc(p.label)}${p.configured ? "" : " — non configuré sur le serveur"}</option>`).join("");
+  const f = $("#cfgForm");
+  for (const [k, v] of Object.entries(cfg)) { const el = f.elements[k]; if (!el) continue; if (el.type === "checkbox") el.checked = !!v; else el.value = v ?? ""; }
+  syncModels();
+  $("#demoBanner").hidden = cfg.provider !== "demo";
+  const rows = Object.entries(use.by_status).map(([s, u]) => `${esc(JOB[s] || s)} : ${u.jobs} analyse(s), ${u.input_tokens + u.output_tokens} jetons, ${money(u.cost_usd)}`);
+  $("#usage").innerHTML = (rows.join("<br>") || "Aucune analyse.") + (use.jobs_with_unknown_cost ? `<br>${use.jobs_with_unknown_cost} analyse(s) sans tarif renseigné : coût inconnu.` : "");
+}
+function syncModels() {
+  const p = providers.find(x => x.name === $("#cfgProvider").value);
+  $("#modelList").innerHTML = (p ? p.models : []).map(m => `<option value="${esc(m)}">`).join("");
+}
+
+$("#cfgForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, body = {};
+  for (const el of f.elements) {
+    if (!el.name) continue;
+    if (el.type === "checkbox") body[el.name] = el.checked;
+    else if (el.type === "number") body[el.name] = el.value === "" ? null : +el.value;
+    else body[el.name] = el.value;
+  }
+  for (const k of ["max_input_chars", "max_clips_per_video", "min_clip_s", "max_clip_s"]) if (body[k] == null) delete body[k];
+  try { await api("/v1/ai/config", {method: "PUT", body: JSON.stringify(body)}); $("#cfgMsg").textContent = "Enregistré."; $("#cfgMsg").style.color = "var(--ok)"; loadSettings(); }
+  catch (err) { $("#cfgMsg").textContent = err.message; $("#cfgMsg").style.color = "var(--err)"; }
+});
+$("#cfgProvider").addEventListener("change", syncModels);
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("button"); if (!t) return;
+  try {
+    if (t.dataset.tab) showTab(t.dataset.tab);
+    else if (t.dataset.open) openVideo(t.dataset.open);
+    else if (t.id === "closeDetail") { current = null; $("#videoDetail").hidden = true; }
+    else if (t.dataset.analyze) { await api(`/v1/studio/videos/${t.dataset.analyze}/analyze`, {method: "POST"}); loadVideos(); }
+    else if (t.dataset.act) {
+      if (t.dataset.act === "reject" && !confirm("Refuser cette proposition ?")) return;
+      await api(`/v1/clips/${t.dataset.id}/${t.dataset.act}`, {method: "POST", body: "{}"}); refresh();
+    } else if (t.dataset.save) {
+      const card = t.closest("[data-clip]");
+      const start = parseT(card.querySelector('[data-f="start"]').value), end = parseT(card.querySelector('[data-f="end"]').value);
+      if (!(end > start)) return alert("La fin doit être après le début.");
+      await api(`/v1/clips/${t.dataset.save}`, {method: "PATCH", body: JSON.stringify({start_s: start, end_s: end})}); refresh();
+    }
+  } catch (err) { if (err.message !== "session") alert(err.message); }
+});
+for (const id of ["#fCat", "#fState", "#fVideo"]) $(id).addEventListener("change", loadClips);
+$("#fScore").addEventListener("input", () => { $("#fScoreV").textContent = $("#fScore").value; });
+$("#fScore").addEventListener("change", loadClips);
+
+let tab = "videos";
+function showTab(name) {
+  tab = name;
+  for (const b of document.querySelectorAll("nav button")) b.setAttribute("aria-selected", b.dataset.tab === name);
+  for (const s of ["videos", "clips", "settings"]) $("#tab-" + s).hidden = s !== name;
+  refresh();
+}
+function refresh() {
+  const p = tab === "videos" ? loadVideos() : tab === "clips" ? loadClips() : loadSettings();
+  p.catch(err => { if (err.message !== "session") console.error(err); });
+}
+
+function connectWS() {
+  const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/v1/ws`);
+  let timer;
+  ws.onopen = () => ws.send(JSON.stringify({token}));
+  ws.onmessage = e => { const ev = JSON.parse(e.data);
+    if (ev.type === "activity" && /^(analysis|clip)\./.test(ev.action || "")) { clearTimeout(timer); timer = setTimeout(refresh, 500); } };
+  ws.onclose = () => setTimeout(connectWS, 4000);
+}
+
+if (!token) { $("#needLogin").hidden = false; }
+else {
+  $("#fCat").innerHTML += Object.entries(CAT).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+  api("/v1/ai/config").then(c => { $("#demoBanner").hidden = c.provider !== "demo"; }).catch(() => {});
+  refresh(); connectWS();
+}
+</script>
+</body>
+</html>

@@ -154,3 +154,89 @@ class ActivityLog(Base):
     action: Mapped[str] = mapped_column(String(64))
     detail: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=now, index=True)
+
+
+# --- Phase 6 : analyse et clips (tables NOUVELLES uniquement) -------------------
+
+class AIConfigRow(Base):
+    """Réglages IA du compte (aucun secret : les clés restent dans l'environnement serveur)."""
+    __tablename__ = "ai_configs"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    data: Mapped[dict] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=now, onupdate=now)
+
+
+class AnalysisInput(Base):
+    """Données TEXTUELLES envoyées par l'agent : transcription horodatée et signaux."""
+    __tablename__ = "analysis_inputs"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    video_id: Mapped[str] = mapped_column(ForeignKey("videos.id", ondelete="CASCADE"), unique=True)
+    payload: Mapped[dict] = mapped_column(JSON)
+    payload_sha256: Mapped[str] = mapped_column(String(64))
+    transcript_status: Mapped[str] = mapped_column(String(16))
+    language: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    received_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=now, onupdate=now)
+
+
+class AnalysisJob(Base):
+    __tablename__ = "analysis_jobs"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    video_id: Mapped[str] = mapped_column(ForeignKey("videos.id", ondelete="CASCADE"), index=True)
+    input_sha256: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16), default="queued", index=True)  # queued|running|done|failed|blocked
+    provider: Mapped[str] = mapped_column(String(32))
+    model: Mapped[str] = mapped_column(String(120))
+    level: Mapped[str] = mapped_column(String(16))
+    simulated: Mapped[bool] = mapped_column(default=False)
+    config_snapshot: Mapped[dict] = mapped_column(JSON, default=dict)
+    progress: Mapped[dict] = mapped_column(JSON, default=dict)   # fenêtres déjà traitées (reprise)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    next_attempt_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=now)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=now)
+    started_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+
+
+class Clip(Base):
+    __tablename__ = "clips"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    video_id: Mapped[str] = mapped_column(ForeignKey("videos.id", ondelete="CASCADE"), index=True)
+    job_id: Mapped[str | None] = mapped_column(ForeignKey("analysis_jobs.id", ondelete="SET NULL"), nullable=True)
+    start_s: Mapped[float] = mapped_column(Float)
+    end_s: Mapped[float] = mapped_column(Float)
+    proposed_start_s: Mapped[float] = mapped_column(Float)      # proposition d'origine, conservée
+    proposed_end_s: Mapped[float] = mapped_column(Float)
+    transcript_excerpt: Mapped[str] = mapped_column(Text, default="")   # extrait calculé par le serveur
+    scene_description: Mapped[str] = mapped_column(Text, default="")
+    category: Mapped[str] = mapped_column(String(24), index=True)
+    tags: Mapped[list] = mapped_column(JSON, default=list)
+    title: Mapped[str] = mapped_column(String(160), default="")
+    explanation: Mapped[str] = mapped_column(Text, default="")
+    score: Mapped[int] = mapped_column(Integer, index=True)              # potentiel éditorial 0-100
+    score_justification: Mapped[str] = mapped_column(Text, default="")
+    confidence: Mapped[float] = mapped_column(Float)                    # 0-1
+    quote: Mapped[str] = mapped_column(Text, default="")
+    quote_verified: Mapped[bool] = mapped_column(default=False)
+    warnings: Mapped[list] = mapped_column(JSON, default=list)
+    output_format: Mapped[str] = mapped_column(String(32), default="9:16")
+    estimated_duration_s: Mapped[float] = mapped_column(Float)
+    state: Mapped[str] = mapped_column(String(20), index=True)
+    history: Mapped[list] = mapped_column(JSON, default=list)
+    review_note: Mapped[str] = mapped_column(Text, default="")
+    approved_by: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    approved_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    approval_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    render_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    provider: Mapped[str] = mapped_column(String(32))
+    model: Mapped[str] = mapped_column(String(120))
+    simulated: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=now)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=now, onupdate=now)

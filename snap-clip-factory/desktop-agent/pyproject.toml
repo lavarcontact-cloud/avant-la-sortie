@@ -7,6 +7,8 @@ dependencies = ["httpx>=0.27", "keyring>=25"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "fastapi>=0.115", "sqlalchemy>=2.0", "pyjwt>=2.8"]
+# Transcription locale (phase 6). Télécharge le modèle Whisper choisi au premier usage.
+transcription = ["faster-whisper>=1.1"]
 
 [project.scripts]
 scf-agent = "scf_agent.__main__:main"

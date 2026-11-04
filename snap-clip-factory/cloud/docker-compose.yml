@@ -18,6 +18,11 @@ services:
       SCF_DATABASE_URL: postgresql+psycopg://scf:${POSTGRES_PASSWORD}@db/scf
       SCF_SECRET_KEY: ${SCF_SECRET_KEY:?définir SCF_SECRET_KEY (openssl rand -base64 48)}
       SCF_PUBLIC_BASE_URL: https://${SCF_DOMAIN}
+      # Phase 6 — fournisseurs IA (laisser vide ceux qui ne servent pas ; mode démo sinon)
+      SCF_ANTHROPIC_API_KEY: ${SCF_ANTHROPIC_API_KEY:-}
+      SCF_OPENAI_API_KEY: ${SCF_OPENAI_API_KEY:-}
+      SCF_OPENAI_COMPAT_BASE_URL: ${SCF_OPENAI_COMPAT_BASE_URL:-}
+      SCF_OPENAI_COMPAT_API_KEY: ${SCF_OPENAI_COMPAT_API_KEY:-}
     volumes: [relay:/data/relay]
   caddy:
     image: caddy:2

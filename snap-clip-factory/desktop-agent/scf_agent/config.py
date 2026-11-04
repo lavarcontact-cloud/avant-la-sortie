@@ -36,6 +36,22 @@ class AgentConfig:
     max_download_bytes_per_s: int = 0          # 0 = pas de limite
     min_free_disk_bytes: int = 5 * 1024**3      # on s'arrête avant de remplir le disque
     process_after_download: bool = True
+    # --- Phase 6 : analyse locale ---------------------------------------
+    analysis_enabled: bool = True
+    transcriber: str = "auto"            # auto | faster-whisper | none
+    whisper_model: str = "small"         # tiny | base | small | medium | large-v3
+    whisper_device: str = "auto"         # auto | cpu | cuda
+    language: str = "auto"               # auto = détection, ou code ISO (fr, en…)
+    uncertain_word_probability: float = 0.5
+    scene_threshold: float = 10.0        # seuil ffmpeg scdet (0-100)
+
+    def analysis_options(self) -> dict:
+        return {
+            "enabled": self.analysis_enabled, "transcriber": self.transcriber,
+            "whisper_model": self.whisper_model, "whisper_device": self.whisper_device,
+            "language": self.language, "uncertain_word_probability": self.uncertain_word_probability,
+            "scene_threshold": self.scene_threshold,
+        }
 
     @classmethod
     def load(cls, home: Path | None = None) -> "AgentConfig":

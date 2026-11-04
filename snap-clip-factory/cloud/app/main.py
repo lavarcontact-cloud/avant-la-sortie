@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,7 +12,7 @@ from .config import Settings
 from .db import Database
 from .deps import AppContext
 from .events import EventBus
-from .routers import agent, auth, dashboard, devices, uploads, videos
+from .routers import agent, auth, dashboard, devices, studio, uploads, videos
 from .storage import LocalRelayStorage
 
 
@@ -24,7 +25,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         context.bus.bind_loop(asyncio.get_running_loop())
+        stop = threading.Event()
+        if settings.ai_worker:
+            from .worker import start_background
+
+            start_background(context, stop)
         yield
+        stop.set()
 
     app = FastAPI(title="SNAP CLIP FACTORY — Cloud Control Plane", version="0.1.0", lifespan=lifespan)
     app.state.ctx = context
@@ -44,7 +51,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def healthz():
         return {"ok": True}
 
-    for r in (auth, devices, videos, uploads, agent, dashboard):
+    for r in (auth, devices, videos, uploads, agent, dashboard, studio):
         app.include_router(r.router)
     return app
 
