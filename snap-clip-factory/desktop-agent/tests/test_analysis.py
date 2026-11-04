@@ -368,3 +368,37 @@ def test_vocabulary_echo_is_dropped():
     real = TranscriptSegment(0.0, 3.0, " Lahyster, il est de retour les gars")
     kept, notes = clean_transcript([real, echo], vocabulary=vocab)
     assert kept == [real] and "vocabulaire" in notes[0]
+
+
+def _segs(*texts):
+    out = []
+    for t in texts:
+        toks = [" " + w for w in t.split()]
+        out.append(TranscriptSegment(0, 1, "".join(toks), words=[Word(0, 1, w, 0.9) for w in toks]))
+    return out
+
+
+def test_vocabulary_spelling_from_real_transcripts():
+    """Formes réellement entendues par Whisper sur les vidéos de l'utilisateur (phase 6.1)."""
+    from scf_agent.transcription import apply_vocabulary
+    V = ["Lahyster", "B.019", "Dooky"]
+    segs = _segs("La hysterre les gars ! Le cadreur de l'année les gars",
+                 "la is-terre, il est de retour les gars, depuis OVM",
+                 "merci merci Duki, la hystère les gars",
+                 "les B-19 c'est bon, le B-0-19 les gars")
+    n = apply_vocabulary(segs, V)
+    texts = [render_text(s) for s in segs]
+    assert texts[0] == "Lahyster les gars ! Le cadreur de l'année les gars"      # « cadreur » intact
+    assert texts[1].startswith("Lahyster,") and "OVM" in texts[1]
+    assert "Dooky," in texts[2] and "Lahyster les gars" in texts[2]
+    assert texts[3].count("B.019") == 2
+    assert n == 6
+    originals = [w.original for s in segs for w in s.words if w.original]
+    assert "La hysterre" in originals and "Duki," in originals            # forme entendue conservée
+
+
+def test_vocabulary_spelling_leaves_ordinary_words_alone():
+    from scf_agent.transcription import apply_vocabulary
+    segs = _segs("l'étranger c'est lui le prochain les gars, c'est la guerre, il est de retour")
+    before = render_text(segs[0])
+    assert apply_vocabulary(segs, ["Lahyster", "B.019", "Dooky"]) == 0 and render_text(segs[0]) == before

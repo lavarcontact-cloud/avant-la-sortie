@@ -131,8 +131,15 @@ Mesures (banc relancé seul, après corrections) :
 - l'ambiance de foule et la musique couvrent une grande partie de la parole : le filtre de voix de
   Whisper retire plusieurs secondes par vidéo.
 
-Nouvelle option : `vocabulary` (liste de noms propres et surnoms dans `config.json` de l'agent),
-transmise à Whisper pour qu'il les orthographie de façon constante. **Son effet n'est pas encore mesuré.**
+**Vocabulaire (noms fournis par l'utilisateur : Lahyster, B.019, Dooky), deux méthodes mesurées :**
+
+| Méthode | Noms bien écrits | Effets indésirables |
+|---|---|---|
+| liste donnée à Whisper pendant la reconnaissance (`hotwords`) | Lahyster 11, Dooky 4 | vidéo 03 : texte **inventé** à la place de « Le cadreur de l'année » (**vérifié par l'utilisateur**) ; 2 vidéos sans parole où Whisper « entend » la liste ; 1 vidéo sans parole qui reçoit une phrase entière |
+| **correction d'orthographe après la transcription** (`spelling`, retenue par défaut) | 18 remplacements : Lahyster ×13, B.019 ×4, Dooky ×2 | aucun mot ordinaire modifié sur les 9 vidéos ; la reconnaissance n'est pas touchée ; la forme entendue reste enregistrée |
+
+Point ouvert : « Le b019 » devient « B.019 » (l'article disparaît) ; à confirmer selon que le nom est
+« B.019 » ou « Le B.019 ».
 
 **Pour mesurer la précision**, il faut que l'utilisateur fournisse ce qui est réellement dit dans 2 ou 3
 vidéos (et l'orthographe des noms) : le banc calculera alors WER, CER et part des mots faux signalés.

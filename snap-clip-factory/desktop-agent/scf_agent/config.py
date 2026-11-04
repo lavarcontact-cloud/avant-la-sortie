@@ -46,6 +46,7 @@ class AgentConfig:
     scene_threshold: float = 10.0        # seuil ffmpeg scdet (0-100)
     whisper_compute_type: str = "auto"   # auto = choix du moteur ; "int8" plus rapide sur processeur (voir transcription.py)
     vocabulary: list = field(default_factory=list)   # noms propres et surnoms à bien orthographier
+    vocabulary_mode: str = "spelling"    # spelling (après coup, défaut) | hotwords (pendant la reconnaissance, essais)
 
     def analysis_options(self) -> dict:
         return {
@@ -53,7 +54,7 @@ class AgentConfig:
             "whisper_model": self.whisper_model, "whisper_device": self.whisper_device,
             "language": self.language, "uncertain_word_probability": self.uncertain_word_probability,
             "scene_threshold": self.scene_threshold, "whisper_compute_type": self.whisper_compute_type,
-            "vocabulary": list(self.vocabulary),
+            "vocabulary": list(self.vocabulary), "vocabulary_mode": self.vocabulary_mode,
         }
 
     @classmethod
