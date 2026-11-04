@@ -138,6 +138,13 @@ Mesures (banc relancé seul, après corrections) :
 | liste donnée à Whisper pendant la reconnaissance (`hotwords`) | Lahyster 11, Dooky 4 | vidéo 03 : texte **inventé** à la place de « Le cadreur de l'année » (**vérifié par l'utilisateur**) ; 2 vidéos sans parole où Whisper « entend » la liste ; 1 vidéo sans parole qui reçoit une phrase entière |
 | **correction d'orthographe après la transcription** (`spelling`, retenue par défaut) | 18 remplacements : Lahyster ×13, B.019 ×4, Dooky ×2 | aucun mot ordinaire modifié sur les 9 vidéos ; la reconnaissance n'est pas touchée ; la forme entendue reste enregistrée |
 
+**Vérifications de l'utilisateur (vérité terrain) :**
+
+| Vidéo | Ce qu'on entend (selon l'utilisateur) | Transcription retenue | Verdict |
+|---|---|---|---|
+| 03 | « le cadreur de l'année » | « … Le cadreur de l'année les gars… » (sans vocabulaire pendant la reconnaissance) | juste ; la variante `hotwords` était inventée |
+| 01 | bruit de musique, pas de parole | aucune parole retenue (l'hallucination « Amara.org » est écartée) | juste ; sans le filtre, phrase inventée |
+
 Point ouvert : « Le b019 » devient « B.019 » (l'article disparaît) ; à confirmer selon que le nom est
 « B.019 » ou « Le B.019 ».
 
