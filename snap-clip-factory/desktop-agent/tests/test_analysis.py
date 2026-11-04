@@ -13,6 +13,7 @@ import types
 from pathlib import Path
 
 import httpx
+import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -101,8 +102,8 @@ def test_faster_whisper_adapter_mapping(monkeypatch, tmp_path):
         def transcribe(self, path, **kw):
             calls["kw"] = kw
             segs = [W(start=1.0, end=2.5, text=" Bonjour à tous ", avg_logprob=-0.1, no_speech_prob=0.02,
-                      words=[W(start=1.0, end=1.5, word=" Bonjour", probability=0.95),
-                             W(start=1.6, end=2.5, word=" àtous", probability=0.2)])]
+                      words=[W(start=1.0, end=1.5, word=" Bonjour", probability=np.float32(0.95)),
+                             W(start=1.6, end=2.5, word=" àtous", probability=np.float32(0.2))])]   # numpy, comme le vrai
             return iter(segs), W(language="fr", language_probability=0.97)
 
     monkeypatch.setitem(sys.modules, "faster_whisper", types.SimpleNamespace(WhisperModel=FakeModel))
@@ -116,6 +117,7 @@ def test_faster_whisper_adapter_mapping(monkeypatch, tmp_path):
     assert out.status == "ok" and out.language == "fr" and out.segments[0].speaker is None
     assert render_text(out.segments[0]) == "Bonjour [àtous?]"
     assert 0.9 < out.segments[0].confidence < 0.91
+    json.dumps(out.to_dict())   # constaté en réel : booléens numpy non sérialisables
 
 
 def test_no_engine_installed_is_reported(monkeypatch):

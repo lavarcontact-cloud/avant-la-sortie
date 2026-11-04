@@ -59,7 +59,7 @@ class Transcriber(Protocol):
 
 def mark_uncertain(words: list[Word], threshold: float) -> list[Word]:
     for w in words:
-        w.uncertain = w.probability is not None and w.probability < threshold
+        w.uncertain = bool(w.probability is not None and w.probability < threshold)
     return words
 
 
@@ -93,16 +93,19 @@ class FasterWhisperTranscriber:
         )
         out = []
         for s in segments:
-            words = mark_uncertain([Word(w.start, w.end, w.word, w.probability) for w in (s.words or [])],
+            # valeurs numpy -> types Python (sinon l'écriture JSON échoue : constaté en phase 6.1)
+            words = mark_uncertain([Word(round(float(w.start), 2), round(float(w.end), 2), str(w.word),
+                                         None if w.probability is None else round(float(w.probability), 3))
+                                    for w in (s.words or [])],
                                    self.uncertain_below)
             out.append(TranscriptSegment(
-                start=round(s.start, 2), end=round(s.end, 2), text=s.text.strip(),
-                confidence=round(math.exp(s.avg_logprob), 3) if s.avg_logprob is not None else None,
-                no_speech_probability=round(s.no_speech_prob, 3), words=words,
+                start=round(float(s.start), 2), end=round(float(s.end), 2), text=str(s.text).strip(),
+                confidence=round(math.exp(float(s.avg_logprob)), 3) if s.avg_logprob is not None else None,
+                no_speech_probability=round(float(s.no_speech_prob), 3), words=words,
             ))
         status = "ok" if any(seg.text for seg in out) else "no_speech"
-        return Transcript(status=status, engine=f"faster-whisper:{self.model_name}", language=info.language,
-                          language_probability=round(info.language_probability, 3), segments=out)
+        return Transcript(status=status, engine=f"faster-whisper:{self.model_name}", language=str(info.language),
+                          language_probability=round(float(info.language_probability), 3), segments=out)
 
 
 def load_wav_16k(path: Path):
