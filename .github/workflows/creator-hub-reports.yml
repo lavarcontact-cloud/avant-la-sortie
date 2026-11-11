@@ -1,0 +1,24 @@
+# Déclenche toutes les heures la tâche des bilans du Creator Hub.
+# L'application décide elle-même si l'heure courante (Paris) correspond à un bilan.
+# À configurer dans Settings → Secrets and variables → Actions :
+#   HUB_URL      (ex. https://votre-domaine.fr)
+#   CRON_SECRET  (même valeur que la variable d'environnement de l'app)
+# Sans ces secrets, le job s'arrête sans erreur.
+name: creator-hub-reports
+on:
+  schedule:
+    - cron: "2 * * * *"
+  workflow_dispatch:
+permissions: {}
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Appeler /api/cron/reports
+        env:
+          HUB_URL: ${{ secrets.HUB_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$HUB_URL" ] || [ -z "$CRON_SECRET" ]; then echo "Secrets HUB_URL / CRON_SECRET absents : rien à faire."; exit 0; fi
+          curl -fsS -H "Authorization: Bearer $CRON_SECRET" "$HUB_URL/api/cron/reports"
