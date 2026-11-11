@@ -1,0 +1,11 @@
+{
+  "name": "atlas-simulateur-statuts",
+  "private": true,
+  "type": "module",
+  "description": "Simulation micro / EI au réel / SASU avec le moteur officiel URSSAF (modele-social)",
+  "scripts": { "simulate": "node simulate.mjs" },
+  "dependencies": {
+    "modele-social": "11.1.0",
+    "publicodes": "1.10.4"
+  }
+}

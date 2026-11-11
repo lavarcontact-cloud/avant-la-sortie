@@ -10,6 +10,8 @@ Ce dossier contient la conception d'ATLAS, l'assistant personnel, administratif,
 | `PHASE-0-AUDIT-ARCHITECTURE.md` | Audit, architecture cible, noyau, permissions, moteur d'automatisation, roadmap, coûts, dépendances et limitations |
 | `VERIFICATIONS.md` | Chaque affirmation technique ou réglementaire, avec sa source et sa date de vérification |
 | `schema/noyau.sql` | Brouillon du schéma relationnel du noyau (non appliqué, à valider) |
+| `schema/entreprise.sql` | Extension additive du noyau pour le module Entreprise |
+| `entreprise/` | **Module Entreprise** : étude des statuts, simulateur URSSAF, tableau de bord Excel |
 
 ## Pourquoi ce dossier est dans le dépôt `avant-la-sortie`
 
@@ -24,4 +26,5 @@ Le dépôt `avant-la-sortie` héberge le site public de candidature (Vercel). AT
 |---|---|
 | Phase 0 — Audit et conception | **Rédigée, en attente de validation par Sébastien** |
 | Phase 1 — Noyau (identité, données, permissions, automatisations, notifications, écran « Aujourd'hui ») | Non commencée |
+| Module Entreprise — étude préalable à la création | **Livrée le 11/11/2026, décision de Sébastien attendue** |
 | Phases suivantes | Voir roadmap |

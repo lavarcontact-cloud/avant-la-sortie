@@ -1,0 +1,3 @@
+# Ne jamais versionner un classeur rempli de données réelles
+*.xlsx
+!ATLAS-Entreprise-Tableau-de-bord.xlsx
