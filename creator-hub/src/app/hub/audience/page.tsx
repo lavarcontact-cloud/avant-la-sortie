@@ -1,3 +1,4 @@
+import { pctFr, numFr } from "@/lib/money";
 import Link from "next/link";
 import { q } from "@/lib/db";
 import { computeAll } from "@/lib/forecast/service";
@@ -8,7 +9,8 @@ import { fmtDate } from "@/lib/dates";
 import { PageHeader, Card, Badge, Empty, Kpi } from "@/components/ui";
 import { ActionForm, Disclosure, ConfirmSubmit } from "@/components/client";
 import { ScenarioChart, SCENARIO_COLORS } from "@/components/chart";
-import { addSocialAccount, addSnapshot, importSnapshotsCsv, deleteSnapshot } from "../intel-actions";
+import { addSocialAccount, addSnapshot, importSnapshotsCsv, deleteSnapshot, importInsightsJson, renameSocialAccount } from "../intel-actions";
+import { audienceRecommendations } from "@/lib/forecast/service";
 
 export const metadata = { title: "Audience Value" };
 const nf = (v: number | null | undefined) => (v == null ? "—" : new Intl.NumberFormat("fr-FR").format(v));
@@ -31,6 +33,12 @@ export default async function Audience({ searchParams }: { searchParams: Promise
     select f.target_month as month, f.made_on::text as made_on, f.followers::bigint as predicted, (select sum(followers)::bigint from r where r.m=f.target_month) as actual
     from f where f.target_month < to_char(now(),'YYYY-MM') order by 1`);
   const totalFollowersNow = metrics.reduce((a, m) => a + (m.latest?.followers ?? 0), 0);
+  const audRecs = audienceRecommendations(metrics);
+  const details = await Promise.all(metrics.filter((m) => m.latest && !m.latest.derived && m.latest.insights).map(async (m) => ({
+    id: m.account.id, platform: m.account.platform, handle: m.account.handle, captured_on: m.latest!.captured_on, ins: m.latest!.insights as Record<string, any>,
+    period: (await q<{ period: string | null }>(`select period from social_snapshots where account_id=$1 and captured_on=$2`, [m.account.id, m.latest!.captured_on]))[0]?.period,
+    contents: await q<any>(`select id, posted_on::text as posted_on, kind, title, views, reach, likes, comments, shares, reposts, saves, replies from social_content where account_id=$1 order by coalesce(views, reach) desc nulls last`, [m.account.id]),
+  })));
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -54,11 +62,19 @@ export default async function Audience({ searchParams }: { searchParams: Promise
                 <dt className="text-zinc-500">Vues 90 j</dt><dd className="text-right">{nf(m.latest.views_90d)}</dd>
                 <dt className="text-zinc-500">Portée 30 j</dt><dd className="text-right">{nf(m.latest.reach_30d)}</dd>
                 <dt className="text-zinc-500">Vues / publication</dt><dd className="text-right">{nf(m.viewsPerPost == null ? null : Math.round(m.viewsPerPost))}</dd>
-                <dt className="text-zinc-500">Engagement</dt><dd className="text-right">{m.engagementRate == null ? "—" : `${(m.engagementRate * 100).toFixed(1)} %`}</dd>
-                <dt className="text-zinc-500">Croissance/mois</dt><dd className="text-right">{m.followerGrowth == null ? "inconnue" : `${(m.followerGrowth * 100).toFixed(1)} %`}</dd>
+                <dt className="text-zinc-500">Engagement</dt><dd className="text-right">{m.engagementRate == null ? "—" : `${pctFr(m.engagementRate, 1)} %`}</dd>
+                <dt className="text-zinc-500">Croissance/mois</dt><dd className="text-right">{m.followerGrowth == null ? "inconnue" : `${pctFr(m.followerGrowth, 1)} %`}</dd>
               </dl>)}
             {m.latest && <p className="mt-2 text-[0.68rem] text-zinc-500">Relevé du {fmtDate(m.latest.captured_on)} ({m.freshnessDays} j) · source : {m.latest.source}{m.engagementFormula ? ` · engagement = ${m.engagementFormula}` : ""}</p>}
+            {m.viewsPerPostBasis && <p className="mt-1 text-[0.68rem] text-zinc-500">Vues / publication : {m.viewsPerPostBasis}</p>}
+            {m.storyViews != null && <p className="text-[0.68rem] text-zinc-500">Vues / story : {nf(Math.round(m.storyViews))} — {m.storyViewsBasis}</p>}
+            {(m.contentEngagement != null || m.storyEngagement != null) && <p className="text-[0.68rem] text-zinc-500">Engagement médian / comptes atteints : publications {m.contentEngagement == null ? "—" : `${pctFr(m.contentEngagement, 1)} %`} · stories {m.storyEngagement == null ? "—" : `${pctFr(m.storyEngagement, 1)} %`} ({m.contentSample} contenus saisis)</p>}
+            {m.viewsGrowthObserved != null && <p className="text-[0.68rem] text-zinc-500">Variation des vues observée : {pctFr(m.viewsGrowthObserved, 1)} % (non extrapolée tant qu'il y a moins de 3 relevés)</p>}
             {m.missing.length > 0 && <p className="mt-1 text-[0.68rem] text-amber-700">Manquant : {m.missing.join(", ")}</p>}
+            <div className="mt-2"><Disclosure label="Modifier l'identifiant">
+              <ActionForm action={renameSocialAccount} submitLabel="Enregistrer" className="space-y-2"><input type="hidden" name="id" value={m.account.id} />
+                <input name="handle" defaultValue={m.account.handle} className="input" /><input name="url" placeholder="URL du profil" className="input" /></ActionForm>
+            </Disclosure></div>
           </Card>))}
         <Card title="Ajouter un compte">
           <ActionForm action={addSocialAccount} submitLabel="Ajouter" resetOnOk className="space-y-2">
@@ -70,6 +86,16 @@ export default async function Audience({ searchParams }: { searchParams: Promise
           </ActionForm>
         </Card>
       </div>
+
+      <Card title="Importer un relevé complet (JSON)" className="mt-4">
+        <Disclosure label="↑ Import JSON (format creator-hub/insights@1)">
+          <ActionForm action={importInsightsJson} submitLabel="Importer le relevé" className="grid gap-2">
+            <input type="file" name="file" accept=".json,application/json" className="input" />
+            <textarea name="json" rows={3} className="input font-mono !text-xs" placeholder='{"format":"creator-hub/insights@1", …}' />
+            <p className="text-[0.68rem] text-zinc-500">Relevé, démographie, vues par format et contenus. Un relevé déjà présent à la même date n'est jamais écrasé. Exemple : <code>creator-hub/data/imports/instagram-personnel-2026-11-12.json</code>.</p>
+          </ActionForm>
+        </Disclosure>
+      </Card>
 
       {metrics.length > 0 && (
         <Card title="Saisir ou importer des statistiques réelles" className="mt-4">
@@ -92,7 +118,7 @@ export default async function Audience({ searchParams }: { searchParams: Promise
                 <select name="account_id" className="input">{metrics.map((m) => <option key={m.account.id} value={m.account.id}>{m.account.platform} @{m.account.handle}</option>)}</select>
                 <input name="source" required placeholder="Source de l'export *" className="input" />
                 <input type="file" name="file" accept=".csv,text/csv" className="input" />
-                <textarea name="csv" rows={3} className="input font-mono !text-xs sm:col-span-3" placeholder={"date,followers,views_30d,views_90d,reach_30d,impressions_30d,engagements_30d,posts_30d,avg_story_views\n2026-11-01,11365,…"} />
+                <textarea name="csv" rows={3} className="input font-mono !text-xs sm:col-span-3" placeholder={"date,followers,views_30d,views_90d,reach_30d,impressions_30d,engagements_30d,posts_30d,avg_story_views\nAAAA-MM-JJ,abonnés,vues 30 j,…"} />
               </ActionForm>
             </Disclosure>
           </div>
@@ -101,6 +127,46 @@ export default async function Audience({ searchParams }: { searchParams: Promise
               <td className="td"><form action={deleteSnapshot}><input type="hidden" name="id" value={s.id} /><ConfirmSubmit message="Supprimer ce relevé ?" className="text-xs text-zinc-400 hover:text-red-600">×</ConfirmSubmit></form></td></tr>)}</tbody></table></div>}
         </Card>
       )}
+
+      {details.map((d) => (
+        <Card key={d.id} title={<span>Détail du relevé — {d.platform} @{d.handle} · {d.captured_on}{d.period ? ` · ${d.period}` : ""}</span>} className="mt-4">
+          <div className="grid gap-5 lg:grid-cols-3">
+            <div className="space-y-3 text-sm">
+              {d.ins.views_by_type && <div><div className="text-xs font-medium text-zinc-500">Vues par format (30 j){d.ins.views_by_type.rounded ? " — arrondies par Instagram" : ""}</div>
+                {(["publications", "stories", "reels", "live"] as const).map((k) => d.ins.views_by_type[k] != null && <div key={k} className="flex justify-between"><span className="capitalize">{k}</span><span className="tabular">{nf(d.ins.views_by_type[k])}</span></div>)}</div>}
+              {d.ins.interactions_by_type && <div><div className="text-xs font-medium text-zinc-500">Interactions par format (30 j)</div>
+                {(["publications", "reels", "stories", "live"] as const).map((k) => d.ins.interactions_by_type[k] != null && <div key={k} className="flex justify-between"><span className="capitalize">{k}</span><span className="tabular">{nf(d.ins.interactions_by_type[k])}</span></div>)}</div>}
+              <div><div className="text-xs font-medium text-zinc-500">Évolution vs période précédente</div>
+                {d.ins.followers_net_30d != null && <div className="flex justify-between"><span>Abonnés nets</span><span className="tabular">+{nf(d.ins.followers_net_30d)} ({numFr(d.ins.followers_change_pct)} %)</span></div>}
+                {d.ins.views_change_pct != null && <div className="flex justify-between"><span>Vues</span><span className="tabular">+{numFr(d.ins.views_change_pct)} %</span></div>}
+                {d.ins.reach_change_pct != null && <div className="flex justify-between"><span>Comptes atteints</span><span className="tabular">+{numFr(d.ins.reach_change_pct)} %</span></div>}</div>
+              {d.ins.profile_visits_30d != null && <div><div className="text-xs font-medium text-zinc-500">Activité du profil (30 j)</div>
+                <div className="flex justify-between"><span>Visites du profil</span><span className="tabular">{nf(d.ins.profile_visits_30d)}{d.ins.profile_visits_rounded ? " (arrondi)" : ""}</span></div>
+                <div className="flex justify-between"><span>Appuis lien en bio</span><span className="tabular">{nf(d.ins.link_in_bio_taps_30d)}</span></div></div>}
+            </div>
+            <div className="space-y-3 text-sm">
+              {([["Genre", d.ins.gender_pct], ["Âge", d.ins.age_pct]] as const).map(([label, m]) => m && <div key={label}><div className="text-xs font-medium text-zinc-500">{label}</div>
+                {sortDemo(label, m as Record<string, number>).map(([k, v]) => <div key={k} className="grid grid-cols-[70px_1fr_44px] items-center gap-2 text-xs"><span className="capitalize">{k}</span><div className="h-1.5 rounded-full bg-zinc-100"><div className="h-full rounded-full bg-fuchsia-600" style={{ width: `${v}%` }} /></div><span className="text-right tabular">{String(v).replace(".", ",")} %</span></div>)}</div>)}
+            </div>
+            <div className="space-y-3 text-sm">
+              {([["Pays principaux", d.ins.countries_pct], ["Langues", d.ins.languages_pct]] as const).map(([label, m]) => m && <div key={label}><div className="text-xs font-medium text-zinc-500">{label}</div>
+                {sortDemo(label, m as Record<string, number>).map(([k, v]) => <div key={k} className="flex justify-between text-xs"><span>{k}</span><span className="tabular">{String(v).replace(".", ",")} %</span></div>)}</div>)}
+              {d.ins.most_active && <div><div className="text-xs font-medium text-zinc-500">Moments les plus actifs</div><p className="text-xs">{d.ins.most_active}</p></div>}
+              {Array.isArray(d.ins.missing) && <p className="text-[0.68rem] text-amber-700">Non fourni par le relevé : {d.ins.missing.join(", ")}</p>}
+            </div>
+          </div>
+          {d.contents.length > 0 && <div className="mt-4 overflow-x-auto"><div className="mb-1 text-xs font-medium text-zinc-500">Contenus saisis ({d.contents.length}) — échantillon des plus performants, pas la totalité des publications</div>
+            <table className="w-full min-w-[760px]"><thead><tr><th className="th">Date</th><th className="th">Format</th><th className="th">Contenu</th><th className="th text-right">Vues</th><th className="th text-right">Comptes atteints</th><th className="th text-right">J'aime</th><th className="th text-right">Comm.</th><th className="th text-right">Republ.</th><th className="th text-right">Partages</th><th className="th text-right">Engagement / atteints</th></tr></thead>
+              <tbody>{d.contents.map((c: any) => { const e = (c.likes ?? 0) + (c.comments ?? 0) + (c.shares ?? 0) + (c.reposts ?? 0) + (c.saves ?? 0) + (c.replies ?? 0); return (
+                <tr key={c.id}><td className="td text-xs">{c.posted_on}</td><td className="td text-xs">{c.kind}</td><td className="td text-xs">{c.title}</td><td className="td text-right tabular">{nf(c.views)}</td><td className="td text-right tabular">{nf(c.reach)}</td>
+                  <td className="td text-right tabular">{nf(c.likes)}</td><td className="td text-right tabular">{nf(c.comments)}</td><td className="td text-right tabular">{nf(c.reposts)}</td><td className="td text-right tabular">{nf(c.shares)}</td>
+                  <td className="td text-right tabular">{c.reach ? `${pctFr(e / c.reach, 1)} %` : "—"}</td></tr>); })}</tbody></table></div>}
+        </Card>
+      ))}
+
+      {audRecs.length > 0 && <Card title="Recommandations tirées de vos statistiques" className="mt-4">
+        <ul className="space-y-2 text-sm">{audRecs.map((r) => <li key={r.text}><b>→ {r.text}</b><div className="text-xs text-zinc-500">{r.why}</div></li>)}</ul>
+      </Card>}
 
       {/* Potentiel actuel */}
       <h3 className="mb-2 mt-6 text-xs font-semibold uppercase tracking-wider text-zinc-400">Potentiel commercial mensuel aujourd'hui</h3>
@@ -124,12 +190,13 @@ export default async function Audience({ searchParams }: { searchParams: Promise
       {/* Tarifs */}
       <Card title="Grille tarifaire estimée" className="mt-6" pad={false}>
         <div className="overflow-x-auto"><table className="w-full min-w-[980px]">
-          <thead><tr><th className="th">Prestation</th><th className="th text-right">Basse</th><th className="th text-right">Centrale</th><th className="th text-right">Haute</th><th className="th text-right">dont production</th><th className="th text-right">dont diffusion</th><th className="th">Justification</th><th className="th">Confiance</th></tr></thead>
+          <thead><tr><th className="th">Prestation</th><th className="th text-right">Basse</th><th className="th text-right">Centrale</th><th className="th text-right">Haute</th><th className="th text-right">Tarif proposé</th><th className="th text-right">dont production</th><th className="th text-right">dont diffusion</th><th className="th">Justification</th><th className="th">Confiance</th></tr></thead>
           <tbody>{prices.map((p) => (
             <tr key={p.key} className={p.available ? "" : "opacity-60"}><td className="td font-medium">{p.label}</td>
               {p.available ? <><td className="td text-right tabular">{eur0(p.low)}</td><td className="td text-right tabular font-semibold">{eur0(p.mid)}</td><td className="td text-right tabular">{eur0(p.high)}</td>
+                <td className="td text-right tabular font-semibold text-accent">{eur0(Math.round(p.mid / 10) * 10)}</td>
                 <td className="td text-right tabular">{eur0(p.production.mid)}</td><td className="td text-right tabular">{p.publication ? eur0(p.publication.mid) : "—"}</td></>
-                : <td className="td text-xs text-amber-700" colSpan={5}>Non estimable — manquant : {p.missing.join(", ") || "statistiques"}</td>}
+                : <td className="td text-xs text-amber-700" colSpan={6}>Non estimable — manquant : {p.missing.join(", ") || "statistiques"}</td>}
               <td className="td text-xs text-zinc-600">{p.justification.join(" · ")}{p.realData && <div className="text-emerald-700">Données réelles : {p.realData}</div>}<div className="text-zinc-400">{p.conditions.join(" ")}</div></td>
               <td className="td"><Badge tone={p.confidence === "élevée" ? "green" : p.confidence === "moyenne" ? "blue" : "amber"}>{p.confidence}</Badge></td></tr>))}</tbody></table></div>
         <p className="px-4 py-2 text-xs text-zinc-500">Production = temps × taux horaire (hypothèses modifiables dans Paramètres). Diffusion = vues réelles par publication × CPM (hypothèse). Le nombre d'abonnés seul n'entre pas dans le calcul. Droits d'usage, exclusivité et diffusion payante sont facturés en plus.</p>
@@ -167,4 +234,11 @@ export default async function Audience({ searchParams }: { searchParams: Promise
       </Card>
     </div>
   );
+}
+
+// Le stockage JSON ne garantit pas l'ordre des clés : tranches d'âge dans l'ordre naturel, le reste par part décroissante.
+const AGE_ORDER = ["13-17", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"];
+function sortDemo(label: string, m: Record<string, number>): [string, number][] {
+  const e = Object.entries(m);
+  return label === "Âge" ? e.sort((a, b) => AGE_ORDER.indexOf(a[0]) - AGE_ORDER.indexOf(b[0])) : e.sort((a, b) => b[1] - a[1]);
 }

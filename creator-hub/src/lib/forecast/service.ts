@@ -1,3 +1,4 @@
+import { pctFr } from "../money";
 import { iso } from "../dates";
 import { q, one } from "../db";
 import { loadDataset } from "../data";
@@ -15,12 +16,15 @@ export async function getForecastSettings(): Promise<ForecastSettings> {
 
 export async function loadAccounts(owner?: string): Promise<Account[]> {
   const accs = await q<any>(`select id, owner, platform, handle from social_accounts where active=true ${owner ? "and owner=$1" : ""} order by owner, platform`, owner ? [owner] : []);
-  const snaps = await q<any>(`select account_id, captured_on::text as captured_on, followers, views_30d, views_90d, reach_30d, impressions_30d, engagements_30d, posts_30d, avg_story_views, source
+  const snaps = await q<any>(`select account_id, captured_on::text as captured_on, followers, views_30d, views_90d, reach_30d, impressions_30d, engagements_30d, posts_30d, avg_story_views, source, derived, insights
     from social_snapshots order by captured_on`);
+  const contents = await q<any>(`select account_id, kind, views, reach, likes, comments, shares, reposts, saves, replies from social_content`);
   const num = (v: any) => (v == null ? null : Number(v));
   return accs.map((a) => ({ ...a, snapshots: snaps.filter((s) => s.account_id === a.id).map((s): Snapshot => ({
     captured_on: s.captured_on, followers: num(s.followers), views_30d: num(s.views_30d), views_90d: num(s.views_90d), reach_30d: num(s.reach_30d),
-    impressions_30d: num(s.impressions_30d), engagements_30d: num(s.engagements_30d), posts_30d: num(s.posts_30d), avg_story_views: num(s.avg_story_views), source: s.source })) }));
+    impressions_30d: num(s.impressions_30d), engagements_30d: num(s.engagements_30d), posts_30d: num(s.posts_30d), avg_story_views: num(s.avg_story_views), source: s.source,
+    derived: Boolean(s.derived), insights: s.insights ?? null })),
+    contents: contents.filter((c) => c.account_id === a.id).map((c) => ({ kind: c.kind, views: num(c.views), reach: num(c.reach), likes: num(c.likes), comments: num(c.comments), shares: num(c.shares), reposts: num(c.reposts), saves: num(c.saves), replies: num(c.replies) })) }));
 }
 
 export async function computeAll(opts: { owner?: string } = {}) {
@@ -116,7 +120,7 @@ export function recommendations(all: Awaited<ReturnType<typeof computeAll>>): { 
     if (reel && svc.avg! < reel.low * 0.9) out.push({ text: `Revoir les tarifs « ${svc.category} ».`, why: `Prix moyen signé ${Math.round(svc.avg!)} €, sous la fourchette basse estimée (${reel.low} €) pour le temps de production.` });
   }
   const eng = all.metrics.filter((m) => m.engagementRate != null).sort((a, b) => b.engagementRate! - a.engagementRate!);
-  if (eng.length >= 2) out.push({ text: `Développer ${eng[0].account.platform} (@${eng[0].account.handle}).`, why: `Taux d'engagement le plus élevé : ${(eng[0].engagementRate! * 100).toFixed(1)} % (${eng[0].engagementFormula}).` });
+  if (eng.length >= 2) out.push({ text: `Développer ${eng[0].account.platform} (@${eng[0].account.handle}).`, why: `Taux d'engagement le plus élevé : ${pctFr(eng[0].engagementRate!, 1)} % (${eng[0].engagementFormula}).` });
   const positives = all.ds.responses.filter((r) => r.classification === "positive").length;
   const signed = all.ds.deals.filter((d) => isSigned(d) && d.collab_type !== "gifting").length;
   if (positives >= 5 && signed / positives < 0.2) out.push({ text: "Améliorer la transformation des réponses positives.", why: `${positives} réponses positives pour ${signed} contrat(s) signé(s) : proposez systématiquement un devis chiffré après un intérêt.` });
@@ -125,6 +129,39 @@ export function recommendations(all: Awaited<ReturnType<typeof computeAll>>): { 
   if (clients >= 3 && recurring === 0) out.push({ text: "Proposer des partenariats récurrents à vos clients existants.", why: `${clients} clients signés, aucun partenariat récurrent.` });
   const due = all.bf.totals.potentialCount;
   if (due === 0 && all.ds.brands.length > 0) out.push({ text: "Relancer la prospection : aucune opportunité ouverte dans le pipeline.", why: "Sans démarche en cours, la prévision des prochains mois est nulle." });
+  out.push(...audienceRecommendations(all.metrics));
   if (all.metrics.length === 0) out.push({ text: "Renseigner vos statistiques Instagram, TikTok, Snapchat et YouTube.", why: "Sans relevé, la valeur d'audience et la projection à 6 mois ne peuvent pas être calculées." });
+  return out;
+}
+
+/** Recommandations tirées des relevés d'audience (compte de l'entité affichée uniquement). */
+export function audienceRecommendations(metrics: Awaited<ReturnType<typeof computeAll>>["metrics"]): { text: string; why: string }[] {
+  const out: { text: string; why: string }[] = [];
+  for (const m of metrics) {
+    const l = m.latest; if (!l) continue;
+    const ins = (l.insights ?? {}) as Record<string, any>;
+    const name = `${m.account.platform} @${m.account.handle}`;
+    if (ins.profile_visits_30d > 0 && ins.link_in_bio_taps_30d === 0)
+      out.push({ text: `Ajouter un lien en bio vers votre Media Kit / formulaire de collaboration (${name}).`, why: `${ins.profile_visits_30d} visites du profil sur 30 jours et 0 appui sur le lien en bio (relevé du ${l.captured_on}).` });
+    if (m.engagementRate != null && m.engagementRate >= 0.05)
+      out.push({ text: `Mettre en avant votre taux d'engagement dans vos propositions (${name}).`, why: `${pctFr(m.engagementRate, 1)} % (${m.engagementFormula}) sur le relevé du ${l.captured_on}.` });
+    if (typeof ins.most_active === "string")
+      out.push({ text: "Programmer les publications sponsorisées sur les créneaux où votre audience est la plus active.", why: ins.most_active });
+    const vt = ins.views_by_type;
+    if (vt && vt.publications && vt.reels) {
+      const tot = (vt.publications ?? 0) + (vt.stories ?? 0) + (vt.reels ?? 0);
+      out.push({ text: vt.publications > vt.reels ? "Vendre en priorité des publications (photo / carrousel) plutôt que des Reels seuls." : "Vendre en priorité des Reels.",
+        why: `Vues 30 j : publications ${Math.round((vt.publications / tot) * 100)} %, stories ${Math.round(((vt.stories ?? 0) / tot) * 100)} %, Reels ${Math.round((vt.reels / tot) * 100)} %.` });
+    }
+    const g = ins.gender_pct, a = ins.age_pct, c = ins.countries_pct;
+    if (g && a && c) {
+      const young = (a["18-24"] ?? 0) + (a["25-34"] ?? 0);
+      const top = Object.entries(c as Record<string, number>).sort((x, y) => y[1] - x[1])[0];
+      out.push({ text: "Cibler en priorité les marques qui visent cette audience (déduction à valider : streetwear, sport, tech créateurs, musique).",
+        why: `Audience ${Math.round(young)} % 18–34 ans, ${g.hommes ?? "?"} % d'hommes, ${top[0]} ${top[1]} % (relevé du ${l.captured_on}).` });
+    }
+    if (m.viewsGrowthObserved != null && m.viewsGrowth !== m.viewsGrowthObserved)
+      out.push({ text: "Refaire un relevé de statistiques chaque mois.", why: `Une seule variation des vues (${pctFr(m.viewsGrowthObserved, 0)} %) ne suffit pas à établir une tendance : 3 relevés sont nécessaires.` });
+  }
   return out;
 }

@@ -3,7 +3,7 @@ import { computeAll, recommendations, sectorChanges } from "@/lib/forecast/servi
 import { SCENARIOS, SCENARIO_LABEL, monthLabel } from "@/lib/forecast/business";
 import { periodStatus } from "@/lib/forecast/learning";
 import { addMonthsYm } from "@/lib/forecast/business";
-import { eur0 } from "@/lib/money";
+import { eur0, numFr } from "@/lib/money";
 import { PageHeader, Card, Kpi, Badge, Empty } from "@/components/ui";
 import { ActionForm } from "@/components/client";
 import { ScenarioChart, SCENARIO_COLORS } from "@/components/chart";
@@ -32,7 +32,7 @@ export default async function Forecast() {
       <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Aujourd'hui</h3>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
         <Kpi label="Contrats potentiels" value={bf.totals.potentialCount} hint="opportunités ouvertes" />
-        <Kpi label="Contrats probables" value={bf.totals.probable.central.toFixed(1)} hint={`${bf.totals.probable.prudent.toFixed(1)} – ${bf.totals.probable.ambitious.toFixed(1)}`} />
+        <Kpi label="Contrats probables" value={numFr(bf.totals.probable.central)} hint={`${numFr(bf.totals.probable.prudent)} – ${numFr(bf.totals.probable.ambitious)}`} />
         <Kpi label="Signés ce mois" value={bf.totals.signedCount} tone="green" />
         <Kpi label="CA potentiel (non pondéré)" value={eur0(bf.totals.potentialValue)} tone="muted" hint="si tout signait" />
         <Kpi label="CA prévisionnel pondéré" value={eur0(bf.totals.weighted.central)} tone="accent" hint={`${eur0(bf.totals.weighted.prudent)} – ${eur0(bf.totals.weighted.ambitious)}`} />
@@ -44,7 +44,7 @@ export default async function Forecast() {
         {SCENARIOS.map((sc) => { const x = bf.scenarios[sc]; return (
           <Card key={sc} title={<span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full" style={{ background: SCENARIO_COLORS[sc] }} />Scénario {SCENARIO_LABEL[sc].toLowerCase()} · 6 mois</span>}>
             <dl className="grid grid-cols-2 gap-y-1.5 text-sm tabular">
-              <dt className="text-zinc-500">Contrats estimés</dt><dd className="text-right font-semibold">{x.contracts6m.toFixed(1)}</dd>
+              <dt className="text-zinc-500">Contrats estimés</dt><dd className="text-right font-semibold">{numFr(x.contracts6m)}</dd>
               <dt className="text-zinc-500">CA prévisionnel pondéré</dt><dd className="text-right font-semibold">{eur0(x.weighted6m)}</dd>
               <dt className="text-zinc-500">Revenus probables à encaisser</dt><dd className="text-right">{eur0(x.cash6m)}</dd>
               <dt className="text-zinc-500">Confiance</dt><dd className="text-right">{x.confidence}</dd>
@@ -67,8 +67,8 @@ export default async function Forecast() {
           <thead><tr><th className="th">Mois</th><th className="th text-right">Contrats pipeline</th><th className="th text-right">Nouveaux (prospection)</th><th className="th text-right">Contrats (prudent · central · ambitieux)</th><th className="th text-right">CA pondéré central</th><th className="th text-right">Encaissement central</th><th className="th">Confiance</th></tr></thead>
           <tbody>{bf.months.map((m) => (
             <tr key={m.ym}><td className="td font-medium">{labels[m.month]}</td>
-              <td className="td text-right tabular">{m.pipelineContracts.central.toFixed(1)}</td><td className="td text-right tabular">{m.newContracts.central.toFixed(1)}</td>
-              <td className="td text-right tabular">{m.contracts.prudent.toFixed(1)} · <b>{m.contracts.central.toFixed(1)}</b> · {m.contracts.ambitious.toFixed(1)}{m.capped.central && <Badge tone="amber">capacité</Badge>}</td>
+              <td className="td text-right tabular">{numFr(m.pipelineContracts.central)}</td><td className="td text-right tabular">{numFr(m.newContracts.central)}</td>
+              <td className="td text-right tabular">{numFr(m.contracts.prudent)} · <b>{numFr(m.contracts.central)}</b> · {numFr(m.contracts.ambitious)}{m.capped.central && <Badge tone="amber">capacité</Badge>}</td>
               <td className="td text-right tabular">{eur0(m.weighted.central)}</td><td className="td text-right tabular">{eur0(m.cash.central)}</td>
               <td className="td"><Badge tone={m.confidence === "élevé" ? "green" : m.confidence === "moyen" ? "blue" : "amber"}>{m.confidence}</Badge></td></tr>))}</tbody></table></div>
       </Card>
@@ -95,7 +95,7 @@ export default async function Forecast() {
         <Card title="Prévision par secteur (scénario central, 6 mois)" pad={false}>
           <table className="w-full"><thead><tr><th className="th">Secteur</th><th className="th text-right">Opportunités</th><th className="th text-right">Contrats</th><th className="th text-right">Court terme (≤ 2 mois)</th><th className="th text-right">CA pondéré 6 mois</th></tr></thead>
             <tbody>{bf.sectors.map((s) => <tr key={s.sector_id}><td className="td"><span className="inline-flex items-center gap-1.5 font-medium"><span className="h-2 w-2 rounded-full" style={{ background: s.color }} />{s.name}</span><div className="text-xs text-zinc-500">{s.note}</div></td>
-              <td className="td text-right tabular">{s.pipelineCount}</td><td className="td text-right tabular">{s.contracts6m.toFixed(1)}</td><td className="td text-right tabular">{eur0(s.shortTerm)}</td><td className="td text-right tabular font-semibold">{eur0(s.weighted6m)}</td></tr>)}</tbody></table>
+              <td className="td text-right tabular">{s.pipelineCount}</td><td className="td text-right tabular">{numFr(s.contracts6m)}</td><td className="td text-right tabular">{eur0(s.shortTerm)}</td><td className="td text-right tabular font-semibold">{eur0(s.weighted6m)}</td></tr>)}</tbody></table>
         </Card>
         <Card title="Recommandations (fondées sur vos données)">
           {recs.length === 0 ? <p className="text-sm text-zinc-500">Pas encore assez de données pour recommander quoi que ce soit de fiable.</p> :

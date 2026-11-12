@@ -21,6 +21,7 @@ export interface ReportData {
   trend?: { status: string; lines: string[] };
   sectors?: { name: string; weighted6m: number; pipeline: number }[];
   recommendations?: string[];
+  audience?: { account: string; captured_on: string; ageDays: number | null; followers: number | null; reach30: number | null; engagement: number | null; followerGrowth: number | null }[];
 }
 
 export async function buildReport(sinceIso: string): Promise<ReportData> {
@@ -42,10 +43,11 @@ export async function buildReport(sinceIso: string): Promise<ReportData> {
   const [w] = await q<any>(`select
     (select count(*)::int from watch_candidates where kind='brand' and status='new' and first_seen_at > $1) as nb,
     (select count(*)::int from watch_candidates where kind='contact' and first_seen_at > $1) as nc,
-    (select count(*)::int from watch_candidates where status='accepted' and first_seen_at > $1) as prepared`, [sinceIso]);
+    (select count(*)::int from watch_candidates where status='accepted' and first_seen_at > $1) as prepared,
+    (select count(*)::int from social_snapshots where created_at > $1) + (select count(*)::int from social_content where created_at > $1) as audience`, [sinceIso]);
   const top = await q<{ id: number; name: string; score: number | null }>(`select id, name, score from watch_candidates where kind='brand' and status='new' order by score desc nulls last limit 5`);
   const all = await computeAll();
-  const changed = c.new_brands + c.outreach + c.responses + c.deals + c.docs + c.inter + w.nb + w.nc > 0;
+  const changed = c.new_brands + c.outreach + c.responses + c.deals + c.docs + c.inter + w.nb + w.nc + w.audience > 0;
   const priorities: string[] = [];
   if (c.positive) priorities.push(`Répondre aux ${c.positive} réponse(s) positive(s) reçue(s)`);
   if (opportunities.length) priorities.push(`Faire avancer ${opportunities.length} opportunité(s) en cours`);
@@ -61,6 +63,8 @@ export async function buildReport(sinceIso: string): Promise<ReportData> {
     trend: { status: all.trend.status, lines: all.trend.explanations },
     sectors: all.bf.sectors.map((x) => ({ name: x.name, weighted6m: x.weighted6m, pipeline: x.pipelineCount })),
     recommendations: recommendations(all).map((r) => `${r.text} (${r.why})`),
+    audience: all.metrics.filter((m) => m.latest).map((m) => ({ account: `${m.account.platform} @${m.account.handle}`, captured_on: m.latest!.captured_on, ageDays: m.freshnessDays,
+      followers: m.latest!.followers, reach30: m.latest!.reach_30d, engagement: m.engagementRate, followerGrowth: m.followerGrowth })),
     since: sinceIso, newBrands: c.new_brands, outreach: c.outreach, responses: c.responses, positive: c.positive, negative: c.negative,
     opportunities, followUps: due.length, meetings, signed: fin.signed, invoiced: fin.invoiced, collected: fin.collected,
     outstanding: fin.outstanding, overdue: fin.overdueCount, priorities, changed,

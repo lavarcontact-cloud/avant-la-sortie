@@ -1,3 +1,4 @@
+import { pctFr, numFr } from "@/lib/money";
 import Link from "next/link";
 import { loadDataset } from "@/lib/data";
 import { computeKpis, sectorPerformance, sectorInsights, contactPerformance, timingAnalysis, followUpsDue, type Kpis } from "@/lib/stats";
@@ -125,8 +126,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </Link>
         <Link href="/hub/forecast" className="card p-4 transition hover:border-zinc-300">
           <div className="text-[0.72rem] font-medium text-zinc-500">Collaborations raisonnablement atteignables (3 mois)</div>
-          <div className="mt-1 font-display text-2xl font-semibold">{fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.central, 0).toFixed(1)}</div>
-          <div className="mt-1 text-xs text-zinc-500">fourchette {fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.prudent, 0).toFixed(1)} – {fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.ambitious, 0).toFixed(1)} · confiance {fc.bf.confidence}</div>
+          <div className="mt-1 font-display text-2xl font-semibold">{numFr(fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.central, 0))}</div>
+          <div className="mt-1 text-xs text-zinc-500">fourchette {numFr(fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.prudent, 0))} – {numFr(fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.ambitious, 0))} · confiance {fc.bf.confidence}</div>
         </Link>
         <Link href="/hub/forecast" className="card p-4 transition hover:border-zinc-300">
           <div className="text-[0.72rem] font-medium text-zinc-500">CA prévisionnel pondéré à 6 mois</div>
@@ -139,6 +140,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <ScenarioChart labels={fLabels} series={SCENARIOS.map((sc) => ({ label: SCENARIO_LABEL[sc], color: SCENARIO_COLORS[sc], dashed: sc !== "central", values: fc.bf.months.map((m) => m.weighted[sc]) }))} empty="Aucune opportunité ouverte : enregistrez vos démarches pour activer la prévision." />
         </Card>
         <Card title={<span>Valeur de l'audience — potentiel / mois {fc.projection.provisional && <Badge tone="amber">provisoire</Badge>}</span>} action={<Link href="/hub/audience" className="text-xs text-zinc-500 hover:text-zinc-900">Audience Value →</Link>}>
+          {fc.metrics.filter((m) => m.latest).map((m) => <p key={m.account.id} className="mb-2 text-xs text-zinc-500">{m.account.platform} @{m.account.handle} : <b className="text-zinc-800">{m.latest!.followers?.toLocaleString("fr-FR") ?? "—"}</b> abonnés · {m.latest!.reach_30d?.toLocaleString("fr-FR") ?? "—"} comptes atteints / 30 j{m.engagementRate != null ? ` · engagement ${pctFr(m.engagementRate, 1)} %` : ""}{m.followerGrowth != null ? ` · ${pctFr(m.followerGrowth, 1)} %/mois` : ""} · relevé du {m.latest!.captured_on}</p>)}
           <ScenarioChart labels={fLabels} series={SCENARIOS.map((sc) => ({ label: SCENARIO_LABEL[sc], color: SCENARIO_COLORS[sc], dashed: sc !== "central", values: fc.projection.rows.map((r) => r.revenue[sc]) }))} empty="Renseignez vos statistiques d'audience (Audience Value) pour estimer leur valeur." />
         </Card>
       </div>

@@ -18,8 +18,17 @@ Légende : ✅ fonctionnel et testé · 🟡 développé, non testé en conditio
 - ✅ Business Forecast : contrats potentiels / probables / signés, CA potentiel / pondéré / facturé / encaissé, 3 scénarios avec hypothèses, confiance et risques, projection mensuelle, secteurs, tendance, recommandations
 - ✅ Historique quotidien des prévisions (bouton + tâche planifiée)
 - 🟡 Apprentissage (comparaison prévu / réel, facteur d'ajustement) : testé en unitaire avec des historiques fictifs ; en réel, il faudra au moins un mois complet de prévisions archivées
-- ✅ Audience Value : comptes par entité séparés, relevés manuels et CSV avec source, engagement + formule, grille tarifaire production + diffusion, potentiel théorique / accessible / réalisé, projection 6 mois provisoire sans croissance inventée
+- ✅ Audience Value (voir aussi la section Instagram ci-dessous) : comptes par entité séparés, relevés manuels et CSV avec source, engagement + formule, grille tarifaire production + diffusion, potentiel théorique / accessible / réalisé, projection 6 mois provisoire sans croissance inventée
 - ✅ Bilans matin / midi / soir enrichis (veille, prévision du jour, tendance, secteurs, recommandations)
+
+## Statistiques Instagram personnelles (relevé du 12/11/2026)
+- ✅ Migration additive `003_audience_detail.sql` (détail des relevés + table `social_content`), testée sur une base existante : aucune perte
+- ✅ Relevé intégré sous forme de fichier d'import versionné (`data/imports/instagram-personnel-2026-11-12.json`) : 2 386 abonnés, 61 458 vues, 15 381 comptes atteints, 1 588 interactions (30 j), démographie, langues, pays, vues et interactions par format, activité du profil, 14 contenus. Identifiants de tiers retirés (minimisation RGPD)
+- ✅ Import JSON (interface + ligne de commande), idempotent, jamais d'écrasement, rattachement au compte personnel existant, La Var Media jamais touchée
+- ✅ Indicateurs : engagement 10,3 % (compte) · 9,4 % médian publications · 1,1 % médian stories · croissance abonnés 4,2 %/mois · vues/publication 4 800 (médiane d'échantillon) · vues/story 313
+- ✅ Tarifs UGC / influence séparés, tarif proposé arrondi, recommandations tirées des statistiques, dashboard et bilans enrichis
+- ⚠️ Le relevé n'est présent que dans le fichier d'import : il doit être importé dans votre base réelle (`npm run import:insights -- data/imports/…` ou bouton « Import JSON ») une fois celle-ci en place
+- ⏳ Identifiant du compte personnel à renseigner (non visible sur les captures)
 
 ## Nécessite une API, une clé ou une autorisation
 - 🔌 `FIRECRAWL_API_KEY` : veille automatique quotidienne (compte Firecrawl, payant à l'usage)

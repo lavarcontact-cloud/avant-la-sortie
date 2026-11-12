@@ -2,7 +2,7 @@ import Link from "next/link";
 import { q } from "@/lib/db";
 import { SLOT_LABEL, type ReportData, type Slot } from "@/lib/reports";
 import { fmtDate, fmtDateTime } from "@/lib/dates";
-import { eur0 } from "@/lib/money";
+import { eur0, pctFr, numFr } from "@/lib/money";
 import { PageHeader, Card, Empty } from "@/components/ui";
 import { ActionForm } from "@/components/client";
 import { generateReportNow } from "./actions";
@@ -23,9 +23,10 @@ export default async function Reports() {
                 <div key={String(l)} className="rounded-lg bg-zinc-50 p-2.5"><div className="text-xs text-zinc-500">{l}</div><div className="font-semibold tabular">{v}</div></div>))}
             </div>
             {d.watch && (d.watch.newBrands > 0 || d.watch.newContacts > 0) && <p className="mt-3 text-sm"><b>Veille :</b> {d.watch.newBrands} nouvelle(s) marque(s), {d.watch.newContacts} interlocuteur(s){d.watch.top.length > 0 && <> · à examiner : {d.watch.top.map((t) => `${t.name} (${t.score})`).join(", ")}</>} · <Link className="underline" href="/hub/watch">ouvrir</Link></p>}
-            {d.forecast && <p className="mt-1 text-sm"><b>Prévision du jour :</b> {d.forecast.probable.toFixed(1)} contrat(s) probable(s) · CA pondéré {eur0(d.forecast.weighted)} (fourchette {eur0(d.forecast.weightedLow)} – {eur0(d.forecast.weightedHigh)}) · confiance {d.forecast.confidence}</p>}
+            {d.forecast && <p className="mt-1 text-sm"><b>Prévision du jour :</b> {numFr(d.forecast.probable)} contrat(s) probable(s) · CA pondéré {eur0(d.forecast.weighted)} (fourchette {eur0(d.forecast.weightedLow)} – {eur0(d.forecast.weightedHigh)}) · confiance {d.forecast.confidence}</p>}
             {d.trend && <p className="mt-1 text-sm"><b>Tendance :</b> {d.trend.status}{d.trend.lines.length > 0 && ` — ${d.trend.lines.slice(0, 2).join(" ")}`}</p>}
             {d.sectors && d.sectors.some((x) => x.weighted6m > 0) && <p className="mt-1 text-sm"><b>Secteurs :</b> {d.sectors.filter((x) => x.weighted6m > 0).map((x) => `${x.name} ${eur0(x.weighted6m)}`).join(" · ")}</p>}
+            {d.audience && d.audience.length > 0 && <p className="mt-1 text-sm"><b>Audience (personnel) :</b> {d.audience.map((a) => `${a.account} — ${a.followers?.toLocaleString("fr-FR") ?? "?"} abonnés, ${a.reach30?.toLocaleString("fr-FR") ?? "?"} comptes atteints/30 j${a.engagement != null ? `, engagement ${pctFr(a.engagement, 1)} %` : ""}${a.followerGrowth != null ? `, ${pctFr(a.followerGrowth, 1)} %/mois` : ""} (relevé du ${a.captured_on}${a.ageDays != null && a.ageDays > 30 ? `, ${a.ageDays} j : à actualiser` : ""})`).join(" · ")}</p>}
             {d.recommendations && d.recommendations.length > 0 && <div className="mt-2 text-sm"><b>Recommandations :</b><ul className="list-inside list-disc">{d.recommendations.slice(0, 4).map((r) => <li key={r}>{r}</li>)}</ul></div>}
             {d.opportunities.length > 0 && <p className="mt-3 text-sm"><b>Opportunités à traiter :</b> {d.opportunities.map((o, i) => <span key={o.brand_id}>{i > 0 && ", "}<Link className="underline" href={`/hub/brands/${o.brand_id}`}>{o.name}</Link></span>)}</p>}
             {d.meetings.length > 0 && <p className="mt-1 text-sm"><b>Rendez-vous :</b> {d.meetings.map((m) => `${m.name} (${fmtDateTime(m.at)})`).join(", ")}</p>}

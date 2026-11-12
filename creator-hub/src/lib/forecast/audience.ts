@@ -1,3 +1,4 @@
+import { pctFr } from "../money";
 // Audience Value — valeur commerciale de l'audience, séparée du potentiel de prospection.
 // Règles :
 //  - aucune statistique inventée : sans donnée, la valeur n'est pas calculée (« donnée manquante ») ;
@@ -14,13 +15,23 @@ export const OWNERS: Record<string, string> = { personal: "Personnel (Sébastien
 export interface Snapshot {
   captured_on: string; followers: number | null; views_30d: number | null; views_90d: number | null; reach_30d: number | null;
   impressions_30d: number | null; engagements_30d: number | null; posts_30d: number | null; avg_story_views: number | null; source: string;
+  derived?: boolean; insights?: Record<string, any> | null;
 }
-export interface Account { id: number; owner: string; platform: string; handle: string; snapshots: Snapshot[] }
+export interface ContentRow { kind: string; views: number | null; reach: number | null; likes: number | null; comments: number | null; shares: number | null; reposts: number | null; saves: number | null; replies?: number | null }
+export interface Account { id: number; owner: string; platform: string; handle: string; snapshots: Snapshot[]; contents?: ContentRow[] }
+
+export function median(xs: number[]): number | null {
+  if (!xs.length) return null;
+  const a = [...xs].sort((x, y) => x - y), m = Math.floor(a.length / 2);
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+}
 
 export interface AccountMetrics {
   account: Account; latest: Snapshot | null; freshnessDays: number | null;
   engagementRate: number | null; engagementFormula: string | null;
-  viewsPerPost: number | null; followerGrowth: number | null; viewsGrowth: number | null; growthBasis: string;
+  viewsPerPost: number | null; viewsPerPostBasis: string | null; storyViews: number | null; storyViewsBasis: string | null;
+  contentEngagement: number | null; storyEngagement: number | null; contentSample: number;
+  followerGrowth: number | null; viewsGrowth: number | null; viewsGrowthObserved: number | null; growthBasis: string;
   missing: string[];
 }
 
@@ -37,16 +48,29 @@ export function accountMetrics(acc: Account, today: string): AccountMetrics {
   const snaps = [...acc.snapshots].sort((x, y) => x.captured_on.localeCompare(y.captured_on));
   const latest = snaps[snaps.length - 1] ?? null;
   const missing: string[] = [];
-  if (!latest) return { account: acc, latest: null, freshnessDays: null, engagementRate: null, engagementFormula: null, viewsPerPost: null, followerGrowth: null, viewsGrowth: null, growthBasis: "aucun relevé", missing: ["aucun relevé de statistiques"] };
+  if (!latest) return { account: acc, latest: null, freshnessDays: null, engagementRate: null, engagementFormula: null, viewsPerPost: null, viewsPerPostBasis: null, storyViews: null, storyViewsBasis: null, contentEngagement: null, storyEngagement: null, contentSample: 0, followerGrowth: null, viewsGrowth: null, viewsGrowthObserved: null, growthBasis: "aucun relevé", missing: ["aucun relevé de statistiques"] };
   const freshnessDays = Math.round((Date.parse(today) - Date.parse(latest.captured_on)) / DAY);
   let engagementRate: number | null = null, engagementFormula: string | null = null;
   if (latest.engagements_30d != null && latest.reach_30d) { engagementRate = latest.engagements_30d / latest.reach_30d; engagementFormula = "interactions 30 j ÷ portée 30 j"; }
   else if (latest.engagements_30d != null && latest.views_30d) { engagementRate = latest.engagements_30d / latest.views_30d; engagementFormula = "interactions 30 j ÷ vues 30 j"; }
   else if (latest.engagements_30d != null && latest.followers) { engagementRate = latest.engagements_30d / latest.followers; engagementFormula = "interactions 30 j ÷ abonnés (faute de portée)"; }
   else missing.push("interactions sur 30 jours");
-  const viewsPerPost = latest.views_30d != null && latest.posts_30d ? latest.views_30d / latest.posts_30d : null;
+  // Vues par publication : moyenne exacte si le nombre de publications est connu, sinon médiane des contenus saisis (≥ 3).
+  const contents = acc.contents ?? [];
+  const feed = contents.filter((c) => ["post", "reel", "video"].includes(c.kind) && c.views != null).map((c) => c.views!);
+  let viewsPerPost: number | null = null, viewsPerPostBasis: string | null = null;
+  if (latest.views_30d != null && latest.posts_30d) { viewsPerPost = latest.views_30d / latest.posts_30d; viewsPerPostBasis = "moyenne exacte (vues 30 j ÷ publications 30 j)"; }
+  else if (feed.length >= 3) { viewsPerPost = median(feed); viewsPerPostBasis = `médiane de ${feed.length} publications saisies (échantillon des plus vues : biais à la hausse)`; }
+  const stories = contents.filter((c) => c.kind === "story" && (c.views ?? c.reach) != null).map((c) => (c.views ?? c.reach)!);
+  let storyViews: number | null = null, storyViewsBasis: string | null = null;
+  if (latest.avg_story_views) { storyViews = latest.avg_story_views; storyViewsBasis = "moyenne déclarée"; }
+  else if (stories.length >= 3) { storyViews = median(stories); storyViewsBasis = `médiane de ${stories.length} stories saisies (comptes atteints quand les vues manquent : estimation prudente)`; }
+  const eng = (c: ContentRow) => ((c.likes ?? 0) + (c.comments ?? 0) + (c.shares ?? 0) + (c.reposts ?? 0) + (c.saves ?? 0) + (c.replies ?? 0)) / c.reach!;
+  // Publications et stories ont des niveaux d'engagement très différents : jamais mélangés.
+  const contentEngagement = median(contents.filter((c) => c.reach && c.kind !== "story").map(eng));
+  const storyEngagement = median(contents.filter((c) => c.reach && c.kind === "story").map(eng));
   if (latest.views_30d == null) missing.push("vues sur 30 jours");
-  if (!latest.posts_30d) missing.push("nombre de publications sur 30 jours");
+  if (!latest.posts_30d) missing.push(feed.length >= 3 ? "nombre de publications sur 30 jours (moyenne exacte)" : "nombre de publications sur 30 jours");
   if (latest.followers == null) missing.push("abonnés");
   // Croissance : relevé le plus ancien d'au moins 25 jours avant le dernier.
   const ref = [...snaps].reverse().find((s) => Date.parse(latest.captured_on) - Date.parse(s.captured_on) >= 25 * DAY);
@@ -61,7 +85,15 @@ export function accountMetrics(acc: Account, today: string): AccountMetrics {
     const prev60avg = (latest.views_90d - latest.views_30d) / 2;
     if (prev60avg > 0) { viewsGrowth = latest.views_30d / prev60avg - 1; growthBasis = "vues 30 j comparées à la moyenne des 60 jours précédents (abonnés : croissance inconnue)"; }
   }
-  return { account: acc, latest, freshnessDays, engagementRate, engagementFormula, viewsPerPost, followerGrowth, viewsGrowth, growthBasis, missing };
+  // Les vues sont très volatiles (un contenu viral suffit à les doubler) : une seule variation ne s'extrapole pas.
+  // Avec moins de 3 relevés de vues, la trajectoire des vues suit celle des abonnés.
+  const viewsGrowthObserved = viewsGrowth;
+  const viewPoints = snaps.filter((x) => x.views_30d != null).length;
+  if (viewPoints < 3 && viewsGrowth != null) {
+    viewsGrowth = followerGrowth ?? 0;
+    growthBasis += ` · vues : variation observée ${pctFr(viewsGrowthObserved!, 1)} % non extrapolée (moins de 3 relevés), projetées au rythme des abonnés`;
+  }
+  return { account: acc, latest, freshnessDays, engagementRate, engagementFormula, viewsPerPost, viewsPerPostBasis, storyViews, storyViewsBasis, contentEngagement, storyEngagement, contentSample: contents.length, followerGrowth, viewsGrowth, viewsGrowthObserved, growthBasis, missing };
 }
 
 // ------------------------------------------------------------------ Tarifs
@@ -69,6 +101,7 @@ export function accountMetrics(acc: Account, today: string): AccountMetrics {
 export const DELIVERABLES = {
   ugc_no_post: "UGC sans publication",
   ugc_with_post: "UGC avec publication",
+  diffusion_only: "Influence seule (diffusion d'un contenu fourni)",
   story_ig: "Story Instagram",
   reel_ig: "Reel Instagram",
   tiktok: "TikTok sponsorisé",
@@ -120,16 +153,18 @@ export function priceCard(metrics: AccountMetrics[], s: ForecastSettings, histor
     }
     out.push({ key, label: DELIVERABLES[key], available, low: r0(low), mid: r0(mid), high: r0(high), production: { low: r0(production.low * f), mid: r0(production.mid * f), high: r0(production.high * f) },
       publication: publication ? { low: r0(publication.low * f), mid: r0(publication.mid * f), high: r0(publication.high * f) } : null,
-      justification: o.justification, conditions: o.conditions ?? [RIGHTS], confidence: available ? conf(o.needs, Boolean(rd)) : "faible", missing, realData });
+      justification: o.justification, conditions: o.conditions ?? [RIGHTS],
+      confidence: !available ? "faible" : (publication && o.needs?.viewsPerPostBasis?.startsWith("médiane") && conf(o.needs, Boolean(rd)) === "élevée") ? "moyenne" : conf(o.needs, Boolean(rd)), missing, realData });
   };
 
   const ig = byPlatform("instagram"), tk = byPlatform("tiktok"), sn = byPlatform("snapchat");
   const ugc = prod(s.ugc_hours);
   push("ugc_no_post", ugc, null, { justification: [`Production : ${s.ugc_hours} h × ${hr.low}–${hr.high} €/h (hypothèse de taux horaire)`, "Indépendant de l'audience : la marque achète le contenu, pas la diffusion"], realCat: "UGC vidéo" });
   const igPub = pub(ig);
-  push("ugc_with_post", ugc, igPub, { needs: ig, needsPublication: true, justification: [`Production UGC + diffusion sur Instagram`, igPub ? `Diffusion : ${r0(ig!.viewsPerPost!)} vues/publication × CPM ${s.cpm.low}–${s.cpm.high} €` : "Diffusion non chiffrable sans vues par publication"] });
-  const storyPub = ig?.latest?.avg_story_views ? pub(ig, ig.latest.avg_story_views) : null;
-  push("story_ig", prod(1), storyPub, { needs: ig, needsPublication: true, missing: ig?.latest?.avg_story_views ? [] : ["vues moyennes par story"], justification: [`1 h de production`, storyPub ? `${ig!.latest!.avg_story_views} vues/story × CPM` : "Vues par story non renseignées"] });
+  push("ugc_with_post", ugc, igPub, { needs: ig, needsPublication: true, justification: [`Production UGC + diffusion sur Instagram`, igPub ? `Diffusion : ${r0(ig!.viewsPerPost!)} vues/publication (${ig!.viewsPerPostBasis}) × CPM ${s.cpm.low}–${s.cpm.high} €` : "Diffusion non chiffrable sans vues par publication"] });
+  const storyPub = ig?.storyViews ? pub(ig, ig.storyViews) : null;
+  push("story_ig", prod(1), storyPub, { needs: ig, needsPublication: true, missing: ig?.storyViews ? [] : ["vues moyennes par story"], justification: [`1 h de production`, storyPub ? `${r0(ig!.storyViews!)} vues/story (${ig!.storyViewsBasis}) × CPM ${s.cpm.low}–${s.cpm.high} €` : "Vues par story non renseignées"] });
+  push("diffusion_only", prod(0.5), igPub, { needs: ig, needsPublication: true, justification: ["Influence pure : la marque fournit le contenu, vous le publiez (0,5 h de mise en ligne)", igPub ? `${r0(ig!.viewsPerPost!)} vues/publication × CPM` : "Statistiques Instagram manquantes"] });
   push("reel_ig", ugc, igPub, { needs: ig, needsPublication: true, realCat: "Influence / publication", justification: ["Production + diffusion Reel", igPub ? `${r0(ig!.viewsPerPost!)} vues/publication (relevé ${ig!.latest!.captured_on}, source : ${ig!.latest!.source})` : "Statistiques Instagram manquantes"] });
   const tkPub = pub(tk);
   push("tiktok", ugc, tkPub, { needs: tk, needsPublication: true, justification: ["Production + diffusion TikTok", tkPub ? `${r0(tk!.viewsPerPost!)} vues/publication` : "Statistiques TikTok manquantes"] });
@@ -157,7 +192,7 @@ export interface MonthlyPotential {
 }
 
 export function monthlyPotential(prices: PriceEstimate[], s: ForecastSettings, expectedContractsPerMonth: Record<Scenario, number>, conversionText: Record<Scenario, string>, realizedLast30: number, giftValuePerMonth: number): MonthlyPotential {
-  const sellable = prices.filter((p) => p.available && !["gear_test", "ambassador", "monthly_pack"].includes(p.key));
+  const sellable = prices.filter((p) => p.available && !["gear_test", "ambassador", "monthly_pack", "diffusion_only"].includes(p.key));
   const avg = (k: "low" | "mid" | "high") => (sellable.length ? sellable.reduce((a, p) => a + p[k], 0) / sellable.length : 0);
   const theoretical = r0(s.capacity_per_month * avg("mid"));
   const map: Record<Scenario, "low" | "mid" | "high"> = { prudent: "low", central: "mid", ambitious: "high" };
@@ -207,10 +242,10 @@ export function audienceProjection(metrics: AccountMetrics[], prices: PriceEstim
   if (!withData.length) notes.push("Aucune statistique d'audience : renseignez ou importez vos relevés pour activer la projection.");
   for (const m of withData) {
     const r = rates.get(m.account.id)!;
-    notes.push(`${PLATFORMS[m.account.platform as Platform] ?? m.account.platform} @${m.account.handle} : ${r.provisional ? "croissance inconnue (un seul relevé) → stagnation en central" : `croissance observée ${(r.followers.central * 100).toFixed(1)} %/mois`} · ${m.growthBasis}`);
+    notes.push(`${PLATFORMS[m.account.platform as Platform] ?? m.account.platform} @${m.account.handle} : ${r.provisional ? "croissance inconnue (un seul relevé) → stagnation en central" : `croissance observée ${pctFr(r.followers.central, 1)} %/mois`} · ${m.growthBasis}`);
   }
   notes.push(`Trajectoire ambitieuse : +${Math.round(s.ambitious_growth_bonus * 100)} pt/mois, conditionnée à une publication régulière et à des formats qui performent (hypothèse).`);
-  const sellable = prices.filter((p) => p.available && !["gear_test", "ambassador", "monthly_pack"].includes(p.key));
+  const sellable = prices.filter((p) => p.available && !["gear_test", "ambassador", "monthly_pack", "diffusion_only"].includes(p.key));
   const pubShare = (k: "low" | "mid" | "high") => sellable.length ? sellable.reduce((a, p) => a + (p.publication?.[k] ?? 0), 0) / sellable.length : 0;
   const prodShare = (k: "low" | "mid" | "high") => sellable.length ? sellable.reduce((a, p) => a + p.production[k], 0) / sellable.length : 0;
   const totalViews0 = withData.reduce((a, m) => a + (m.latest!.views_30d ?? 0), 0);

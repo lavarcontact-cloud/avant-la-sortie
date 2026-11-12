@@ -30,7 +30,7 @@ export function ProfileForm({ p }: { p: ProfileSettings }) {
         {stats.map((s, i) => (
           <div key={i} className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
             <input className="input" placeholder="Abonnés Instagram" value={s.label} onChange={(e) => setStats(stats.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
-            <input className="input" placeholder="11 365" value={s.value} onChange={(e) => setStats(stats.map((x, j) => j === i ? { ...x, value: e.target.value } : x))} />
+            <input className="input" placeholder="ex. 2 386" value={s.value} onChange={(e) => setStats(stats.map((x, j) => j === i ? { ...x, value: e.target.value } : x))} />
             <input className="input" placeholder="Source : Instagram Insights" value={s.source} onChange={(e) => setStats(stats.map((x, j) => j === i ? { ...x, source: e.target.value } : x))} />
             <input className="input" type="date" value={s.date} onChange={(e) => setStats(stats.map((x, j) => j === i ? { ...x, date: e.target.value } : x))} />
             <button type="button" className="btn btn-ghost" onClick={() => setStats(stats.filter((_, j) => j !== i))}>Retirer</button>

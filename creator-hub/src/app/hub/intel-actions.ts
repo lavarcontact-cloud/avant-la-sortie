@@ -228,3 +228,36 @@ export async function snapshotNow(_: ActionState, __: FormData): Promise<ActionS
   revalidatePath("/hub/forecast");
   return { ok: "Prévision du jour enregistrée dans l'historique" };
 }
+
+// ------------------------------------------------------------- Import d'un relevé complet (JSON)
+
+export async function importInsightsJson(_: ActionState, fd: FormData): Promise<ActionState> {
+  await requireAuth();
+  const file = fd.get("file");
+  const text = file instanceof File && file.size ? await file.text() : s(fd.get("json"));
+  if (!text) return { error: "Fichier ou contenu JSON requis" };
+  if (text.length > 1_000_000) return { error: "Fichier trop volumineux (1 Mo max)" };
+  try {
+    const { importInsights } = await import("@/lib/insights-import");
+    const r = await importInsights(JSON.parse(text));
+    await audit("audience.import_insights", "social_account", r.accountId, { added: r.snapshotsAdded, skipped: r.snapshotsSkipped, contents: r.contentsAdded });
+    revalidatePath("/hub", "layout");
+    return { ok: `Compte « ${r.accountLabel} »${r.accountCreated ? " créé" : ""} : ${r.snapshotsAdded.length} relevé(s) ajouté(s)${r.snapshotsSkipped.length ? `, ${r.snapshotsSkipped.length} déjà présent(s) conservé(s) sans modification (${r.snapshotsSkipped.join(", ")})` : ""}, ${r.contentsAdded} contenu(s) ajouté(s)${r.contentsSkipped ? `, ${r.contentsSkipped} déjà présent(s)` : ""}.` };
+  } catch (e) {
+    return { error: e instanceof z.ZodError ? `Format invalide : ${e.issues.slice(0, 3).map((i) => `${i.path.join(".")} ${i.message}`).join(" · ")}` : e instanceof SyntaxError ? "JSON illisible" : (e as Error).message };
+  }
+}
+
+export async function renameSocialAccount(_: ActionState, fd: FormData): Promise<ActionState> {
+  await requireAuth();
+  const handle = s(fd.get("handle")).replace(/^@/, "");
+  if (!/^[A-Za-z0-9._]{1,60}$/.test(handle)) return { error: "Identifiant invalide" };
+  const id = Number(fd.get("id"));
+  const acc = await one<{ owner: string; platform: string }>(`select owner, platform from social_accounts where id=$1`, [id]);
+  if (!acc) return { error: "Compte introuvable" };
+  if (await one(`select 1 from social_accounts where owner=$1 and platform=$2 and handle=$3 and id<>$4`, [acc.owner, acc.platform, handle, id])) return { error: "Cet identifiant existe déjà pour cette entité" };
+  await q(`update social_accounts set handle=$2, url=coalesce(nullif($3,''), url) where id=$1`, [id, handle, s(fd.get("url"))]);
+  await audit("audience.rename", "social_account", id, { handle });
+  revalidatePath("/hub", "layout");
+  return { ok: "Compte mis à jour" };
+}

@@ -1,0 +1,64 @@
+{
+  "format": "creator-hub/insights@1",
+  "account": { "owner": "personal", "platform": "instagram", "handle": "personnel", "note": "Compte Instagram personnel de Sébastien. Identifiant non visible sur les captures : à renseigner dans Audience Value." },
+  "source": "Instagram — Tableau de bord professionnel (captures d'écran du 12/11/2026, 21:25–21:26)",
+  "snapshots": [
+    {
+      "captured_on": "2026-11-12",
+      "period": "30 jours (13 oct. – 11 nov. 2026)",
+      "followers": 2386,
+      "views_30d": 61458,
+      "reach_30d": 15381,
+      "engagements_30d": 1588,
+      "views_90d": null,
+      "impressions_30d": null,
+      "posts_30d": null,
+      "avg_story_views": null,
+      "source_detail": "Abonnés, vues, comptes atteints (« Spectateur(ice)s ») : valeurs exactes. Interactions = 1,2 k (publications, arrondi Instagram) + 251 (Reels) + 137 (stories).",
+      "insights": {
+        "followers_net_30d": 96,
+        "followers_change_pct": 4.2,
+        "views_change_pct": 32.3,
+        "reach_change_pct": 38.0,
+        "views_by_type": { "publications": 32000, "stories": 19000, "reels": 11000, "live": 0, "rounded": true },
+        "interactions_by_type": { "publications": 1200, "reels": 251, "stories": 137, "live": 0, "rounded_publications": true },
+        "profile_visits_30d": 2000,
+        "profile_visits_rounded": true,
+        "link_in_bio_taps_30d": 0,
+        "business_address_taps_30d": 0,
+        "gender_pct": { "femmes": 21.7, "hommes": 78.3 },
+        "age_pct": { "13-17": 0.6, "18-24": 34.7, "25-34": 51.9, "35-44": 8.1, "45-54": 2.9, "55-64": 0.8, "65+": 1.0 },
+        "countries_pct": { "France": 78.6, "République démocratique du Congo": 2.0, "Belgique": 1.6, "Côte d'Ivoire": 1.3, "Maroc": 1.2 },
+        "languages_pct": { "Français": 91.4, "Anglais": 4.8, "Espagnol": 0.6, "Arabe": 0.4 },
+        "most_active": "Lundi, mardi, mercredi : 18 h – 21 h (fuseau UTC+1). Graphique horaire du dimanche : activité la plus forte de 12 h à 23 h, la plus faible de 3 h à 9 h (valeurs non chiffrées par Instagram).",
+        "missing": ["nombre de publications et de stories sur 30 jours", "vues sur 90 jours", "répartition chiffrée abonnés / non-abonnés", "enregistrements et partages détaillés", "villes principales"]
+      }
+    },
+    {
+      "captured_on": "2026-10-13",
+      "period": "début de la période de 30 jours affichée",
+      "followers": 2290,
+      "views_30d": 46454,
+      "reach_30d": 11146,
+      "source_detail": "DÉRIVÉ des captures du 12/11/2026 : abonnés = 2 386 − 96 followers nets ; vues = 61 458 ÷ 1,323 ; comptes atteints = 15 381 ÷ 1,380 (évolutions affichées par Instagram vs période précédente).",
+      "derived": true
+    }
+  ],
+  "contents": [
+    { "posted_on": "2026-10-24", "kind": "post", "title": "JE ME CROIS…", "views": 14000, "reach": 6700, "likes": 591, "comments": 3, "reposts": 35 },
+    { "posted_on": "2026-10-29", "kind": "post", "title": "C'est la FLEU…", "views": 7500, "reach": 3300, "likes": 323, "comments": 5, "reposts": 19 },
+    { "posted_on": "2026-11-05", "kind": "reel", "title": "CAPSULE 2 -…", "views": 4800, "reach": 2900, "likes": 54, "comments": 3, "reposts": 7, "shares": 2 },
+    { "posted_on": "2026-10-17", "kind": "post", "title": "17 Octobre 20…", "views": 4100, "reach": 1300, "likes": 117, "comments": 4, "reposts": 10 },
+    { "posted_on": "2026-11-01", "kind": "reel", "title": "CAPSULE NU…", "views": 4000, "reach": 2100, "likes": 126, "comments": 7, "reposts": 26 },
+    { "posted_on": "2026-10-29", "kind": "story", "title": "Story du 29/10", "views": 1400, "reach": 1200, "likes": 5, "shares": 2, "replies": 1 },
+    { "posted_on": "2026-11-10", "kind": "story", "title": "Story « LAST WORK »", "reach": 632, "likes": 6, "shares": 1, "replies": 0 },
+    { "posted_on": "2026-10-31", "kind": "story", "title": "Story du 31/10 (mention)", "reach": 524, "likes": 0, "shares": 1, "replies": 0 },
+    { "posted_on": "2026-11-01", "kind": "story", "title": "Story du 01/11", "reach": 428, "likes": 8, "shares": 2, "replies": 3 },
+    { "posted_on": "2026-10-28", "kind": "story", "title": "Story du 28/10 (mention)", "reach": 313, "likes": 1, "shares": 1, "replies": 0 },
+    { "posted_on": "2026-10-17", "kind": "story", "title": "Story du 17/10", "reach": 278, "likes": 6, "shares": 0, "replies": 0 },
+    { "posted_on": "2026-10-22", "kind": "story", "title": "Story du 22/10", "reach": 244, "likes": 0, "shares": 0, "replies": 0 },
+    { "posted_on": "2026-10-27", "kind": "story", "title": "Story « LAST WORK »", "reach": 218, "likes": 4, "shares": 1, "replies": 1 },
+    { "posted_on": "2026-10-27", "kind": "story", "title": "Story du 27/10 (mention)", "reach": 184, "likes": 2, "shares": 0, "replies": 0 }
+  ],
+  "sample_note": "Contenus = ceux visibles sur les captures (classés par vues / comptes atteints) : échantillon des plus performants, pas la totalité des publications. Les identifiants de tiers mentionnés dans les stories ne sont pas conservés."
+}

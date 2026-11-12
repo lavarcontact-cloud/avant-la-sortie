@@ -51,6 +51,20 @@ Toutes les valeurs non issues de vos données (taux horaire, CPM, panier moyen, 
 
 La tâche planifiée `/api/cron/reports` (horaire) exécute aussi : archivage quotidien des prévisions, veille quotidienne à l'heure configurée (si `FIRECRAWL_API_KEY`), et bilans enrichis (veille, prévision du jour, tendance, secteurs, recommandations).
 
+## Importer vos statistiques d'audience
+
+Trois voies, toutes avec source et date obligatoires, sans jamais écraser un relevé existant :
+
+1. **Relevé complet JSON** (format `creator-hub/insights@1` : relevé, démographie, vues/interactions par format, activité du profil, contenus) — Audience Value → « Import JSON », ou en ligne de commande :
+   ```bash
+   npm run import:insights -- data/imports/instagram-personnel-2026-11-12.json
+   ```
+   (s'applique à la base configurée : `DATABASE_URL`, sinon PGlite local). Ce fichier contient le relevé Instagram personnel du 12/11/2026 ; renommez ensuite le compte « personnel » avec votre identifiant réel dans Audience Value.
+2. **CSV** (une ligne par date) — Audience Value → « Import CSV ».
+3. **Saisie manuelle** — Audience Value → « Relevé manuel ».
+
+Règles de calcul : engagement = interactions 30 j ÷ comptes atteints 30 j (formule affichée) ; engagement par contenu calculé séparément pour les publications et les stories ; vues par publication = moyenne exacte si le nombre de publications est connu, sinon médiane des contenus saisis (signalée comme échantillon) ; une variation de vues n'est extrapolée qu'à partir de 3 relevés (sinon les vues suivent la croissance des abonnés). Les valeurs dérivées par calcul (ex. abonnés au début de la période = abonnés − abonnés nets) sont marquées « dérivé ».
+
 ## Sécurité
 
 - Toutes les routes `/hub/*` et `/api/hub/*` sont protégées par `src/proxy.ts` **et** chaque page / server action revérifie la session (`requireAuth`).
@@ -82,6 +96,7 @@ La tâche planifiée `/api/cron/reports` (horaire) exécute aussi : archivage qu
 | `brand_stage_history` | Historique des statuts (trigger) — base des taux de transformation |
 | `watch_runs`, `watch_candidates` | Exécutions de veille ; marques et interlocuteurs découverts (clé de dédoublonnage unique, source, signaux, score détaillé, changements détectés) |
 | `social_accounts`, `social_snapshots` | Comptes par entité et relevés de statistiques (source obligatoire) |
+| `social_content` | Performances par contenu (vues, comptes atteints, interactions), échantillon saisi ou importé |
 | `forecast_snapshots` | Prévisions archivées chaque jour, par mois cible et scénario |
 | `settings` | Profil public, informations légales, préférences |
 
@@ -95,11 +110,12 @@ Règles métier clés :
 ## Tests
 
 ```bash
-npm test          # 36 tests unitaires : classification, factures, stats, éthique, dates, PDF, veille, scoring, prévisions, audience, apprentissage
+npm test          # 41 tests unitaires : classification, factures, stats, éthique, dates, PDF, veille, scoring, prévisions, audience, apprentissage
 npm run typecheck
 # Test navigateur des 10 parcours MVP (serveur lancé sur :3100) :
 BASE=http://localhost:3100 PASS=<ADMIN_PASSWORD> node tests/e2e.mjs
-BASE=http://localhost:3100 PASS=<ADMIN_PASSWORD> CRON=<CRON_SECRET> node tests/e2e-intel.mjs   # phase 2
+BASE=http://localhost:3100 PASS=<ADMIN_PASSWORD> CRON=<CRON_SECRET> node tests/e2e-intel.mjs     # phase 2
+BASE=http://localhost:3100 PASS=<ADMIN_PASSWORD> CRON=<CRON_SECRET> node tests/e2e-insights.mjs  # import du relevé Instagram
 ```
 ⚠️ Le test E2E écrit des données de test (marques fictives, identité légale « TEST E2E ») : lancez-le sur une base dédiée (`PGLITE_DIR=/tmp/e2e-db`), jamais sur vos vraies données.
 

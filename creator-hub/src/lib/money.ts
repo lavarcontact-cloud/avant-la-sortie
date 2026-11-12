@@ -46,3 +46,11 @@ export function eur(n: number | null | undefined, currency = "EUR") {
 export function eur0(n: number | null | undefined) {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Number(n) || 0);
 }
+
+/** Ratio → pourcentage au format français (0.1032 → "10,3"). */
+export function pctFr(ratio: number, digits = 1) {
+  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(ratio * 100);
+}
+export function numFr(n: number, digits = 1) {
+  return new Intl.NumberFormat("fr-FR", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
+}
