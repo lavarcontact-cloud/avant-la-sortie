@@ -6,10 +6,13 @@ import { eur0 } from "@/lib/money";
 import { CHANNELS } from "@/lib/constants";
 import { Card, Kpi, PageHeader, Empty, Bar, Badge, pctLabel } from "@/components/ui";
 import { q } from "@/lib/db";
+import { computeAll } from "@/lib/forecast/service";
+import { SCENARIOS, SCENARIO_LABEL } from "@/lib/forecast/business";
+import { ScenarioChart, SCENARIO_COLORS } from "@/components/chart";
 
 export const metadata = { title: "Dashboard" };
 
-const PERIODS = [{ k: "7", l: "7 jours" }, { k: "30", l: "30 jours" }, { k: "90", l: "90 jours" }, { k: "custom", l: "Personnalisée" }];
+const PERIODS = [{ k: "1", l: "Aujourd'hui" }, { k: "7", l: "7 jours" }, { k: "30", l: "30 jours" }, { k: "90", l: "90 jours" }, { k: "custom", l: "Personnalisée" }];
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ p?: string; from?: string; to?: string }> }) {
   const sp = await searchParams;
@@ -40,6 +43,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const meetings = await q<{ brand_id: number; name: string; title: string; occurred_at: string }>(
     `select i.brand_id, b.name, i.title, i.occurred_at from interactions i join brands b on b.id=i.brand_id where i.type='meeting' and i.occurred_at >= now() order by i.occurred_at limit 5`);
   const isEmpty = ds.brands.length === 0;
+  const fc = await computeAll();
+  const fLabels = fc.bf.months.map((m) => (m.month === 0 ? "Auj." : `M+${m.month}`));
+  const watchNew = (await q<{ c: number; top: string | null }>(`select count(*)::int c, (select name from watch_candidates where kind='brand' and status='new' order by score desc nulls last limit 1) top from watch_candidates where kind='brand' and status='new'`))[0];
   const maxSectorOut = Math.max(1, ...sectors.map((s) => s.outreach));
   const maxSigned = Math.max(1, ...sectors.map((s) => s.signed));
 
@@ -109,6 +115,33 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           )}
         </div>
       )}
+
+      {/* Pilotage : trois questions du matin */}
+      <div className="mb-6 grid gap-3 md:grid-cols-3">
+        <Link href="/hub/watch?status=new" className="card p-4 transition hover:border-zinc-300">
+          <div className="text-[0.72rem] font-medium text-zinc-500">Qui contacter aujourd'hui ?</div>
+          <div className="mt-1 font-display text-2xl font-semibold">{watchNew.c + due.length}</div>
+          <div className="mt-1 text-xs text-zinc-500">{watchNew.c} opportunité(s) de veille{watchNew.top ? ` (dont ${watchNew.top})` : ""} · {due.length} relance(s) due(s)</div>
+        </Link>
+        <Link href="/hub/forecast" className="card p-4 transition hover:border-zinc-300">
+          <div className="text-[0.72rem] font-medium text-zinc-500">Collaborations raisonnablement atteignables (3 mois)</div>
+          <div className="mt-1 font-display text-2xl font-semibold">{fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.central, 0).toFixed(1)}</div>
+          <div className="mt-1 text-xs text-zinc-500">fourchette {fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.prudent, 0).toFixed(1)} – {fc.bf.months.slice(0, 3).reduce((a, m) => a + m.contracts.ambitious, 0).toFixed(1)} · confiance {fc.bf.confidence}</div>
+        </Link>
+        <Link href="/hub/forecast" className="card p-4 transition hover:border-zinc-300">
+          <div className="text-[0.72rem] font-medium text-zinc-500">CA prévisionnel pondéré à 6 mois</div>
+          <div className="mt-1 font-display text-2xl font-semibold text-accent">{eur0(fc.bf.scenarios.central.weighted6m)}</div>
+          <div className="mt-1 text-xs text-zinc-500">prudent {eur0(fc.bf.scenarios.prudent.weighted6m)} · ambitieux {eur0(fc.bf.scenarios.ambitious.weighted6m)} · activité {fc.trend.status}</div>
+        </Link>
+      </div>
+      <div className="mb-6 grid gap-4 xl:grid-cols-2">
+        <Card title="Potentiel commercial (prospection) — CA pondéré / mois" action={<Link href="/hub/forecast" className="text-xs text-zinc-500 hover:text-zinc-900">Business Forecast →</Link>}>
+          <ScenarioChart labels={fLabels} series={SCENARIOS.map((sc) => ({ label: SCENARIO_LABEL[sc], color: SCENARIO_COLORS[sc], dashed: sc !== "central", values: fc.bf.months.map((m) => m.weighted[sc]) }))} empty="Aucune opportunité ouverte : enregistrez vos démarches pour activer la prévision." />
+        </Card>
+        <Card title={<span>Valeur de l'audience — potentiel / mois {fc.projection.provisional && <Badge tone="amber">provisoire</Badge>}</span>} action={<Link href="/hub/audience" className="text-xs text-zinc-500 hover:text-zinc-900">Audience Value →</Link>}>
+          <ScenarioChart labels={fLabels} series={SCENARIOS.map((sc) => ({ label: SCENARIO_LABEL[sc], color: SCENARIO_COLORS[sc], dashed: sc !== "central", values: fc.projection.rows.map((r) => r.revenue[sc]) }))} empty="Renseignez vos statistiques d'audience (Audience Value) pour estimer leur valeur." />
+        </Card>
+      </div>
 
       {/* KPIs prospection */}
       <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Prospection</h3>

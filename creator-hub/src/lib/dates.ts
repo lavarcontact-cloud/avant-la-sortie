@@ -54,3 +54,10 @@ export function parisMidnight(ymdStr: string): number {
   const offsetH = parisParts(new Date(guess)).hour; // 1 en hiver, 2 en été
   return guess - offsetH * 3600000;
 }
+
+/** Date (objet Date du driver ou chaîne) → "YYYY-MM-DD…" fiable pour les comparaisons par jour / mois. */
+export function iso(v: string | Date | null | undefined): string {
+  if (!v) return "";
+  if (v instanceof Date) return v.toISOString();
+  return v;
+}

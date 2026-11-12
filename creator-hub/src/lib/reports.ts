@@ -6,6 +6,7 @@ import { followUpsDue, financeSummary } from "./stats";
 import { getSetting, DEFAULT_NOTIF, type NotifSettings } from "./settings";
 import { parisParts, todayParis } from "./dates";
 import { notify } from "./audit";
+import { computeAll, recommendations } from "./forecast/service";
 
 export type Slot = "morning" | "midday" | "evening";
 export const SLOT_LABEL: Record<Slot, string> = { morning: "Bilan du matin", midday: "Point de mi-journée", evening: "Bilan de fin de journée" };
@@ -14,6 +15,12 @@ export interface ReportData {
   since: string; newBrands: number; outreach: number; responses: number; positive: number; negative: number;
   opportunities: { brand_id: number; name: string }[]; followUps: number; meetings: { name: string; title: string; at: string }[];
   signed: number; invoiced: number; collected: number; outstanding: number; overdue: number; priorities: string[]; changed: boolean;
+  watch?: { newBrands: number; newContacts: number; top: { id: number; name: string; score: number | null }[] };
+  prepared?: number;
+  forecast?: { probable: number; weighted: number; weightedLow: number; weightedHigh: number; next30: number; confidence: string };
+  trend?: { status: string; lines: string[] };
+  sectors?: { name: string; weighted6m: number; pipeline: number }[];
+  recommendations?: string[];
 }
 
 export async function buildReport(sinceIso: string): Promise<ReportData> {
@@ -32,14 +39,28 @@ export async function buildReport(sinceIso: string): Promise<ReportData> {
   const due = followUpsDue(ds, today);
   const opportunities = await q<{ brand_id: number; name: string }>(`select distinct b.id as brand_id, b.name from brands b join pipeline_stages s on s.id=b.stage_id where s.key in ('interested','replied','negotiation') order by b.name limit 10`);
   const meetings = await q<{ name: string; title: string; at: string }>(`select b.name, i.title, i.occurred_at as at from interactions i join brands b on b.id=i.brand_id where i.type='meeting' and i.occurred_at between now() and now() + interval '3 days' order by i.occurred_at`);
-  const changed = c.new_brands + c.outreach + c.responses + c.deals + c.docs + c.inter > 0;
+  const [w] = await q<any>(`select
+    (select count(*)::int from watch_candidates where kind='brand' and status='new' and first_seen_at > $1) as nb,
+    (select count(*)::int from watch_candidates where kind='contact' and first_seen_at > $1) as nc,
+    (select count(*)::int from watch_candidates where status='accepted' and first_seen_at > $1) as prepared`, [sinceIso]);
+  const top = await q<{ id: number; name: string; score: number | null }>(`select id, name, score from watch_candidates where kind='brand' and status='new' order by score desc nulls last limit 5`);
+  const all = await computeAll();
+  const changed = c.new_brands + c.outreach + c.responses + c.deals + c.docs + c.inter + w.nb + w.nc > 0;
   const priorities: string[] = [];
   if (c.positive) priorities.push(`Répondre aux ${c.positive} réponse(s) positive(s) reçue(s)`);
   if (opportunities.length) priorities.push(`Faire avancer ${opportunities.length} opportunité(s) en cours`);
   if (due.length) priorities.push(`Effectuer ${due.length} relance(s)`);
   if (fin.overdueCount) priorities.push(`Relancer ${fin.overdueCount} facture(s) en retard`);
   if (meetings.length) priorities.push(`Préparer ${meetings.length} rendez-vous`);
+  if (top.length) priorities.push(`Examiner les opportunités de veille (meilleure : ${top[0].name}, ${top[0].score}/100)`);
+  if (all.trend.status === "recule") priorities.push("Activité en recul sur 30 jours : intensifier la prospection");
   return {
+    watch: { newBrands: w.nb, newContacts: w.nc, top }, prepared: w.prepared,
+    forecast: { probable: all.bf.totals.probable.central, weighted: all.bf.totals.weighted.central, weightedLow: all.bf.totals.weighted.prudent, weightedHigh: all.bf.totals.weighted.ambitious,
+      next30: all.bf.months[0].weighted.central + all.bf.months[1].weighted.central, confidence: all.bf.confidence },
+    trend: { status: all.trend.status, lines: all.trend.explanations },
+    sectors: all.bf.sectors.map((x) => ({ name: x.name, weighted6m: x.weighted6m, pipeline: x.pipelineCount })),
+    recommendations: recommendations(all).map((r) => `${r.text} (${r.why})`),
     since: sinceIso, newBrands: c.new_brands, outreach: c.outreach, responses: c.responses, positive: c.positive, negative: c.negative,
     opportunities, followUps: due.length, meetings, signed: fin.signed, invoiced: fin.invoiced, collected: fin.collected,
     outstanding: fin.outstanding, overdue: fin.overdueCount, priorities, changed,

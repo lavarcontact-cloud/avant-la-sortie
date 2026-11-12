@@ -9,6 +9,10 @@ import { PageHeader, Card, Badge } from "@/components/ui";
 import { ActionForm, Submit, ConfirmSubmit } from "@/components/client";
 import { saveLegal, saveNotifSettings, saveSector, saveStageLabel, addSuppression, removeSuppression } from "../actions";
 import { ProfileForm } from "./profile-form";
+import { getForecastSettings } from "@/lib/forecast/service";
+import { DEFAULT_WATCH, type WatchSettings } from "@/lib/watch/engine";
+import { getProvider } from "@/lib/watch/providers";
+import { saveForecastSettings, saveWatchSettings } from "../intel-actions";
 
 export const metadata = { title: "Paramètres" };
 
@@ -18,11 +22,14 @@ export default async function Settings() {
     getSectors(), getStages(), q<any>(`select * from suppression_list order by created_at desc`), q<any>(`select * from audit_log order by created_at desc limit 40`),
   ]);
   const missing = missingLegal(legal);
+  const [fc, watch] = await Promise.all([getForecastSettings(), getSetting<WatchSettings>("watch", DEFAULT_WATCH)]);
+  const F = (name: string, label: string, v: number, step = "1") => <label className="field"><span>{label}</span><input name={name} type="number" step={step} defaultValue={v} className="input" /></label>;
   const L = (k: keyof LegalSettings, label: string, ph = "") => <label className="field"><span>{label}</span><input name={k} defaultValue={String(legal[k] ?? "")} placeholder={ph} className="input" /></label>;
   const integrations = [
     { name: "Base de données", ok: Boolean(process.env.DATABASE_URL), on: "PostgreSQL (DATABASE_URL)", off: "PGlite local (.data/) — à remplacer par Supabase en production" },
     { name: "Notifications push", ok: pushConfigured(), on: "Clés VAPID configurées", off: "En attente : clés VAPID" },
     { name: "Bilans planifiés", ok: Boolean(process.env.CRON_SECRET), on: "CRON_SECRET défini — planificateur à brancher (README)", off: "En attente : CRON_SECRET + planificateur horaire" },
+    { name: "Veille automatique", ok: Boolean(getProvider()), on: "Firecrawl Search configuré", off: "En attente : FIRECRAWL_API_KEY (import manuel disponible)" },
     { name: "Gmail (détection des réponses)", ok: false, on: "", off: "Non connecté — saisie manuelle des réponses (phase suivante : OAuth Gmail)" },
     { name: "Assistant IA", ok: false, on: "", off: "Non connecté — messages préparés par modèles personnalisables (phase suivante)" },
   ];
@@ -46,6 +53,29 @@ export default async function Settings() {
           {L("iban", "IBAN")}{L("bic", "BIC")}{L("email", "Email de facturation")}{L("phone", "Téléphone")}
           <label className="field sm:col-span-2"><span>Conditions de paiement *</span><input name="payment_terms" defaultValue={legal.payment_terms} className="input" /></label>
           <label className="field sm:col-span-2"><span>Pénalités de retard * (taux applicable)</span><input name="late_penalty" defaultValue={legal.late_penalty} placeholder="En cas de retard, pénalités au taux de … % (au minimum 3 fois le taux d'intérêt légal)." className="input" /></label>
+        </ActionForm>
+      </Card></div>
+
+      <div id="watch"><Card title="Veille commerciale">
+        <ActionForm action={saveWatchSettings} submitLabel="Enregistrer" className="grid gap-3 sm:grid-cols-3">
+          <label className="flex items-center gap-2 text-sm sm:col-span-3"><input type="checkbox" name="enabled" defaultChecked={watch.enabled} /> Veille quotidienne activée (nécessite une source configurée)</label>
+          {F("hour", "Heure de la veille (Paris)", watch.hour)}{F("max_queries", "Requêtes de découverte / jour", watch.max_queries)}{F("contact_searches", "Recherches d'interlocuteurs / jour", watch.contact_searches)}
+          {F("min_score_for_contacts", "Score minimum pour chercher un interlocuteur", watch.min_score_for_contacts)}
+          <div className="sm:col-span-3"><div className="mb-1 text-xs font-medium text-zinc-500">Mots-clés de veille par secteur (séparés par des virgules)</div>
+            {sectors.filter((x) => !x.archived).map((x: any) => <label key={x.id} className="field mb-2"><span>{x.name}</span><input name={`kw_${x.id}`} defaultValue={(x.keywords ?? []).join(", ")} className="input" /></label>)}</div>
+        </ActionForm>
+      </Card></div>
+
+      <div id="forecast"><Card title="Hypothèses de prévision">
+        <p className="mb-3 text-xs text-zinc-500">Ces valeurs ne sont utilisées que lorsque vos données réelles sont insuffisantes ; elles sont toujours affichées comme hypothèses. Dès que l'historique le permet, vos taux réels prennent le relais (lissage : l'hypothèse compte comme {fc.prior_weight} observations).</p>
+        <ActionForm action={saveForecastSettings} submitLabel="Enregistrer les hypothèses" className="grid gap-3 sm:grid-cols-4">
+          {F("capacity_per_month", "Capacité (contrats / mois)", fc.capacity_per_month)}{F("avg_deal_hypothesis", "Panier moyen hypothétique (€ HT)", fc.avg_deal_hypothesis)}
+          {F("cycle_days_hypothesis", "Délai contact → signature (j)", fc.cycle_days_hypothesis)}{F("payment_days_hypothesis", "Délai facture → paiement (j)", fc.payment_days_hypothesis)}
+          {F("ugc_hours", "Heures par contenu UGC", fc.ugc_hours, "0.5")}{F("hr_low", "Taux horaire bas (€)", fc.hourly_rate.low)}{F("hr_mid", "Taux horaire central (€)", fc.hourly_rate.mid)}{F("hr_high", "Taux horaire haut (€)", fc.hourly_rate.high)}
+          {F("cpm_low", "CPM bas (€ / 1000 vues)", fc.cpm.low, "0.5")}{F("cpm_mid", "CPM central", fc.cpm.mid, "0.5")}{F("cpm_high", "CPM haut", fc.cpm.high, "0.5")}
+          {F("ambitious_outreach_boost", "Ambitieux : démarches en plus (%)", Math.round(fc.ambitious_outreach_boost * 100))}{F("ambitious_growth_bonus", "Ambitieux : croissance audience en plus (pt/mois)", Math.round(fc.ambitious_growth_bonus * 100))}
+          <div className="sm:col-span-4"><div className="mb-1 text-xs font-medium text-zinc-500">Probabilité a priori de signature par étape (%)</div>
+            <div className="grid gap-2 sm:grid-cols-5">{Object.entries(fc.prior).map(([k, v]) => <label key={k} className="field"><span>{stages.find((x) => x.key === k)?.label ?? k}</span><input name={`prior_${k}`} type="number" step="0.5" defaultValue={Math.round(v * 1000) / 10} className="input" /></label>)}</div></div>
         </ActionForm>
       </Card></div>
 

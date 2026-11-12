@@ -3,7 +3,7 @@
 Plateforme personnelle de prospection, de relations marques, de campagnes UGC et de gestion commerciale.
 
 - **Site public** (`/`, `/media-kit`) : présentation, offres, chiffres vérifiés, références, formulaire de collaboration.
-- **Business & PR Hub** (`/hub`, privé) : dashboard, CRM marques, interlocuteurs, pipeline 17 statuts, préparation des messages, démarches, relances, réponses, prestations, finances, devis/factures PDF, notifications, bilans.
+- **Business & PR Hub** (`/hub`, privé) : dashboard de pilotage, **veille commerciale**, **Business Forecast**, **Audience Value**, CRM marques, interlocuteurs, pipeline 17 statuts, préparation des messages, démarches, relances, réponses, prestations, finances, devis/factures PDF, notifications, bilans.
 
 Stack : Next.js 16 (App Router, server actions) · TypeScript · Tailwind CSS 4 · PostgreSQL (Supabase en production, PGlite embarqué en local) · pdf-lib · zod.
 
@@ -37,6 +37,20 @@ Sans `DATABASE_URL`, les données sont stockées dans `creator-hub/.data/pglite`
    (Vercel Cron en offre Hobby est limité à une exécution par jour : non adapté aux trois bilans.)
 4. **Push (facultatif)** : `npx web-push generate-vapid-keys`, renseignez les 3 variables VAPID, puis Notifications → « Activer les notifications push ».
 
+## Phase 2 — intelligence commerciale
+
+| Module | Où | Principe |
+|---|---|---|
+| Veille commerciale | `/hub/watch` | Requêtes quotidiennes par secteur (mots-clés modifiables, rotation journalière) → déduplication par domaine / profil → signaux (lancement, collection, programme ambassadeur, recherche UGC, contact presse…) → score /100 expliqué critère par critère. Interlocuteurs extraits des **résultats publics** des moteurs de recherche (LinkedIn/Instagram jamais visités), toujours « poste à confirmer ». Import manuel avec le même pipeline. |
+| Préparation des démarches | `/hub/watch/prepare` | Sélection multiple, présentation (extrait de la source), raison, interlocuteur, proposition, idée de campagne, email / DM / LinkedIn / relance. Validation une par une → fiche CRM. Aucun envoi. |
+| Business Forecast | `/hub/forecast` | Probabilités de signature **par étape mesurées sur votre historique** (table `brand_stage_history`, alimentée par trigger), lissées par une hypothèse a priori explicite ; scénarios prudent / central / ambitieux = intervalle statistique ~80 % ; capacité de production plafonnante ; encaissements décalés du délai de paiement réel ; prévision par secteur ; tendance 30 j ; recommandations justifiées. |
+| Apprentissage | `/hub/forecast` | La prévision est archivée chaque jour (`forecast_snapshots`) ; chaque mois écoulé est comparé au réel (écart €, %, précision, explications) ; la médiane réel/prévu corrige les prévisions suivantes à partir de 2 mois. |
+| Audience Value | `/hub/audience` | Comptes par **entité** (personnel / La Var Media, jamais additionnés), relevés sourcés et datés, import CSV ; engagement avec formule ; tarifs = production (temps × taux) + diffusion (vues réelles par publication × CPM), jamais le seul nombre d'abonnés ; potentiel théorique / accessible / réalisé ; projection 6 mois sans croissance inventée (central = stagnation tant qu'il n'y a qu'un relevé). |
+
+Toutes les valeurs non issues de vos données (taux horaire, CPM, panier moyen, délais, probabilités a priori, capacité) sont des **hypothèses** affichées comme telles et modifiables dans Paramètres → Hypothèses de prévision.
+
+La tâche planifiée `/api/cron/reports` (horaire) exécute aussi : archivage quotidien des prévisions, veille quotidienne à l'heure configurée (si `FIRECRAWL_API_KEY`), et bilans enrichis (veille, prévision du jour, tendance, secteurs, recommandations).
+
 ## Sécurité
 
 - Toutes les routes `/hub/*` et `/api/hub/*` sont protégées par `src/proxy.ts` **et** chaque page / server action revérifie la session (`requireAuth`).
@@ -65,6 +79,10 @@ Sans `DATABASE_URL`, les données sont stockées dans `creator-hub/.data/pglite`
 | `suppression_list` | Liste d'opposition (emails ou domaines) |
 | `inbound_requests` | Demandes reçues via le site public |
 | `audit_log` | Journal des actions importantes |
+| `brand_stage_history` | Historique des statuts (trigger) — base des taux de transformation |
+| `watch_runs`, `watch_candidates` | Exécutions de veille ; marques et interlocuteurs découverts (clé de dédoublonnage unique, source, signaux, score détaillé, changements détectés) |
+| `social_accounts`, `social_snapshots` | Comptes par entité et relevés de statistiques (source obligatoire) |
+| `forecast_snapshots` | Prévisions archivées chaque jour, par mois cible et scénario |
 | `settings` | Profil public, informations légales, préférences |
 
 Règles métier clés :
@@ -77,10 +95,11 @@ Règles métier clés :
 ## Tests
 
 ```bash
-npm test          # 21 tests unitaires : classification, calculs de facture, stats, éthique, dates, PDF
+npm test          # 36 tests unitaires : classification, factures, stats, éthique, dates, PDF, veille, scoring, prévisions, audience, apprentissage
 npm run typecheck
 # Test navigateur des 10 parcours MVP (serveur lancé sur :3100) :
 BASE=http://localhost:3100 PASS=<ADMIN_PASSWORD> node tests/e2e.mjs
+BASE=http://localhost:3100 PASS=<ADMIN_PASSWORD> CRON=<CRON_SECRET> node tests/e2e-intel.mjs   # phase 2
 ```
 ⚠️ Le test E2E écrit des données de test (marques fictives, identité légale « TEST E2E ») : lancez-le sur une base dédiée (`PGLITE_DIR=/tmp/e2e-db`), jamais sur vos vraies données.
 

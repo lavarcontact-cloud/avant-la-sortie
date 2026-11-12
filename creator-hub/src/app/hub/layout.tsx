@@ -10,6 +10,9 @@ export const metadata = { robots: { index: false, follow: false } };
 
 const NAV = [
   { href: "/hub", label: "Dashboard", icon: "◧" },
+  { href: "/hub/watch", label: "Veille", icon: "✦", countKey: "watch" },
+  { href: "/hub/forecast", label: "Business Forecast", icon: "↗" },
+  { href: "/hub/audience", label: "Audience Value", icon: "◉" },
   { href: "/hub/brands", label: "Marques · CRM", icon: "◎" },
   { href: "/hub/pipeline", label: "Pipeline", icon: "▤" },
   { href: "/hub/followups", label: "Relances", icon: "↻", countKey: "followups" },
@@ -24,14 +27,15 @@ const NAV = [
 
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   await requireAuth();
-  const [notifs, fu, inbound] = await Promise.all([
+  const [notifs, fu, inbound, watchNew] = await Promise.all([
     unreadCount(),
     q<{ c: number }>(`select count(*)::int c from outreach o join brands b on b.id=o.brand_id left join pipeline_stages s on s.id=b.stage_id
       where o.follow_up_done=false and o.follow_up_at <= (now() at time zone 'Europe/Paris')::date and b.do_not_contact=false and coalesce(s.kind,'open')='open'
       and not exists (select 1 from responses r where r.outreach_id=o.id)`),
     q<{ c: number }>(`select count(*)::int c from inbound_requests where handled=false`),
+    q<{ c: number }>(`select count(*)::int c from watch_candidates where kind='brand' and status='new'`),
   ]);
-  const counts: Record<string, number> = { notifs, followups: fu[0]?.c ?? 0 };
+  const counts: Record<string, number> = { notifs, followups: fu[0]?.c ?? 0, watch: watchNew[0]?.c ?? 0 };
   return (
     <div className="min-h-dvh lg:flex">
       <aside className="sticky top-0 z-30 border-b border-zinc-200 bg-white lg:h-dvh lg:w-60 lg:shrink-0 lg:border-b-0 lg:border-r">

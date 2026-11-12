@@ -1,40 +1,33 @@
-# Statut — MVP
+# Statut
 
-## Fonctionnel et testé (tests unitaires + test navigateur de bout en bout)
-- Accès privé par mot de passe, session signée, routes protégées, limitation des tentatives
-- CRM marques : création, fiche, modification, suppression, filtres (secteur, statut, collaboration, pays, ville, taille, type, score), tri
-- Charte éthique : refus des secteurs exclus (casino, trading/forex/CFD, MLM, crypto spéculative, promesses financières)
-- Interlocuteurs : ajout avec source obligatoire, opposition (liste d'opposition + arrêt des relances), suppression
-- Préparation des messages (email, DM Instagram, LinkedIn, relance, idée UGC) personnalisés uniquement avec les données saisies, champs manquants signalés, copie en un clic
-- Démarches : enregistrement, relance planifiée (J+7 par défaut), page Relances, limite de relances
-- Réponses : saisie, rapprochement automatique avec la dernière démarche, classification par règles + intentions + confiance, reclassement manuel, effets sur le pipeline
-- Notifications internes : réponse positive (mise en avant), demande de tarifs / Media Kit / RDV / partenariat, refus, opposition, facture payée / en retard, relances du jour, demandes entrantes
-- Dashboard : KPIs avec comparaison 7 / 30 / 90 jours / période personnalisée, argent, performance par secteur, interlocuteurs, heatmap des meilleurs moments (taux, pas volume)
-- Prestations et gifting (valeur séparée du CA), dépenses, porte-monnaie, revenus par prestation
-- Devis et factures : lignes, remises, TVA multi-taux ou franchise (art. 293 B), acompte, numérotation séquentielle à l'émission, blocage sans mentions légales, PDF (aperçu + téléchargement), email d'envoi préparé, statuts, paiement partiel / total
-- Bilans matin / midi / soir via endpoint planifiable protégé, pas de bilan sans changement
-- Site public + Media Kit + formulaire de collaboration (→ notification + création de fiche CRM)
-- Export JSON complet, journal d'audit, recherche globale
+Légende : ✅ fonctionnel et testé · 🟡 développé, non testé en conditions réelles · 🔌 nécessite une API / clé · 🔐 nécessite une autorisation externe · ⏳ à développer
 
-## Fonctionnel mais non testé en conditions réelles
-- Connexion à PostgreSQL / Supabase via `DATABASE_URL` (même SQL que PGlite, testé uniquement sur PGlite)
-- Mise en page mobile : vérifiée visuellement sur le site public et le dashboard (iPhone 13, sans débordement) ; autres pages privées non vérifiées sur mobile
-- Factures en retard détectées automatiquement par la tâche planifiée
+## Phase 1 — CRM et gestion commerciale
+- ✅ Accès privé, CRM marques / interlocuteurs, pipeline 17 statuts, historique, recherche globale
+- ✅ Préparation des messages, démarches, relances limitées, réponses + classification par règles corrigeable
+- ✅ Notifications internes, dashboard (périodes Aujourd'hui / 7 / 30 / 90 j / personnalisée), secteurs, interlocuteurs, heatmap
+- ✅ Prestations, gifting hors CA, dépenses, devis / factures PDF numérotés, blocage sans mentions légales
+- ✅ Site public, Media Kit, formulaire de collaboration, export JSON, journal d'audit
+- ⏳ Avoirs (factures rectificatives)
 
-## En attente de configuration
-- Hébergement (Vercel) + base Supabase : variables `DATABASE_URL`, `ADMIN_PASSWORD`, `SESSION_SECRET`
-- Bilans planifiés : `CRON_SECRET` + secrets GitHub `HUB_URL` / `CRON_SECRET` (workflow fourni)
-- Notifications push : clés VAPID (le code d'abonnement et d'envoi est en place, jamais testé de bout en bout)
-- Vos informations légales, votre profil, vos statistiques vérifiées
+## Phase 2 — intelligence commerciale
+- ✅ Migration additive `002_intelligence.sql` (testée sur base neuve et sur une base existante contenant des données : aucune perte)
+- ✅ Veille : import manuel → déduplication, signaux, exclusions éthiques, score /100 détaillé, profils publics, changements de poste détectés, filtres (secteur, collaboration, qualité du contact, score, découvertes du jour)
+- ✅ Préparation multi-sélection et validation une par une vers le CRM (interlocuteur sourcé, case « j'ai vérifié »)
+- 🟡 🔌 Veille **automatique** quotidienne via Firecrawl Search : code en place et testé avec une réponse API simulée en test unitaire, **jamais exécuté contre l'API réelle** (clé `FIRECRAWL_API_KEY` absente). Sans clé, la veille s'arrête avec le statut « skipped » — rien n'est simulé
+- ✅ Business Forecast : contrats potentiels / probables / signés, CA potentiel / pondéré / facturé / encaissé, 3 scénarios avec hypothèses, confiance et risques, projection mensuelle, secteurs, tendance, recommandations
+- ✅ Historique quotidien des prévisions (bouton + tâche planifiée)
+- 🟡 Apprentissage (comparaison prévu / réel, facteur d'ajustement) : testé en unitaire avec des historiques fictifs ; en réel, il faudra au moins un mois complet de prévisions archivées
+- ✅ Audience Value : comptes par entité séparés, relevés manuels et CSV avec source, engagement + formule, grille tarifaire production + diffusion, potentiel théorique / accessible / réalisé, projection 6 mois provisoire sans croissance inventée
+- ✅ Bilans matin / midi / soir enrichis (veille, prévision du jour, tendance, secteurs, recommandations)
 
-## Prévu pour une phase ultérieure (roadmap)
-1. Brand Finder enrichi (recherche assistée de marques et de pages officielles)
-2. Qualification / scoring assisté
-3. Intégration Gmail OAuth (lecture des réponses, rapprochement automatique) — jamais de mot de passe stocké
-4. Détection automatique des réponses depuis la boîte mail
-5. Notifications push réelles (après configuration VAPID)
-6. Rapports planifiés envoyés en push / email
-7. Assistant IA de prospection (rédaction, idées de campagnes), toujours avec validation humaine
-8. Propositions commerciales avancées
-9. Media Kit dynamique (statistiques importées des plateformes)
-10. Automatisations et analyses avancées
+## Nécessite une API, une clé ou une autorisation
+- 🔌 `FIRECRAWL_API_KEY` : veille automatique quotidienne (compte Firecrawl, payant à l'usage)
+- 🔐 Statistiques sociales automatiques : API Instagram Graph (compte Business + app Meta validée), TikTok Business API, YouTube Analytics (OAuth Google), Snapchat : non connectées. Aujourd'hui : saisie ou import CSV de vos exports
+- 🔐 Gmail OAuth (détection des réponses) : non développé
+- 🔌 Clés VAPID (push) ; `CRON_SECRET` + planificateur ; `DATABASE_URL` Supabase et hébergement : non configurés, rien n'a été déployé
+
+## À développer
+- ⏳ Assistant IA (rédaction contextualisée, résumé d'activité d'une marque) — les messages actuels sont des modèles personnalisés par les signaux et vos données
+- ⏳ Connexions API sociales officielles et Gmail
+- ⏳ Avoirs, propositions commerciales avancées, Media Kit dynamique alimenté par les relevés

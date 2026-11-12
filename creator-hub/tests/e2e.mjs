@@ -204,9 +204,9 @@ try {
     assert.equal((await page.request.get(`${BASE}/api/cron/reports`)).status(), 401);
     const r = await page.request.get(`${BASE}/api/cron/reports?slot=evening`, { headers: { authorization: "Bearer e2e-cron" } });
     const j = await r.json();
-    assert.equal(j.report.status, "generated");
+    assert.equal(j.report, "generated");
     const r2 = await page.request.get(`${BASE}/api/cron/reports?slot=evening`, { headers: { authorization: "Bearer e2e-cron" } });
-    assert.equal((await r2.json()).report.status, "already_generated");
+    assert.equal((await r2.json()).report, "already_generated");
     await page.goto(`${BASE}/hub/reports`);
     await page.getByText("Bilan de fin de journée").first().waitFor();
   });
