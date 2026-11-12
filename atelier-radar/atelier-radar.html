@@ -183,7 +183,7 @@ const PAGES = [
 ];
 const TABS = ["dashboard","recherche","candidatures","profil"];
 const DEFAULT_SETTINGS = {
-  budget:{idealMin:500, ideal:700, acceptable:800, penalite:900, horsCible:1000},
+  budget:{idealMin:500, ideal:700, plafond:800, inclureFonctionnement:false},
   surface:{min:30, max:60, idealMin:40, idealMax:50},
   estimations:{chargesM2An:30, tfM2An:10, elec:45, chauffage:0, internet:30, assurance:25, depotMois:3},
   styleBonus:{loft:5, atelier_americain:5, garage:4, industriel:4, verriere:3, mezzanine:2, grande_hauteur:2},
@@ -193,11 +193,12 @@ const DEFAULT_SETTINGS = {
     c2:["Champigny-sur-Marne","Joinville-le-Pont","Nogent-sur-Marne","Rosny-sous-Bois","Fontenay-sous-Bois"]
   },
   veille:{requetes:[
-    "location atelier OR loft OR \"local d'activité\" 30 à 60 m² Montreuil OR Pantin OR Bagnolet OR Saint-Ouen",
-    "location local d'activité OR ancien garage petite surface Paris 18 OR 19 OR 20 OR 11",
-    "site:geolocaux.com location local d'activité Ivry-sur-Seine OR Vitry-sur-Seine OR Saint-Denis 50 m²",
-    "site:zimo.fr location atelier local activité Paris Seine-Saint-Denis",
-    "site:lamaisondesartistes.fr atelier à louer privatif Paris Montreuil"
+    "location atelier OR loft OR \"local d'activité\" 30 à 60 m² Montreuil OR Pantin OR Bagnolet OR Saint-Ouen moins de 800 €",
+    "location \"ancien garage\" OR \"garage aménageable\" OR \"atelier d'artisan\" Paris OR \"Seine-Saint-Denis\" OR \"Val-de-Marne\"",
+    "site:leboncoin.fr bureaux_commerces atelier OR local OR studio 30 m² OR 40 m² OR 50 m² Paris OR Montreuil OR Pantin OR Ivry",
+    "site:lamaisondesartistes.fr atelier à louer entier Paris OR Saint-Ouen OR Montreuil OR Pantin",
+    "site:pap.fr location local d'activité OR local commercial Paris OR 93 OR 94 m²",
+    "location studio indépendant OR \"local en rez-de-chaussée\" OR \"local avec mezzanine\" Paris 18 OR 19 OR 20 OR 11 OR 12 OR 13 particulier"
   ]},
   horaires:["08:30","13:00","20:30"]
 };
@@ -207,7 +208,7 @@ const CAND = [
   ["relance","Relance à faire"],["visite","Visite"],["positive","Réponse positive"],["negative","Réponse négative"]
 ];
 const CAND_LABEL = Object.fromEntries(CAND);
-const TYPES = {loft:"Loft / atelier loft", atelier_artiste:"Atelier d'artiste", garage:"Ancien garage", local_activite:"Local d'activité", atelier_artisanal:"Atelier artisanal", entrepot:"Petit entrepôt / dépôt", usine:"Partie d'usine", commerce:"Ancien commerce / boutique", local_pro:"Local professionnel", showroom:"Showroom / espace de création", bureau:"Bureau", autre:"Autre / atypique"};
+const TYPES = {studio:"Studio indépendant", loft:"Loft / atelier loft", atelier_artiste:"Atelier d'artiste", garage:"Ancien garage", local_activite:"Local d'activité", atelier_artisanal:"Atelier artisanal", entrepot:"Petit entrepôt / dépôt", usine:"Partie d'usine", commerce:"Ancien commerce / boutique", local_pro:"Local professionnel", showroom:"Showroom / espace de création", bureau:"Bureau", autre:"Autre / atypique"};
 const STYLES = {loft:"Loft", atelier_americain:"Atelier américain", garage:"Garage", industriel:"Industriel", verriere:"Verrière", mezzanine:"Mezzanine", grande_hauteur:"Grande hauteur", lumiere:"Lumière naturelle", rdc:"Rez-de-chaussée", brique:"Brique", beton:"Béton", classique:"Classique fonctionnel"};
 const AGENTS = {"01":"Prospecteur", "02":"Analyste", "03":"Candidature", "04":"Négociateur", "05":"Communication", "06":"Comptes & connecteurs", "07":"Directeur de projet"};
 const COST_ITEMS = [
@@ -256,46 +257,55 @@ const settings = () => Object.assign({}, DEFAULT_SETTINGS, S.settings||{}, {
 /* ===================== Analyste : coûts ===================== */
 function item(o,k){ const c=o.couts?.[k]; return c && typeof c==="object" ? c : {v:null, s:"inconnu"}; }
 function surfaceOf(o){ return num(o.surface?.retenue) ?? num(o.surface?.min) ?? null; }
+const FONCT = ["electricite","chauffage","internet","assurance"];
+/* Coût locatif = loyer + TVA + charges + taxe foncière (ce que facture le bailleur).
+   Frais de fonctionnement = électricité, chauffage, internet, assurance (estimés si inconnus).
+   min = uniquement ce qui est écrit (TVA 0 si non précisée) ; max = avec estimations et TVA 20 % si non précisée. */
 function computeCosts(o){
   const st = settings(), E = st.estimations, surf = surfaceOf(o) || 40;
   const loyer = item(o,"loyerHT"), tva = item(o,"tva");
   const tvaKnown = tva.s!=="inconnu";
   const tMin = tvaKnown ? (num(tva.v)||0) : 0, tMax = tvaKnown ? (num(tva.v)||0) : 0.2;
   const L = num(loyer.v);
-  const rows = [];
   const est = {charges:E.chargesM2An*surf/12, taxeFonciere:E.tfM2An*surf/12, electricite:E.elec, chauffage:E.chauffage, internet:E.internet, assurance:E.assurance};
-  let min = 0, max = 0, confirmed = 0, estimated = 0, unknown = [];
-  if(L==null){ unknown.push("loyer"); rows.push({k:"loyerHT", label:"Loyer hors taxes", v:null, s:"inconnu"}); }
-  else { rows.push({k:"loyerHT", label:"Loyer hors taxes", v:L, s:loyer.s}); }
-  rows.push({k:"tva", label: tvaKnown ? `TVA (${Math.round((num(tva.v)||0)*100)} %)` : "TVA (non précisée : 0 à 20 %)", v: L==null?null:L*tMax, vmin:L==null?null:L*tMin, s:tva.s});
-  if(L!=null) rows.push({k:"loyerTTC", label:"Loyer TTC", v:L*(1+tMax), vmin:L*(1+tMin), s: tvaKnown ? loyer.s : "estime", derived:true});
-  const L0 = L||0;
-  min += L0*(1+tMin); max += L0*(1+tMax);
+  const rows = [];
+  let locMin=0, locMax=0, foncMin=0, foncMax=0, confirmed=0, estimated=0;
+  rows.push({k:"loyerHT", label:"Loyer hors taxes", v:L, s:L==null?"inconnu":loyer.s, g:"loc"});
+  rows.push({k:"tva", label: tvaKnown ? `TVA (${Math.round((num(tva.v)||0)*100)} %)` : "TVA (non précisée : 0 à 20 %)", v: L==null?null:L*tMax, vmin:L==null?null:L*tMin, s:tva.s, g:"loc"});
+  if(L!=null) rows.push({k:"loyerTTC", label:"Loyer TTC", v:L*(1+tMax), vmin:L*(1+tMin), s: tvaKnown ? loyer.s : "estime", g:"loc"});
+  const L0 = L||0; locMin += L0*(1+tMin); locMax += L0*(1+tMax);
   if(loyer.s==="confirme") confirmed += L0*(1+tMax); else estimated += L0*(1+tMax);
   for(const [k,label] of COST_ITEMS.slice(1)){
-    const it = item(o,k); let v = num(it.v), s = it.s;
-    if(s==="inclus"){ rows.push({k,label,v:0,s}); continue; }
-    if(v==null){ v = est[k] ?? 0; s = "estime"; }
+    const it = item(o,k); let v = num(it.v), s = it.s; const g = FONCT.includes(k) ? "fonc" : "loc";
+    if(s==="inclus"){ rows.push({k,label,v:0,s,g}); continue; }
+    const known = v!=null;
+    if(!known){ v = est[k] ?? 0; s = "estime"; }
     const tax = (k==="charges") ? 1 : 0;
-    const vMin = v*(1+tax*tMin), vMax = v*(1+tax*tMax);
-    rows.push({k,label,v:vMax,vmin:vMin,s});
-    min += vMin; max += vMax;
+    const vMin = known ? v*(1+tax*tMin) : 0, vMax = v*(1+tax*tMax);
+    rows.push({k,label,v:vMax,vmin: known ? vMin : null,s,g});
+    if(g==="loc"){ locMin += vMin; locMax += vMax; } else { foncMin += known ? v : 0; foncMax += vMax; }
     if(s==="confirme") confirmed += vMax; else estimated += vMax;
   }
   const depot = item(o,"depot"), hono = item(o,"honoraires"), entree = item(o,"fraisEntree");
   let depotV = num(depot.v), depotS = depot.s; if(depotV==null && L!=null){ depotV = L*E.depotMois; depotS="estime"; }
+  const unk = L==null;
   const init = [
     {label:"Dépôt de garantie", v:depotV, s:depotV==null?"inconnu":depotS},
     {label:"Honoraires", v:num(hono.v), s:hono.s},
     {label:"Frais d'entrée", v:num(entree.v), s:entree.s},
-    {label:"Premier mois (estimation haute)", v:L==null?null:max, s:"estime"}
+    {label:"Premier mois (estimation haute)", v:unk?null:locMax+foncMax, s:"estime"}
   ];
   const initial = init.reduce((a,r)=> a + (r.v||0), 0);
   const initialIncomplete = init.some(r=> r.v==null && r.s==="inconnu");
-  return {rows, min:L==null?null:min, max:L==null?null:max, confirmed, estimated, init, initial, initialIncomplete, unknownLoyer:L==null};
+  return {rows, locMin:unk?null:locMin, locMax:unk?null:locMax, foncMin, foncMax, min:unk?null:locMin+foncMin, max:unk?null:locMax+foncMax, confirmed, estimated, init, initial, initialIncomplete, unknownLoyer:unk};
 }
+function budgetBase(c){ return settings().budget.inclureFonctionnement ? {min:c.min, max:c.max} : {min:c.locMin, max:c.locMax}; }
 
-/* ===================== Analyste : barème /100 ===================== */
+/* ===================== Analyste : vérification et barème /100 ===================== */
+const VERIF = {consultee:["Annonce consultée",""], agence:["Disponibilité vérifiée auprès de l'agence","good"], proprietaire:["Disponibilité confirmée par le propriétaire","good"]};
+const VERIF_COURT = {consultee:"Consultée", agence:"Vérifiée agence", proprietaire:"Confirmée propriétaire"};
+const verifOf = o => o.verification?.niveau || "consultee";
+const verifDate = o => o.verification?.date || o.dateVerif;
 function zoneOf(o){
   if(o.zone) return o.zone;
   const z = settings().zones, v = (o.ville||"").toLowerCase();
@@ -306,24 +316,38 @@ function zoneOf(o){
 }
 const weightS = s => s==="confirme"?1 : s==="declaratif"?0.6 : 0;
 function computeScore(o){
-  const st = settings(), b = st.budget, sf = st.surface, c = computeCosts(o), elim = [], notes = [];
+  const st = settings(), b = st.budget, sf = st.surface, c = computeCosts(o), bb = budgetBase(c);
+  const elim = [], aVerifier = [], notes = [];
   const prive = o.prive?.valeur, ps = o.prive?.statut;
-  let p1 = prive==="oui" ? (ps==="confirme"?25: ps==="declaratif"?18:12) : prive==="non" ? 0 : 8;
-  if(prive==="non") elim.push("Espace partagé / mutualisé");
+  let p1 = prive==="oui" ? (ps==="confirme"?25: ps==="declaratif"?16:10) : prive==="non" ? 0 : 6;
+  if(prive==="non") elim.push("Pas de jouissance exclusive (espace partagé)");
+  if(o.mutualise) elim.push("Coworking, tiers-lieu ou espace mutualisé");
+  if(!(prive==="oui" && ps==="confirme")) aVerifier.push("Location exclusive à confirmer");
   let p2 = 0;
-  if(c.max==null) notes.push("Loyer inconnu : 0 point prix");
-  else { const m=c.max; p2 = m<=b.ideal?20 : m<=b.acceptable?14 : m<=b.penalite?6 : 0; if(m>b.horsCible && !o.exceptionnel) elim.push("Coût mensuel au-delà de " + eur(b.horsCible)); }
-  const s = surfaceOf(o), ss = o.surface?.statut;
-  let p3 = 0;
-  if(s==null || ss==="inconnu") notes.push("Surface inconnue");
-  else { p3 = (s>=sf.idealMin && s<=sf.idealMax)?15 : (s>=sf.min && s<=sf.max)?11 : ((s>=25&&s<sf.min)||(s>sf.max&&s<=70))?4 : 0;
-    if(ss==="declaratif") p3 = Math.round(p3*0.8);
-    if(s<25 || s>80) elim.push("Surface hors critères (" + s + " m²)"); }
+  if(bb.max==null) aVerifier.push("Loyer inconnu");
+  else {
+    const m = bb.max;
+    p2 = m<=b.ideal?20 : m<=(b.ideal+b.plafond)/2?16 : m<=b.plafond?12 : 0;
+    if(bb.min > b.plafond && !o.budgetDerogation) elim.push(`Coût au-delà de ${eur(b.plafond)} TTC/mois (au moins ${eur(bb.min)})`);
+    else if(m > b.plafond){ p2 = 4; aVerifier.push(`Budget à confirmer : ${eur(bb.min)} à ${eur(m)} selon TVA et charges`); }
+  }
+  const s = surfaceOf(o), ss = o.surface?.statut; let p3 = 0;
+  if(s==null || ss==="inconnu") aVerifier.push("Surface exacte inconnue");
+  else {
+    const tol = 2;
+    p3 = (s>=sf.idealMin && s<=sf.idealMax)?15 : (s>=sf.min && s<=sf.max)?11 : (s>=sf.min-tol && s<=sf.max+tol)?6 : 0;
+    if(ss==="declaratif") p3 = Math.round(p3*0.85);
+    if(o.surface?.min!=null && o.surface?.max!=null && o.surface.min!==o.surface.max) aVerifier.push("Lot exact à préciser (surface variable)");
+    if(s < sf.min-tol || s > sf.max+tol) elim.push(`Surface hors critères (${s} m²)`);
+  }
   const z = zoneOf(o);
   let p4 = z==="paris"||z==="c1" ? 9 : z==="c2" ? 4 : 0;
-  if(z==="hors") elim.push("Zone hors périmètre");
+  if(z==="hors") elim.push("Hors Paris et petite couronne");
+  if(z==="c2" && !o.exceptionnel) elim.push("2e couronne sans caractère exceptionnel");
+  if(z==="inconnu") aVerifier.push("Commune à préciser");
   const tm = num(o.transports?.minutesPied), tsv = o.transports?.statut;
   if(tm!=null && tsv!=="inconnu") p4 += tm<=5?6 : tm<=10?5 : tm<=15?3 : 1;
+  else if(o.transports?.texte && tsv && tsv!=="inconnu") p4 += 2;
   else notes.push("Temps à pied vers les transports inconnu");
   const cf = o.config||{}; let p5 = 0;
   const feat = (f, pts) => { const x = cf[f]; if(x && x.v) p5 += pts*weightS(x.s); };
@@ -332,35 +356,58 @@ function computeScore(o){
   const styl = (o.styles||[]).filter(x=>["loft","atelier_americain","garage","industriel","verriere","mezzanine","lumiere","brique","beton"].includes(x)).length;
   p5 += Math.min(2, styl) * (o.stylesStatut==="confirme"?1:0.5);
   p5 = Math.min(10, Math.round(p5*10)/10);
-  let p6 = 0; const bail = o.bail||{}, us = o.usage||{};
-  if(bail.type && bail.type!=="inconnu") p6 += bail.statut==="confirme"?4:2;
-  if(us.compatible==="oui") p6 += us.statut==="confirme"?6:3;
-  if(us.compatible==="non") elim.push("Usage audiovisuel non autorisé");
-  if(us.compatible!=="oui") notes.push("Usage (tournages petite équipe) non confirmé par le bailleur");
-  const p7 = Math.max(0, Math.min(5, num(o.potentiel)||0));
+  const us = o.usage||{};
+  const p6 = us.compatible==="oui" ? (us.statut==="confirme"?10:5) : 0;
+  if(us.compatible==="non") elim.push("Activité audiovisuelle non autorisée");
+  if(!(us.compatible==="oui" && us.statut==="confirme")) aVerifier.push("Autorisation de tournage à confirmer");
+  const eb = o.etatBien||{}, EB = {bon:5, renove:5, a_rafraichir:2, travaux:1};
+  const p7 = EB[eb.v]!=null ? Math.round(EB[eb.v]*(eb.s==="confirme"?1: eb.s==="declaratif"?0.6:0)) : 0;
+  if(!eb.v) notes.push("État du local à constater en visite");
+  if(verifOf(o)==="consultee") aVerifier.push("Disponibilité supposée : annonce seulement consultée");
   const parts = [
-    {k:"privatif", label:"Caractère privatif", pts:p1, max:25},
-    {k:"prix", label:"Prix et coût réel", pts:p2, max:20},
+    {k:"exclusivite", label:"Exclusivité et jouissance privative", pts:p1, max:25},
+    {k:"prix", label:"Prix total", pts:p2, max:20},
     {k:"surface", label:"Surface", pts:p3, max:15},
-    {k:"emplacement", label:"Emplacement et transports", pts:p4, max:15},
+    {k:"localisation", label:"Localisation et transports", pts:p4, max:15},
     {k:"config", label:"Configuration et esthétique", pts:p5, max:10},
-    {k:"juridique", label:"Compatibilité juridique et durée", pts:p6, max:10},
-    {k:"potentiel", label:"Potentiel d'aménagement", pts:p7, max:5}
+    {k:"audiovisuel", label:"Autorisation d'activité audiovisuelle", pts:p6, max:10},
+    {k:"etat", label:"État et aménagement", pts:p7, max:5}
   ];
   const total = Math.round(parts.reduce((a,x)=>a+x.pts,0));
   const bonusMap = st.styleBonus || DEFAULT_SETTINGS.styleBonus;
   const bonus = Math.min(5, Math.max(0, ...((o.styles||[]).map(x=>bonusMap[x]||0)), 0));
-  let qualif = "qualifiee";
-  if(prive==="non") qualif = "non_conforme";
-  else if(elim.length) qualif = "hors_cible";
-  else if(prive!=="oui" || ps!=="confirme" && ps!=="declaratif") qualif = "a_verifier";
-  return {total, parts, elim, notes, bonus, rank: total + bonus, qualif, costs:c};
+  let qualif;
+  if(prive==="non" || o.mutualise) qualif = "non_conforme";
+  else if(elim.length) qualif = "ecartee";
+  else if(aVerifier.length) qualif = "a_appeler";
+  else qualif = "conforme";
+  return {total, parts, elim, aVerifier, notes, bonus, rank: total + bonus, qualif, costs:c, budget:bb};
 }
-const QORDER = {qualifiee:0, a_verifier:1, hors_cible:2, non_conforme:3};
+function checklist(o){
+  const has = x => x!=null && String(x).trim()!=="";
+  const src = o.sources?.[0]||{};
+  return [
+    ["URL originale", has(src.url)],
+    ["Nom de la plateforme", has(src.site)],
+    ["Date de publication", has(o.datePublication) && !/inconnu/i.test(o.datePublication)],
+    ["Date de dernière vérification", has(verifDate(o))],
+    ["Disponibilité vérifiée (agence ou propriétaire)", verifOf(o)!=="consultee"],
+    ["Prix HT", item(o,"loyerHT").s!=="inconnu" && num(item(o,"loyerHT").v)!=null],
+    ["TVA", item(o,"tva").s!=="inconnu"],
+    ["Charges", item(o,"charges").s!=="inconnu"],
+    ["Surface exacte", surfaceOf(o)!=null && o.surface?.statut!=="inconnu" && !(o.surface?.min!=null && o.surface?.max!=null && o.surface.min!==o.surface.max)],
+    ["Adresse ou quartier", has(o.adresse) || has(o.quartier)],
+    ["Téléphone ou moyen de contact", has(o.contact?.tel) || has(o.contact?.email) || has(o.contact?.formulaire)],
+    ["Statut privatif confirmé", o.prive?.valeur==="oui" && o.prive?.statut==="confirme"],
+    ["Autorisation de tournage confirmée", o.usage?.compatible==="oui" && o.usage?.statut==="confirme"]
+  ];
+}
+const QORDER = {conforme:0, a_appeler:1, ecartee:2, non_conforme:3};
 const byRank = (a,b) => (QORDER[a.sc.qualif]-QORDER[b.sc.qualif]) || (b.sc.rank-a.sc.rank);
-const QUALIF = {qualifiee:["Qualifiée","good"], a_verifier:["À vérifier","warn"], hors_cible:["Hors cible","bad"], non_conforme:["Non conforme (partagé)","bad"]};
-const ETAT = {active:["Annonce active","good"], a_reverifier:["À revérifier","warn"], expiree:["Expirée","bad"], louee:["Louée","bad"], ancienne:["Ancienne annonce","warn"]};
+const QUALIF = {conforme:["Conforme","good"], a_appeler:["À appeler","warn"], ecartee:["Écartée","bad"], non_conforme:["Non conforme (partagé)","bad"]};
+const ETAT = {active:["Annonce en ligne","good"], a_reverifier:["À revérifier","warn"], expiree:["Expirée","bad"], louee:["Louée","bad"], ancienne:["Ancienne annonce","warn"]};
 const FIAB = {haute:"Fiabilité haute", moyenne:"Fiabilité moyenne", faible:"Fiabilité faible"};
+const ACTIFS = q => q==="conforme" || q==="a_appeler";
 
 /* ===================== Doublons ===================== */
 function normUrl(u){ try{ const x=new URL(u); return (x.hostname.replace(/^www\./,"")+x.pathname).replace(/\/$/,"").toLowerCase(); }catch(e){ return String(u||"").toLowerCase(); } }
@@ -468,8 +515,8 @@ function genCandidature(o, p){
   return {sections, objet, corps, generatedAt: nowIso(), auteur:"Agent 03 (modèle)"};
 }
 function negoPoints(o){
-  const c = computeCosts(o), b = settings().budget, out = [];
-  if(c.max!=null && c.max > b.ideal) out.push(`Ramener le coût mensuel vers ${eur(b.ideal)} tout compris (actuel estimé : ${eur(c.max)})`);
+  const c = budgetBase(computeCosts(o)), b = settings().budget, out = [];
+  if(c.max!=null && c.max > b.ideal) out.push(`Ramener le coût mensuel vers ${eur(b.ideal)} TTC charges comprises (estimation haute actuelle : ${eur(c.max)})`);
   if(item(o,"depot").s==="inconnu" || num(item(o,"depot").v) > (num(item(o,"loyerHT").v)||0)*2) out.push("Dépôt de garantie limité à 2 mois");
   if(num(item(o,"honoraires").v)>0) out.push("Honoraires d'agence réduits ou partagés");
   if(o.bail?.type==="commercial") out.push("Bail dérogatoire 24–36 mois plutôt qu'un 3-6-9, ou faculté de sortie triennale clairement écrite");
@@ -479,16 +526,16 @@ function negoPoints(o){
   return out;
 }
 function altStrategy(o){
-  const c = computeCosts(o), b = settings().budget;
+  const c = budgetBase(computeCosts(o)), b = settings().budget;
   const t = [];
-  if(c.max!=null && c.max > b.acceptable) t.push(`Prix : proposer ${eur(Math.min(b.ideal, Math.round(c.max*0.85/10)*10))}/mois tout compris, avec un engagement de durée en contrepartie.`);
+  if(c.max!=null && c.max > b.ideal) t.push(`Prix : proposer ${eur(Math.min(b.ideal, Math.round(c.max*0.85/10)*10))}/mois tout compris, avec un engagement de durée en contrepartie.`);
   t.push("Garanties : proposer une caution bancaire ou un garant à la place d'un dépôt élevé.");
   t.push("Bail : demander un bail dérogatoire ou une première période courte pour rassurer les deux parties.");
   t.push("Valorisation (à valider par toi avant toute proposition) : photos professionnelles ou courte vidéo de présentation du local, en échange d'un avantage négocié. Aucune promesse de vues ni de résultat.");
   return t.map(x=>"• "+x).join("\n");
 }
 function defaultNego(o){
-  const c = computeCosts(o), b = settings().budget;
+  const c = budgetBase(computeCosts(o)), b = settings().budget;
   return {prixInitial: c.max==null?null:Math.round(c.max), prixCible: c.max==null?null:Math.round(Math.min(b.ideal, c.max*0.9)), proposition:null, arguments: negoPoints(o), contreparties:[], derniereReponse:"", prochaineAction:""};
 }
 
@@ -508,7 +555,7 @@ async function log(agent, action, ref, resultat, source){
 /* ===================== Rendu : navigation ===================== */
 function counts(){
   let toDo = 0;
-  for(const o of S.offres.values()){ const st=o.candidature?.statut; if(o.doublonDe) continue; if(["a_preparer","brouillon","relance"].includes(st||"a_preparer") && computeScore(o).qualif!=="non_conforme") toDo++; }
+  for(const o of S.offres.values()){ const st=o.candidature?.statut; if(o.doublonDe) continue; if(["a_preparer","brouillon","relance"].includes(st||"a_preparer") && ACTIFS(computeScore(o).qualif)) toDo++; }
   return {toDo};
 }
 function renderNav(){
@@ -530,9 +577,10 @@ function offerCard({o, sc}){
   const q = QUALIF[sc.qualif], e = ETAT[o.etatAnnonce||"a_reverifier"]||ETAT.a_reverifier, c = sc.costs;
   const dup = duplicatesOf(o);
   return `<a class="card" href="#offre-${esc(o.id)}">${scoreBox(sc)}<div style="min-width:0">
-    <div class="row" style="gap:6px;margin-bottom:4px"><span class="pill ${q[1]}">${q[0]}</span><span class="pill ${e[1]}">${e[0]}</span>${o.nouvelle?'<span class="pill acc">Nouvelle</span>':""}${sc.bonus?`<span class="pill">Style +${sc.bonus}</span>`:""}${dup.length?'<span class="pill warn">Doublon probable</span>':""}${o.doublonDe?'<span class="pill">Fusionnée</span>':""}</div>
+    <div class="row" style="gap:6px;margin-bottom:4px"><span class="pill ${q[1]}">${q[0]}</span><span class="pill ${e[1]}">${e[0]}</span>${o.nouvelle?'<span class="pill acc">Nouvelle</span>':""}${sc.bonus?`<span class="pill">Style +${sc.bonus}</span>`:""}${dup.length?'<span class="pill warn">Doublon probable</span>':""}${o.doublonDe?'<span class="pill">Fusionnée</span>':""}<span class="pill">${checklist(o).filter(x=>x[1]).length}/13 infos</span></div>
     <h3>${esc(o.titre)}</h3>
-    <div class="meta"><span>${esc(o.ville||"Ville ?")}</span><span class="mono">${surfaceOf(o)!=null?surfaceOf(o)+" m²":"? m²"}</span><span class="mono">${c.max==null?"Coût ?": (Math.round(c.min)===Math.round(c.max)?eur(c.max):eur(c.min)+"–"+eur(c.max))}/mois</span><span>${esc(TYPES[o.type]||"Type ?")}</span><span>Vérifiée ${fdate(o.dateVerif)}</span></div>
+    <div class="meta"><span>${esc(o.ville||"Ville ?")}</span><span class="mono">${surfaceOf(o)!=null?surfaceOf(o)+" m²":"? m²"}</span><span class="mono">${sc.budget.max==null?"Coût ?": (Math.round(sc.budget.min)===Math.round(sc.budget.max)?eur(sc.budget.max):eur(sc.budget.min)+"–"+eur(sc.budget.max))} TTC/mois</span><span>${esc(TYPES[o.type]||"Type ?")}</span><span>${VERIF_COURT[verifOf(o)]} ${fdate(verifDate(o))}</span></div>
+    ${sc.qualif==="ecartee"?`<div class="meta" style="color:var(--bad)">${esc(sc.elim.join(" · "))}</div>`:""}
     <div class="meta"><span>${esc(o.sources?.map(s=>s.site).join(" · ")||"")}</span><span>${esc(CAND_LABEL[o.candidature?.statut||"a_preparer"])}</span></div>
   </div></a>`;
 }
@@ -540,22 +588,20 @@ function offerCard({o, sc}){
 function viewDashboard(){
   const L = list().filter(x=>!x.o.doublonDe);
   const b = settings().budget;
-  const qual = L.filter(x=>x.sc.qualif==="qualifiee");
-  const kept = L.filter(x=>x.sc.qualif!=="non_conforme" && x.sc.qualif!=="hors_cible");
-  const inBudget = L.filter(x=>x.sc.costs.max!=null && x.sc.costs.max<=b.acceptable && x.sc.qualif!=="non_conforme");
-  const st = k => L.filter(x=>(x.o.candidature?.statut||"a_preparer")===k).length;
+  const cnt = q => L.filter(x=>x.sc.qualif===q).length;
+  const actifs = L.filter(x=>ACTIFS(x.sc.qualif));
+  const inBudget = actifs.filter(x=>x.sc.budget.max!=null && x.sc.budget.max<=b.plafond).length;
+  const verified = L.filter(x=>verifOf(x.o)!=="consultee").length;
   const sent = L.filter(x=>["envoyee","en_attente","relance","visite","positive","negative"].includes(x.o.candidature?.statut)).length;
   const replies = L.filter(x=>(x.o.historique||[]).some(e=>e.type==="reponse")).length;
-  const visits = L.filter(x=>x.o.candidature?.statut==="visite" || (x.o.historique||[]).some(e=>e.type==="visite" && new Date(e.date)>=new Date(today()))).length;
+  const visits = L.filter(x=>x.o.candidature?.statut==="visite").length;
   const negos = L.filter(x=>x.o.negociation?.statut==="en_cours").length;
-  const avgArr = kept.map(x=>x.sc.costs.max).filter(v=>v!=null);
+  const avgArr = actifs.map(x=>x.sc.budget.max).filter(v=>v!=null);
   const avg = avgArr.length ? avgArr.reduce((a,v)=>a+v,0)/avgArr.length : null;
-  const nouvelles = L.filter(x=>x.o.nouvelle).length;
-  const actives = L.filter(x=>x.o.etatAnnonce==="active").length;
-  const prives = L.filter(x=>x.o.prive?.valeur==="oui").length;
-  const k = (v,l) => `<div class="kpi"><span class="v">${v}</span><span class="l">${l}</span></div>`;
+  const k = (v,l,cls="") => `<div class="kpi"><span class="v" ${cls?`style="color:var(--${cls})"`:""}>${v}</span><span class="l">${l}</span></div>`;
   const actions = [];
   for(const {o,sc} of L){
+    if(!ACTIFS(sc.qualif)) continue;
     if(o.prochaineAction?.texte) actions.push({d:o.prochaineAction.date||"", t:o.prochaineAction.texte, o});
     const cs = contactState(o);
     if(cs.canRelance) actions.push({d:today(), t:"Relance possible (envoi vérifié, sans réponse depuis " + daysSince(cs.lastSent.date) + " j)", o});
@@ -564,30 +610,32 @@ function viewDashboard(){
   actions.sort((a,b)=> String(a.d||"9999").localeCompare(String(b.d||"9999")));
   const alerts = [];
   for(const {o,sc} of L){
-    if(o.nouvelle && sc.total>=65 && sc.qualif!=="non_conforme") alerts.push(["acc", `Annonce intéressante : ${o.titre} (${sc.total}/100)`, o.id]);
-    const ds = daysSince(o.dateVerif); if(o.etatAnnonce!=="expiree" && o.etatAnnonce!=="louee" && ds!=null && ds>7) alerts.push(["warn", `À revérifier : ${o.titre} (vérifiée il y a ${ds} j)`, o.id]);
+    if(!ACTIFS(sc.qualif)) continue;
+    if(o.nouvelle && sc.total>=50) alerts.push(["acc", `Piste intéressante : ${o.titre} (${sc.total}/100)`, o.id]);
+    const ds = daysSince(verifDate(o)); if(ds!=null && ds>7) alerts.push(["warn", `À revérifier : ${o.titre} (consultée il y a ${ds} j)`, o.id]);
     if(o.prixHistorique?.length>1){ const h=o.prixHistorique; if(num(h[h.length-1].v) < num(h[h.length-2].v)) alerts.push(["good", `Baisse de prix : ${o.titre}`, o.id]); }
   }
   for(const c of S.connecteurs) if(c.statut==="reconnexion" || c.statut==="non_connecte" && c.essentiel) alerts.push(["bad", `${c.nom} : ${c.action||"action requise"}`, null]);
-  const top = L.filter(x=>x.sc.qualif!=="non_conforme").sort(byRank).slice(0,4);
+  const top = actifs.sort(byRank).slice(0,6);
   return `<div class="head"><div class="t"><span class="eyebrow">01 — Dashboard</span><h1>Où en est la recherche</h1></div>
     <div class="row"><span class="small muted">Dernière recherche réussie : <span class="mono">${S.status?.derniereRecherche?fdt(S.status.derniereRecherche):"jamais"}</span></span><a class="btn primary" href="#recherche">Voir les offres</a></div></div>
   <div class="kpis">
-    ${k(L.length,"offres trouvées")}${k(nouvelles,"nouvelles")}${k(actives,"encore disponibles (vérifiées)")}${k(prives,"réellement privatives")}${k(inBudget.length,"dans le budget ≤ "+eur(b.acceptable))}${k(qual.length,"qualifiées")}
-    ${k(sent,"candidatures envoyées")}${k(replies,"réponses reçues")}${k(visits,"visites programmées")}${k(negos,"négociations en cours")}${k(avg==null?"—":eur(avg),"coût moyen des offres retenues")}${k(st("brouillon")+st("prete"),"brouillons prêts à relire")}
+    ${k(cnt("conforme"),"conformes à tous les critères","good")}${k(cnt("a_appeler"),"pistes à appeler","warn")}${k(inBudget,"pistes ≤ "+eur(b.plafond)+" TTC (estimation haute)")}${k(verified,"disponibilités vérifiées")}${k(cnt("ecartee"),"écartées (motif noté)")}${k(cnt("non_conforme"),"partagées, mises à part")}
+    ${k(sent,"candidatures envoyées")}${k(replies,"réponses reçues")}${k(visits,"visites programmées")}${k(negos,"négociations en cours")}${k(avg==null?"—":eur(avg),"coût moyen des pistes")}${k(L.filter(x=>ACTIFS(x.sc.qualif) && ["brouillon","prete"].includes(x.o.candidature?.statut)).length,"brouillons prêts à relire")}
   </div>
+  ${cnt("conforme")===0?`<div class="note warn">Aucune annonce n'est encore <b>conforme</b> : il manque toujours une confirmation (exclusivité, autorisation de tournage ou disponibilité). Les pistes « À appeler » sont celles qui peuvent le devenir après un appel.</div>`:""}
+  <section class="panel"><div class="ph"><h2>Meilleures pistes</h2><a href="#recherche" class="small">Tout voir</a></div>
+    ${top.length?`<div class="grid g2">${top.map(offerCard).join("")}</div>`:`<div class="empty">Aucune piste dans les critères pour l'instant.</div>`}
+  </section>
   <div class="grid g2">
     <section class="panel"><div class="ph"><h2>Prochaines actions</h2><span class="eyebrow">${actions.length}</span></div>
-      ${actions.length?`<div class="timeline">${actions.slice(0,8).map(a=>`<div class="ev"><span class="d">${a.d?fdate(a.d):"à planifier"}</span><span>${esc(a.t)} — <a href="#offre-${esc(a.o.id)}">${esc(a.o.titre)}</a></span></div>`).join("")}</div>`:`<div class="empty">Aucune action planifiée. Ouvre un dossier pour en ajouter une.</div>`}
+      ${actions.length?`<div class="timeline">${actions.slice(0,8).map(a=>`<div class="ev"><span class="d">${a.d?fdate(a.d):"à planifier"}</span><span>${esc(a.t)} — <a href="#offre-${esc(a.o.id)}">${esc(a.o.titre)}</a></span></div>`).join("")}</div>`:`<div class="empty">Aucune action planifiée.</div>`}
     </section>
     <section class="panel"><div class="ph"><h2>Alertes</h2><span class="eyebrow">${alerts.length}</span></div>
       ${alerts.length?`<div class="stack">${alerts.slice(0,8).map(a=>`<div class="note ${a[0]}">${esc(a[1])}${a[2]?` — <a href="#offre-${esc(a[2])}">ouvrir</a>`:""}</div>`).join("")}</div>`:`<div class="empty">Rien à signaler.</div>`}
-      <p class="small muted" style="margin:10px 0 0">Les alertes s'affichent ici. Aucune notification push ni Telegram n'est encore programmée.</p>
+      <p class="small muted" style="margin:10px 0 0">Aucune notification push ni Telegram n'est encore programmée.</p>
     </section>
-  </div>
-  <section class="panel"><div class="ph"><h2>Meilleures offres du moment</h2><a href="#recherche" class="small">Tout voir</a></div>
-    ${top.length?`<div class="grid g2">${top.map(offerCard).join("")}</div>`:`<div class="empty">Aucune offre en base.</div>`}
-  </section>`;
+  </div>`;
 }
 
 function applyFilters(arr){
@@ -618,13 +666,14 @@ function viewRecherche(){
   const all = list(), f = S.filters;
   const sources = [...new Set(all.flatMap(x=>(x.o.sources||[]).map(s=>s.site)).filter(Boolean))];
   const res = applyFilters(all);
-  const main = res.filter(x=>x.sc.qualif!=="non_conforme"), alt = res.filter(x=>x.sc.qualif==="non_conforme");
+  const grp = q => res.filter(x=>x.sc.qualif===q);
+  const conf = grp("conforme"), call = grp("a_appeler"), out = grp("ecartee"), alt = grp("non_conforme");
   const v = S.veille;
   return `<div class="head"><div class="t"><span class="eyebrow">02 — Recherche</span><h1>Toutes les annonces</h1></div>
     <div class="row"><button class="btn" data-act="newOffer">Ajouter une annonce</button><button class="btn" data-act="importJson">Importer (JSON)</button><button class="btn primary" data-act="runVeille" ${v.running?"disabled":""}>${v.running?"Veille en cours…":"Lancer la veille"}</button></div></div>
   ${v.log.length?`<section class="panel"><div class="ph"><h2>Veille en direct</h2><span class="eyebrow">Agent 01 · Firecrawl</span></div><div class="timeline">${v.log.map(l=>`<div class="ev"><span class="d">${esc(l.t)}</span><span>${esc(l.m)}</span></div>`).join("")}</div></section>`:""}
-  <section class="panel">
-    <div class="filters">
+  <details class="panel" id="filtersBox" ${window.innerWidth>900||S.filtersOpen?"open":""}><summary style="cursor:pointer;font-weight:600" data-act="toggleFilters">Filtres${Object.entries(f).filter(([k,v])=>v&&k!=="tri").length?` · ${Object.entries(f).filter(([k,v])=>v&&k!=="tri").length} actif(s)`:""}</summary>
+    <div class="filters" style="margin-top:12px">
       <label class="f">Recherche<input type="text" data-filter="q" id="f-q" value="${esc(f.q)}" placeholder="Mot, ville…"></label>
       <label class="f">Zone${sel("zone",[["","Toutes"],["paris","Paris"],["c1","1re couronne"],["c2","2e couronne"],["inconnu","Non classée"]],f.zone)}</label>
       <label class="f">Budget max / mois${sel("budget",[["","Tous"],["700","≤ 700 €"],["800","≤ 800 €"],["900","≤ 900 €"],["1000","≤ 1 000 €"]],f.budget)}</label>
@@ -638,18 +687,24 @@ function viewRecherche(){
       <label class="f">Source${sel("source",[["","Toutes"],...sources.map(s=>[s,s])],f.source)}</label>
       <label class="f">Trier par${sel("tri",[["classement","Classement (qualification, score + style)"],["score","Score /100"],["cout","Coût mensuel"],["verif","Date de vérification"]],f.tri)}</label>
     </div>
+  </details>
+  <section class="stack"><div class="ph"><h2>Conformes à tous les critères</h2><span class="eyebrow">${conf.length}</span></div>
+    ${conf.length?`<div class="grid g2">${conf.map(offerCard).join("")}</div>`:`<div class="empty">Aucune annonce conforme confirmée. Une piste devient conforme quand l'exclusivité, l'autorisation de tournage, le prix et la disponibilité sont confirmés.</div>`}
   </section>
-  <section class="stack"><div class="ph"><h2>Offres qualifiables</h2><span class="eyebrow">${main.length} résultat${main.length>1?"s":""}</span></div>
-    ${main.length?`<div class="grid g2">${main.map(offerCard).join("")}</div>`:`<div class="empty">Aucune offre ne correspond à ces filtres.</div>`}
+  <section class="stack"><div class="ph"><h2>À appeler</h2><span class="eyebrow">${call.length} · dans les critères, infos à confirmer</span></div>
+    ${call.length?`<div class="grid g2">${call.map(offerCard).join("")}</div>`:`<div class="empty">Aucune piste à appeler avec ces filtres.</div>`}
   </section>
-  ${alt.length?`<section class="stack"><div class="ph"><h2>Alternatives non conformes</h2><span class="eyebrow">espaces partagés · ${alt.length}</span></div><p class="small muted" style="margin:0">Coworkings, ateliers partagés et studios mutualisés : gardés à part, jamais mélangés aux offres qualifiées.</p><div class="grid g2">${alt.map(offerCard).join("")}</div></section>`:""}`;
+  <section class="stack"><div class="ph"><h2>Écartées</h2><span class="eyebrow">${out.length} · avec motif</span></div>
+    ${out.length?`<div class="panel tblwrap"><table><thead><tr><th>Annonce</th><th>Ville</th><th class="num">m²</th><th>Motif</th></tr></thead><tbody>${out.map(({o,sc})=>`<tr><td><a href="#offre-${esc(o.id)}">${esc(o.titre)}</a></td><td>${esc(o.ville||"")}</td><td class="num">${surfaceOf(o)??"?"}</td><td class="small">${esc(sc.elim.join(" · "))}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Aucune annonce écartée.</div>`}
+  </section>
+  ${alt.length?`<section class="stack"><div class="ph"><h2>Alternatives non conformes</h2><span class="eyebrow">espaces partagés · ${alt.length}</span></div><p class="small muted" style="margin:0">Coworkings, ateliers partagés, tiers-lieux mutualisés : gardés à part, jamais classés conformes.</p><div class="grid g2">${alt.map(offerCard).join("")}</div></section>`:""}`;
 }
 
 function viewDossiers(){
   const L = list().filter(x=>!x.o.doublonDe && x.sc.qualif!=="non_conforme").sort(byRank);
   return `<div class="head"><div class="t"><span class="eyebrow">03 — Dossiers immobiliers</span><h1>Un dossier par local</h1></div><button class="btn" data-act="newOffer">Ajouter une annonce</button></div>
-  <section class="panel tblwrap"><table><thead><tr><th>Réf.</th><th>Local</th><th>Ville</th><th class="num">m²</th><th class="num">Coût/mois</th><th class="num">Score</th><th>Qualif.</th><th>Candidature</th><th>Vérifiée</th></tr></thead><tbody>
-  ${L.map(({o,sc})=>`<tr data-act="open" data-id="${esc(o.id)}" style="cursor:pointer"><td class="mono">${esc(o.ref||o.id)}</td><td><a href="#offre-${esc(o.id)}">${esc(o.titre)}</a></td><td>${esc(o.ville||"")}</td><td class="num">${surfaceOf(o)??"?"}</td><td class="num">${sc.costs.max==null?"?":eur(sc.costs.max)}</td><td class="num">${sc.total}</td><td><span class="pill ${QUALIF[sc.qualif][1]}">${QUALIF[sc.qualif][0]}</span></td><td>${esc(CAND_LABEL[o.candidature?.statut||"a_preparer"])}</td><td class="mono small">${fdate(o.dateVerif)}</td></tr>`).join("")}
+  <section class="panel tblwrap"><table><thead><tr><th>Réf.</th><th>Local</th><th>Ville</th><th class="num">m²</th><th class="num">Coût/mois</th><th class="num">Score</th><th>Qualif.</th><th>Candidature</th><th>Vérification</th></tr></thead><tbody>
+  ${L.map(({o,sc})=>`<tr data-act="open" data-id="${esc(o.id)}" style="cursor:pointer"><td class="mono">${esc(o.ref||o.id)}</td><td><a href="#offre-${esc(o.id)}">${esc(o.titre)}</a></td><td>${esc(o.ville||"")}</td><td class="num">${surfaceOf(o)??"?"}</td><td class="num">${sc.budget.max==null?"?":eur(sc.budget.max)}</td><td class="num">${sc.total}</td><td><span class="pill ${QUALIF[sc.qualif][1]}">${QUALIF[sc.qualif][0]}</span></td><td>${esc(CAND_LABEL[o.candidature?.statut||"a_preparer"])}</td><td class="small">${VERIF_COURT[verifOf(o)]} · ${fdate(verifDate(o))}</td></tr>`).join("")}
   </tbody></table>${L.length?"":`<div class="empty">Aucun dossier.</div>`}</section>`;
 }
 
@@ -668,11 +723,11 @@ function viewOffre(id){
   else if(tab==="historique") body = tabHistorique(o);
   else if(tab==="modifier") body = tabEdit(o);
   return `<div class="head"><div class="t"><a href="#recherche" class="small">← Recherche</a><span class="eyebrow">Dossier ${esc(o.ref||o.id)}</span><h1>${esc(o.titre)}</h1>
-    <div class="row"><span class="pill ${q[1]}">${q[0]}</span><span class="pill ${e[1]}">${e[0]}</span><span class="pill">${esc(FIAB[o.fiabilite]||"Fiabilité ?")}</span><span class="pill">Vérifiée le ${fdate(o.dateVerif)}</span>${o.nouvelle?'<button class="pill acc" data-act="markSeen" data-id="'+esc(id)+'">Nouvelle · marquer vue</button>':""}</div></div>
-    <div class="row">${scoreBox(sc)}<div class="dl"><span class="eyebrow">Coût mensuel estimé</span><span class="mono" style="font-size:1.2rem">${c.max==null?"inconnu":(Math.round(c.min)===Math.round(c.max)?eur(c.max):eur(c.min)+" – "+eur(c.max))}</span><span class="small muted">Classement ${sc.rank} (score + style ${sc.bonus})</span></div></div></div>
+    <div class="row"><span class="pill ${q[1]}">${q[0]}</span><span class="pill ${e[1]}">${e[0]}</span><span class="pill">${esc(FIAB[o.fiabilite]||"Fiabilité ?")}</span><span class="pill ${VERIF[verifOf(o)][1]}">${VERIF[verifOf(o)][0]} le ${fdate(verifDate(o))}</span>${o.nouvelle?'<button class="pill acc" data-act="markSeen" data-id="'+esc(id)+'">Nouvelle · marquer vue</button>':""}</div></div>
+    <div class="row">${scoreBox(sc)}<div class="dl"><span class="eyebrow">Coût locatif TTC / mois</span><span class="mono" style="font-size:1.2rem">${sc.budget.max==null?"inconnu":(Math.round(sc.budget.min)===Math.round(sc.budget.max)?eur(sc.budget.max):eur(sc.budget.min)+" – "+eur(sc.budget.max))}</span><span class="small muted">Classement ${sc.rank} (score + style ${sc.bonus})</span></div></div></div>
   ${dups.length?`<div class="note warn">Doublon probable : ${dups.map(d=>`<a href="#offre-${esc(d.id)}">${esc(d.titre)}</a> (${esc(d.why)})`).join(", ")}. <button class="btn" data-act="merge" data-id="${esc(id)}" data-other="${esc(dups[0].id)}">Fusionner dans cette fiche</button></div>`:""}
-  ${sc.elim.length?`<div class="note bad"><b>Critères éliminatoires :</b> ${sc.elim.map(esc).join(" · ")}</div>`:""}
-  ${o.etatAnnonce!=="active"?`<div class="note warn">Disponibilité non confirmée récemment : ne pas considérer cette annonce comme disponible sans nouvelle vérification.</div>`:""}
+  ${sc.elim.length?`<div class="note bad"><b>Écartée :</b> ${sc.elim.map(esc).join(" · ")}</div>`:""}
+  ${verifOf(o)==="consultee"?`<div class="note warn">Disponibilité <b>supposée</b> : l'annonce a seulement été consultée le ${fdate(verifDate(o))}. Elle n'est pas confirmée par l'agence ni par le propriétaire.</div>`:""}
   <div class="tabs" role="tablist">${t("analyse","Analyse")}${t("candidature","Candidature")}${t("negociation","Négociation")}${t("historique","Historique")}${t("modifier","Modifier")}</div>
   ${body}`;
 }
@@ -684,18 +739,20 @@ function tabAnalyse(o, sc){
   return `<div class="grid g2">
   <section class="panel"><h2>Fiche</h2><div class="spec">
     <div>Type</div><div>${esc(TYPES[o.type]||"?")}${(o.styles||[]).length?" · "+o.styles.map(s=>esc(STYLES[s]||s)).join(", "):""}</div>
-    <div>Localisation</div><div>${esc(o.adresse||o.ville||"?")} <span class="pill">${{paris:"Paris",c1:"1re couronne",c2:"2e couronne",inconnu:"zone ?",hors:"hors zone"}[zoneOf(o)]}</span></div>
+    <div>Localisation</div><div>${esc([o.adresse,o.quartier,o.ville].filter(Boolean).join(" · ")||"?")} <span class="pill">${{paris:"Paris",c1:"1re couronne",c2:"2e couronne",inconnu:"zone ?",hors:"hors zone"}[zoneOf(o)]}</span></div>
     <div>Transports</div><div>${esc(o.transports?.texte||"inconnu")}${o.transports?.minutesPied?` · ${o.transports.minutesPied} min à pied`:""} ${stPill(o.transports?.statut||"inconnu")}</div>
     <div>Surface</div><div class="mono">${o.surface?.min!=null&&o.surface?.max!=null&&o.surface.min!==o.surface.max?`${o.surface.min}–${o.surface.max} m² (retenue ${surfaceOf(o)})`:`${surfaceOf(o)??"?"} m²`} ${stPill(o.surface?.statut||"inconnu")}</div>
     <div>Privatif</div><div>${esc(o.prive?.valeur||"inconnu")} ${stPill(o.prive?.statut||"inconnu")}${o.prive?.note?`<br><span class="small muted">${esc(o.prive.note)}</span>`:""}</div>
     <div>Disponibilité</div><div>${esc(o.disponibilite?.texte||"inconnue")} ${stPill(o.disponibilite?.statut||"inconnu")}</div>
     <div>Bail</div><div>${esc(o.bail?.type||"inconnu")}${o.bail?.duree?` · ${esc(o.bail.duree)}`:""} ${stPill(o.bail?.statut||"inconnu")}</div>
-    <div>Usage audiovisuel</div><div>${esc(o.usage?.compatible||"inconnu")} ${stPill(o.usage?.statut||"inconnu")}${o.usage?.note?`<br><span class="small muted">${esc(o.usage.note)}</span>`:""}</div>
+    <div>Vérification</div><div>${esc(VERIF[verifOf(o)][0])} le ${fdate(verifDate(o))}</div>
+    <div>État du local</div><div>${esc({bon:"bon état",renove:"rénové",a_rafraichir:"à rafraîchir",travaux:"travaux nécessaires"}[o.etatBien?.v]||"inconnu")} ${stPill(o.etatBien?.s||"inconnu")}</div>
+    <div>Autorisation de tournage</div><div>${esc(o.usage?.compatible||"inconnu")} ${stPill(o.usage?.statut||"inconnu")}${o.usage?.note?`<br><span class="small muted">${esc(o.usage.note)}</span>`:""}</div>
     <div>Hauteur sous plafond</div><div>${cf.hauteur?.v?esc(cf.hauteur.v)+" m · "+esc(STATUTS_INFO[cf.hauteur.s]||""):"inconnue"}</div>
     <div>Rez-de-chaussée</div><div>${yn(cf.rdc)}</div><div>Accès direct sur rue</div><div>${yn(cf.accesRue)}</div>
     <div>Accès 24 h/24</div><div>${yn(cf.acces24h)}</div><div>Site sécurisé</div><div>${yn(cf.securise)}</div>
     <div>Travaux</div><div>${esc(o.travaux||"non renseigné")}</div>
-    <div>Contact</div><div>${esc({agence:"Agence",particulier:"Particulier",bailleur:"Bailleur / organisme"}[o.contact?.type]||"?")} ${esc(o.contact?.nom||"")}${o.contact?.contactNom?` · ${esc(o.contact.contactNom)}`:""}<br><span class="mono">${esc(o.contact?.tel||"")}</span> <span class="mono">${esc(o.contact?.email||"")}</span></div>
+    <div>Contact</div><div>${esc({agence:"Agence",particulier:"Particulier",bailleur:"Bailleur / organisme"}[o.contact?.type]||"?")} ${esc(o.contact?.nom||"")}${o.contact?.contactNom?` · ${esc(o.contact.contactNom)}`:""}<br><span class="mono">${esc(o.contact?.tel||"")}</span> <span class="mono">${esc(o.contact?.email||"")}</span>${o.contact?.formulaire?`<br><a href="${esc(o.contact.formulaire)}" target="_blank" rel="noopener">Formulaire / messagerie de contact</a>`:""}${o.contact?.note?`<br><span class="small muted">${esc(o.contact.note)}</span>`:""}</div>
     <div>Publication</div><div>${esc(o.datePublication||"inconnue")}</div>
   </div>
   ${o.description?`<h3 style="margin-top:14px">Description (source)</h3><p class="small" style="max-width:68ch">${esc(o.description)}</p>`:""}
@@ -706,11 +763,18 @@ function tabAnalyse(o, sc){
     <div class="bars">${sc.parts.map(p=>`<div class="bar"><span>${esc(p.label)}</span><span class="num">${Math.round(p.pts*10)/10}/${p.max}</span><div class="track"><div class="fill" style="width:${Math.round(p.pts/p.max*100)}%"></div></div></div>`).join("")}</div>
     ${sc.notes.length?`<p class="small muted" style="margin:12px 0 0">Points non attribués faute de confirmation : ${sc.notes.map(esc).join(" · ")}.</p>`:""}
   </section>
+  <section class="panel"><div class="ph"><h2>Fiabilité de l'annonce</h2><span class="mono">${checklist(o).filter(x=>x[1]).length}/13</span></div>
+    <div class="tblwrap"><table><tbody>${checklist(o).map(([l,ok])=>`<tr><td>${esc(l)}</td><td>${ok?'<span class="pill good">renseigné</span>':'<span class="pill bad">inconnu</span>'}</td></tr>`).join("")}</tbody></table></div>
+  </section>
+  ${sc.aVerifier.length?`<section class="panel"><div class="ph"><h2>À demander à l'appel</h2><span class="eyebrow">${sc.aVerifier.length}</span></div><ul class="clean small">${[...new Set([...sc.aVerifier, ...questionsFor(o).map(q=>q.charAt(0).toUpperCase()+q.slice(1))])].map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p class="small muted" style="margin:8px 0 0">Après l'appel, onglet Modifier : renseigne les réponses et le niveau de vérification. Le classement se recalcule.</p></section>`:""}
   <section class="panel"><div class="ph"><h2>Coûts</h2><span class="small muted">confirmé ≠ estimé</span></div>
     <div class="tblwrap"><table><tbody>
-    ${c.rows.map(r=>`<tr><td>${esc(r.label)}</td><td>${stPill(r.s)}</td><td class="num">${r.v==null?"?":(r.vmin!=null&&Math.round(r.vmin)!==Math.round(r.v)?eur(r.vmin)+"–"+eur(r.v):eur(r.v))}</td></tr>`).join("")}
-    <tr class="total"><td colspan="2">Coût mensuel estimé (TTC, tout compris)</td><td class="num">${c.max==null?"?":(Math.round(c.min)===Math.round(c.max)?eur(c.max):eur(c.min)+"–"+eur(c.max))}</td></tr>
+    ${c.rows.filter(r=>r.g==="loc").map(r=>`<tr><td>${esc(r.label)}</td><td>${stPill(r.s)}</td><td class="num">${r.v==null?"?":(r.vmin!=null&&Math.round(r.vmin)!==Math.round(r.v)?eur(r.vmin)+"–"+eur(r.v):eur(r.v))}</td></tr>`).join("")}
+    <tr class="total"><td colspan="2">Coût locatif TTC (loyer + TVA + charges + taxe foncière)</td><td class="num">${c.locMax==null?"?":(Math.round(c.locMin)===Math.round(c.locMax)?eur(c.locMax):eur(c.locMin)+"–"+eur(c.locMax))}</td></tr>
+    ${c.rows.filter(r=>r.g==="fonc").map(r=>`<tr><td>${esc(r.label)}</td><td>${stPill(r.s)}</td><td class="num">${r.v==null?"?":eur(r.v)}</td></tr>`).join("")}
+    <tr class="total"><td colspan="2">Total avec frais de fonctionnement</td><td class="num">${c.max==null?"?":(Math.round(c.min)===Math.round(c.max)?eur(c.max):eur(c.min)+"–"+eur(c.max))}</td></tr>
     </tbody></table></div>
+    <p class="small muted" style="margin:8px 0 0">Le plafond de ${eur(settings().budget.plafond)} s'applique ${settings().budget.inclureFonctionnement?"au total, frais de fonctionnement compris":"au coût locatif TTC"}. Fourchette basse : seulement ce qui est écrit dans l'annonce ; fourchette haute : avec estimations et TVA à 20 % si non précisée.</p>
     <h3 style="margin:14px 0 6px">Coût initial pour entrer</h3>
     <div class="tblwrap"><table><tbody>${c.init.map(r=>`<tr><td>${esc(r.label)}</td><td>${stPill(r.s)}</td><td class="num">${r.v==null?"?":eur(r.v)}</td></tr>`).join("")}
     <tr class="total"><td colspan="2">Total ${c.initialIncomplete?"(incomplet)":""}</td><td class="num">${eur(c.initial)}</td></tr></tbody></table></div>
@@ -802,7 +866,9 @@ function tabEdit(o){
     <label class="f">Fiabilité<select id="e-fiab" data-k="fiabilite">${Object.entries(FIAB).map(([k,v])=>`<option value="${k}" ${o.fiabilite===k?"selected":""}>${v}</option>`).join("")}</select></label></div>
     <fieldset class="stack" style="border:1px solid var(--line);border-radius:var(--r);padding:10px"><legend class="eyebrow">Styles</legend><div class="row">${Object.entries(STYLES).map(([k,l])=>`<label class="check"><input type="checkbox" id="e-st-${k}" data-style="${k}" ${(o.styles||[]).includes(k)?"checked":""}> ${l}</label>`).join("")}</div>
     <label class="f">Statut des styles${stSel("e-stylesStatut","stylesStatut",o.stylesStatut)}</label></fieldset>
-    <div class="filters">${t("e-dateVerif","dateVerif","Dernière vérification",o.dateVerif,"date")}${t("e-datePub","datePublication","Publication",o.datePublication)}</div>
+    <div class="filters">${t("e-dateVerif","dateVerif","Annonce consultée le",o.dateVerif,"date")}${t("e-datePub","datePublication","Publication",o.datePublication)}</div>
+    <div class="filters"><label class="f">Niveau de vérification<select id="e-verif" data-k="verification.niveau">${Object.entries(VERIF).map(([k,v])=>`<option value="${k}" ${verifOf(o)===k?"selected":""}>${v[0]}</option>`).join("")}</select></label>${t("e-verifd","verification.date","Date de cette vérification",o.verification?.date,"date")}</div>
+    ${t("e-quartier","quartier","Quartier",o.quartier)}
     <label class="f">Description<textarea id="e-desc" data-k="description">${esc(o.description||"")}</textarea></label>
     <label class="f">Points forts (un par ligne)<textarea id="e-pf" data-k="pointsForts" data-lines>${esc((o.pointsForts||[]).join("\n"))}</textarea></label>
     <label class="f">Points faibles (un par ligne)<textarea id="e-pfa" data-k="pointsFaibles" data-lines>${esc((o.pointsFaibles||[]).join("\n"))}</textarea></label>
@@ -811,6 +877,7 @@ function tabEdit(o){
   <section class="panel stack"><h2>Critères</h2>
     <div class="filters"><label class="f">Privatif<select id="e-prive" data-k="prive.valeur">${["inconnu","oui","non"].map(v=>`<option ${o.prive?.valeur===v?"selected":""}>${v}</option>`).join("")}</select></label><label class="f">Statut${stSel("e-prive-s","prive.statut",o.prive?.statut)}</label></div>
     ${t("e-prive-note","prive.note","Note sur le caractère privatif",o.prive?.note)}
+    <label class="check"><input type="checkbox" id="e-mutu" data-k="mutualise" ${o.mutualise?"checked":""}> Coworking, tiers-lieu ou espace mutualisé (exclut l'annonce)</label>
     <div class="filters">${t("e-smin","surface.min","Surface min (m²)",o.surface?.min,"number")}${t("e-smax","surface.max","Surface max",o.surface?.max,"number")}${t("e-sret","surface.retenue","Surface retenue",o.surface?.retenue,"number")}<label class="f">Statut${stSel("e-s-s","surface.statut",o.surface?.statut)}</label></div>
     <div class="filters">${t("e-tr","transports.texte","Transports",o.transports?.texte)}${t("e-trm","transports.minutesPied","Minutes à pied",o.transports?.minutesPied,"number")}<label class="f">Statut${stSel("e-tr-s","transports.statut",o.transports?.statut)}</label></div>
     <div class="filters">${t("e-dispo","disponibilite.texte","Disponibilité",o.disponibilite?.texte)}<label class="f">Statut${stSel("e-dispo-s","disponibilite.statut",o.disponibilite?.statut)}</label></div>
@@ -819,8 +886,8 @@ function tabEdit(o){
     ${t("e-usage-n","usage.note","Note d'usage",o.usage?.note)}
     <div class="filters"><label class="f">Hauteur (m)<input type="number" step="0.1" id="e-h" data-k="config.hauteur.v" value="${esc(o.config?.hauteur?.v??"")}"></label><label class="f">Statut${stSel("e-h-s","config.hauteur.s",o.config?.hauteur?.s)}</label></div>
     ${boolEd("rdc","Rez-de-chaussée",o)}${boolEd("accesRue","Accès direct sur rue",o)}${boolEd("acces24h","Accès 24 h/24",o)}${boolEd("securise","Site sécurisé",o)}
-    <label class="f">Potentiel d'aménagement (0–5)<input type="number" min="0" max="5" id="e-pot" data-k="potentiel" value="${esc(o.potentiel??0)}"></label>
-    <label class="check"><input type="checkbox" id="e-exc" data-k="exceptionnel" ${o.exceptionnel?"checked":""}> Opportunité exceptionnelle (lève l'élimination prix)</label>
+    <div class="filters"><label class="f">État du local<select id="e-etatb" data-k="etatBien.v">${[["","inconnu"],["bon","bon état"],["renove","rénové"],["a_rafraichir","à rafraîchir"],["travaux","travaux nécessaires"]].map(([k,l])=>`<option value="${k}" ${(o.etatBien?.v||"")===k?"selected":""}>${l}</option>`).join("")}</select></label><label class="f">Statut${stSel("e-etatb-s","etatBien.s",o.etatBien?.s)}</label></div>
+    <label class="check"><input type="checkbox" id="e-exc" data-k="exceptionnel" ${o.exceptionnel?"checked":""}> Bien exceptionnel (autorise la 2e couronne)</label>
   </section>
   <section class="panel stack"><h2>Coûts (€/mois sauf mention)</h2>
     ${costEditor("loyerHT","Loyer HT mensuel",o)}
@@ -830,7 +897,7 @@ function tabEdit(o){
   </section>
   <section class="panel stack"><h2>Contact & source</h2>
     <div class="filters"><label class="f">Type de contact<select id="e-ctype" data-k="contact.type">${[["","?"],["agence","Agence"],["particulier","Particulier"],["bailleur","Bailleur / organisme"]].map(([k,l])=>`<option value="${k}" ${(o.contact?.type||"")===k?"selected":""}>${l}</option>`).join("")}</select></label>
-    ${t("e-cnom","contact.nom","Agence / propriétaire",o.contact?.nom)}${t("e-cc","contact.contactNom","Nom du contact",o.contact?.contactNom)}${t("e-ctel","contact.tel","Téléphone",o.contact?.tel,"tel")}${t("e-cmail","contact.email","Mail",o.contact?.email,"email")}</div>
+    ${t("e-cnom","contact.nom","Agence / propriétaire",o.contact?.nom)}${t("e-cc","contact.contactNom","Nom du contact",o.contact?.contactNom)}${t("e-ctel","contact.tel","Téléphone",o.contact?.tel,"tel")}${t("e-cmail","contact.email","Mail",o.contact?.email,"email")}${t("e-cform","contact.formulaire","Lien du formulaire ou de la messagerie",o.contact?.formulaire,"url")}</div>
     ${t("e-src","sources.0.url","Lien de la source principale",o.sources?.[0]?.url,"url")}
     <div class="filters">${t("e-srcsite","sources.0.site","Site",o.sources?.[0]?.site)}${t("e-srcref","sources.0.ref","Référence",o.sources?.[0]?.ref)}</div>
     <h3>Prochaine action</h3>
@@ -841,7 +908,7 @@ function tabEdit(o){
 }
 
 function viewCandidatures(){
-  const L = list().filter(x=>!x.o.doublonDe && x.sc.qualif!=="non_conforme");
+  const L = list().filter(x=>!x.o.doublonDe && ACTIFS(x.sc.qualif));
   const lanes = CAND.map(([k,l])=>{ const items = L.filter(x=>(x.o.candidature?.statut||"a_preparer")===k).sort((a,b)=>b.sc.rank-a.sc.rank); return `<div class="lane"><div class="ph"><h3>${l}</h3><span class="mono small">${items.length}</span></div>${items.map(({o,sc})=>`<div class="mini" data-act="openCand" data-id="${esc(o.id)}"><b>${esc(o.titre)}</b><div class="small muted">${esc(o.ville||"")} · ${sc.total}/100 · ${sc.costs.max==null?"?":eur(sc.costs.max)}</div>${contactState(o).uncertain?'<span class="pill bad">envoi non vérifié</span>':""}</div>`).join("")||'<span class="small muted">—</span>'}</div>`; }).join("");
   return `<div class="head"><div class="t"><span class="eyebrow">04 — Candidatures</span><h1>Suivi des candidatures</h1></div><button class="btn primary" data-act="genAll">Générer les brouillons manquants</button></div>
   <p class="small muted" style="margin:0">Les brouillons sont générés automatiquement à partir de ton profil. Leur envoi reste ton geste : rien ne part sans toi.</p>
@@ -890,7 +957,7 @@ function viewProfil(){
 }
 
 function viewNegociation(){
-  const L = list().filter(x=>!x.o.doublonDe && x.sc.qualif!=="non_conforme").sort((a,b)=>b.sc.rank-a.sc.rank);
+  const L = list().filter(x=>!x.o.doublonDe && ACTIFS(x.sc.qualif)).sort(byRank);
   return `<div class="head"><div class="t"><span class="eyebrow">06 — Négociation</span><h1>Prix, propositions, contreparties</h1></div></div>
   <section class="panel tblwrap"><table><thead><tr><th>Local</th><th class="num">Prix initial</th><th class="num">Cible</th><th class="num">Proposition</th><th>Statut</th><th>Dernière réponse</th><th>Prochaine action</th></tr></thead><tbody>
   ${L.map(({o})=>{ const n = Object.assign(defaultNego(o), o.negociation||{}); return `<tr data-act="openNego" data-id="${esc(o.id)}" style="cursor:pointer"><td><a href="#offre-${esc(o.id)}">${esc(o.titre)}</a></td><td class="num">${eur(n.prixInitial)}</td><td class="num">${eur(n.prixCible)}</td><td class="num">${eur(n.proposition)}</td><td>${esc({"":"pas commencée",en_cours:"en cours",accord:"accord",echec:"échec"}[n.statut||""])}</td><td class="small">${esc(n.derniereReponse||"—")}</td><td class="small">${esc(n.prochaineAction||"—")}</td></tr>`; }).join("")}
@@ -927,7 +994,8 @@ function viewParametres(){
   return `<div class="head"><div class="t"><span class="eyebrow">09 — Paramètres</span><h1>Critères et barèmes</h1></div></div>
   <form class="grid g2" data-form="settings">
     <section class="panel stack"><h2>Budget (€/mois TTC tout compris)</h2>
-      <div class="filters">${t("s-b-min","budget.idealMin","Idéal à partir de",b.idealMin)}${t("s-b-ideal","budget.ideal","Meilleure note jusqu'à",b.ideal)}${t("s-b-acc","budget.acceptable","Acceptable jusqu'à",b.acceptable)}${t("s-b-pen","budget.penalite","Pénalité forte jusqu'à",b.penalite)}${t("s-b-hors","budget.horsCible","Hors cible au-delà de",b.horsCible)}</div>
+      <div class="filters">${t("s-b-min","budget.idealMin","Cible à partir de",b.idealMin)}${t("s-b-ideal","budget.ideal","Meilleure note jusqu'à",b.ideal)}${t("s-b-plaf","budget.plafond","Plafond éliminatoire",b.plafond)}</div>
+      <label class="check"><input type="checkbox" id="s-b-inc" data-k="budget.inclureFonctionnement" ${b.inclureFonctionnement?"checked":""}> Inclure électricité, internet et assurance dans le plafond</label>
       <h2>Surface (m²)</h2>
       <div class="filters">${t("s-s-min","surface.min","Minimum",sf.min)}${t("s-s-max","surface.max","Maximum",sf.max)}${t("s-s-imin","surface.idealMin","Idéal de",sf.idealMin)}${t("s-s-imax","surface.idealMax","Idéal à",sf.idealMax)}</div>
       <h2>Estimations utilisées quand l'annonce ne dit rien</h2>
@@ -936,8 +1004,8 @@ function viewParametres(){
     </section>
     <div class="stack">
     <section class="panel"><h2>Barème de pertinence /100</h2><div class="tblwrap"><table><tbody>
-      <tr><td>Caractère privatif</td><td class="num">25</td></tr><tr><td>Prix et coût réel</td><td class="num">20</td></tr><tr><td>Surface</td><td class="num">15</td></tr><tr><td>Emplacement et transports</td><td class="num">15</td></tr><tr><td>Configuration et esthétique</td><td class="num">10</td></tr><tr><td>Compatibilité juridique et durée</td><td class="num">10</td></tr><tr><td>Potentiel d'aménagement</td><td class="num">5</td></tr><tr class="total"><td>Total</td><td class="num">100</td></tr></tbody></table></div>
-      <p class="small muted">Une information confirmée compte en entier, une information déclarative compte partiellement, une information inconnue ne rapporte rien. Le prix est calculé sur l'estimation haute (TVA incluse si elle n'est pas précisée). Les lofts, ateliers américains, garages et lieux industriels reçoivent un bonus de classement (jusqu'à +5), séparé du score.</p></section>
+      <tr><td>Exclusivité et jouissance privative</td><td class="num">25</td></tr><tr><td>Prix total</td><td class="num">20</td></tr><tr><td>Surface</td><td class="num">15</td></tr><tr><td>Localisation et transports</td><td class="num">15</td></tr><tr><td>Configuration et esthétique</td><td class="num">10</td></tr><tr><td>Autorisation d'activité audiovisuelle</td><td class="num">10</td></tr><tr><td>État et aménagement</td><td class="num">5</td></tr><tr class="total"><td>Total</td><td class="num">100</td></tr></tbody></table></div>
+      <p class="small muted">Une information confirmée compte en entier, une information déclarative compte partiellement, une information inconnue ne rapporte rien. Au-delà du plafond, l'annonce est écartée ; si seule l'estimation haute dépasse, elle reste « À appeler » avec un budget à confirmer. Coworkings, tiers-lieux mutualisés et espaces partagés sont toujours mis à part. Les lofts, ateliers américains, garages et lieux industriels reçoivent un bonus de classement (jusqu'à +5), séparé du score.</p></section>
     <section class="panel"><h2>Zones</h2><p class="small"><b>Paris</b> et <b>1re couronne</b> prioritaires : ${esc(st.zones.c1.join(", "))}.</p><p class="small"><b>2e couronne</b> si exceptionnel : ${esc(st.zones.c2.join(", "))}.</p></section>
     <section class="panel"><h2>Veille et notifications</h2>
       <div class="note warn">Horaires prévus (Europe/Paris) : ${st.horaires.join(" · ")}. <b>Non programmés pour l'instant.</b> La veille se lance à la main avec le bouton « Lancer la veille » de la page Recherche.</div>
@@ -1036,7 +1104,7 @@ const ACT = {
     let n = 0;
     for(const o of S.offres.values()){
       if(o.doublonDe || o.candidature?.draft) continue;
-      const sc = computeScore(o); if(sc.qualif==="non_conforme") continue;
+      const sc = computeScore(o); if(!ACTIFS(sc.qualif)) continue;
       const d = clone(o); d.candidature = Object.assign({statut:"brouillon"}, d.candidature, {draft: genCandidature(o, S.profil)}); if((o.candidature?.statut||"a_preparer")==="a_preparer") d.candidature.statut="brouillon";
       if(!d.negociation) d.negociation = defaultNego(o);
       if(await saveOffer(d)) n++;
@@ -1097,12 +1165,13 @@ Réponds uniquement en JSON : {"objet": string, "corps": string}`;
   },
   addPresentation(){ const p = clone(S.profil||{}); p.presentations = [...(p.presentations||[]), {nom:"Nouvelle version", texte:"", actif:false}]; S.db.doc("profil/main").set(p).then(()=>toast("Version ajoutée")); },
   async newCompte(){ const id = uid("c"); try{ await S.db.collection("comptes").doc(id).set({plateforme:"Nouvelle plateforme", statut:"a_creer", email:"", alertes:"aucune", action:"Renseigner la plateforme"}); toast("Ligne ajoutée au registre"); }catch(e){ toast("Ajout impossible"); } },
-  runVeille(){ runVeille(); }
+  runVeille(){ runVeille(); },
+  toggleFilters(){ setTimeout(()=>{ S.filtersOpen = !!$("#filtersBox")?.open; }, 0); }
 };
 document.addEventListener("click", e=>{
   const t = e.target.closest("[data-act]"); if(!t) return;
   const a = t.dataset.act; if(!ACT[a]) return;
-  if(t.tagName==="BUTTON" || t.tagName==="TR" || t.classList.contains("mini") || t.classList.contains("scrim")) e.preventDefault();
+  if(t.tagName==="BUTTON" || t.tagName==="TR" || t.tagName==="SUMMARY" && false || t.classList.contains("mini") || t.classList.contains("scrim")) e.preventDefault();
   ACT[a](t, e);
 });
 
@@ -1134,6 +1203,7 @@ async function runVeille(){
   if(!S.sample){ say("Claude n'est pas disponible pour qualifier les résultats : rien n'est ajouté."); V.running=false; return render(true); }
   say("Qualification des résultats par Claude (Agent 02)…");
   const prompt = `Voici des résultats de recherche web (titre, lien, extrait). Garde UNIQUEMENT les annonces individuelles de location d'un local (pas les pages de liste, pas les ventes, pas les événements, pas les logements) situées à Paris ou en Île-de-France, de 20 à 90 m² si la surface est connue.
+Écarte les coworkings, postes de travail, ateliers partagés, tiers-lieux mutualisés et les locaux dont le loyer dépasse 800 € par mois.
 Pour chacune, extrais uniquement ce que l'extrait dit explicitement. Ce qui n'est pas écrit vaut null. N'invente rien.
 Réponds uniquement par un tableau JSON d'objets : {"url": string, "titre": string, "ville": string|null, "surface": number|null, "loyerMensuel": number|null, "loyerPrecision": "HT"|"TTC"|"CC"|"HC"|null, "type": "loft"|"atelier_artiste"|"garage"|"local_activite"|"atelier_artisanal"|"entrepot"|"commerce"|"local_pro"|"bureau"|"autre", "partage": true|false|null, "styles": string[] (parmi loft, industriel, verriere, mezzanine, garage, grande_hauteur, lumiere, rdc), "resume": string (1 phrase)}.
 Résultats :
@@ -1141,13 +1211,14 @@ ${JSON.stringify(fresh.slice(0,40))}`;
   let items = [];
   try{ items = await S.sample.json(prompt, {modelTier:"default", cache:false}); if(!Array.isArray(items)) items = []; }
   catch(e){ say("Qualification impossible (" + (e.code||"erreur") + "). Les liens ne sont pas ajoutés."); V.running=false; await log("02","Qualification des résultats de veille impossible", null, "erreur", "Claude"); return render(true); }
-  let added = 0;
+  let added = 0, skipped = 0;
   for(const it of items){
     if(!it || !it.url || known.has(normUrl(it.url))) continue;
+    if(it.partage===true || (num(it.loyerMensuel)!=null && num(it.loyerMensuel)>settings().budget.plafond)){ skipped++; continue; }
     const site = (()=>{ try{ return new URL(it.url).hostname.replace(/^www\./,""); }catch(e){ return ""; } })();
     const id = "o-" + Date.now().toString(36) + added;
     const o = {id, ref:id.toUpperCase(), titre: it.titre || "Annonce détectée", ville: it.ville||"", type: TYPES[it.type]?it.type:"autre", styles: (it.styles||[]).filter(s=>STYLES[s]), stylesStatut:"declaratif",
-      sources:[{site, url:it.url, ref:"", datePublication:null}], dateVerif: today(), etatAnnonce:"a_reverifier", fiabilite:"faible",
+      sources:[{site, url:it.url, ref:"", datePublication:null}], dateVerif: today(), verification:{niveau:"consultee", date:today()}, etatAnnonce:"a_reverifier", fiabilite:"faible", contact:{formulaire:it.url},
       prive: it.partage===true ? {valeur:"non", statut:"declaratif"} : {valeur:"inconnu", statut:"inconnu"},
       surface: it.surface ? {retenue:it.surface, min:it.surface, max:it.surface, statut:"declaratif"} : {statut:"inconnu"},
       couts: it.loyerMensuel ? {loyerHT:{v:it.loyerMensuel, s:"declaratif"}, tva: it.loyerPrecision==="TTC" ? {v:0, s:"declaratif"} : {v:null, s:"inconnu"}, charges: it.loyerPrecision==="CC" ? {v:0, s:"inclus"} : {v:null, s:"inconnu"}} : {},
@@ -1155,6 +1226,7 @@ ${JSON.stringify(fresh.slice(0,40))}`;
     o.candidature = {statut:"brouillon", draft: genCandidature(o, S.profil)}; o.negociation = defaultNego(o);
     if(await saveOffer(o)) { added++; known.add(normUrl(it.url)); }
   }
+  if(skipped) S.veille.log.push({t:new Date().toLocaleTimeString("fr-FR"), m:`${skipped} résultat(s) ignoré(s) : partagés ou au-dessus de ${eur(settings().budget.plafond)}.`});
   await finishVeille(added, results.length);
 }
 async function finishVeille(added, total){
