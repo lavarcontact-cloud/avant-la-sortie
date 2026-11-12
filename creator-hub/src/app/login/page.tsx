@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </div>
         {!authConfigured() && (
           <p className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
-            Accès non configuré. Définissez <code>ADMIN_PASSWORD</code> et <code>SESSION_SECRET</code> (voir README).
+            Accès non configuré. Définissez <code>ADMIN_PASSWORD</code> et <code>DATABASE_URL</code> (voir README).
           </p>
         )}
         <LoginForm next={next ?? "/hub"} />

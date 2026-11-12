@@ -95,3 +95,15 @@ test("PDF : génération valide avec accents, € et filigrane brouillon", async
   assert.ok(bytes.length > 3000);
   assert.equal(sanitize("1 000 €"), "1 000 €");
 });
+
+test("session : clé dérivée sans SESSION_SECRET (ADMIN_PASSWORD + DATABASE_URL)", async () => {
+  const { createSessionToken, verifySessionToken, authConfigured } = await import("../src/lib/session");
+  const saved = { ...process.env };
+  delete process.env.SESSION_SECRET; process.env.ADMIN_PASSWORD = "test-pw-1"; process.env.DATABASE_URL = "postgres://test";
+  assert.equal(authConfigured(), true);
+  const tok = await createSessionToken();
+  assert.equal(await verifySessionToken(tok), true);
+  assert.equal(await verifySessionToken(tok.slice(0, -1) + (tok.endsWith("a") ? "b" : "a")), false);
+  delete process.env.DATABASE_URL; assert.equal(authConfigured(), false);
+  process.env = saved;
+});

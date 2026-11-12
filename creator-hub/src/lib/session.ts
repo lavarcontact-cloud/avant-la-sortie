@@ -17,20 +17,35 @@ function safeEqual(a: string, b: string) {
   return r === 0;
 }
 
+/**
+ * Clé de signature des sessions : SESSION_SECRET si défini (32+ caractères), sinon dérivée
+ * (SHA-256) de deux secrets serveur déjà présents, ADMIN_PASSWORD et DATABASE_URL.
+ * Changer le mot de passe invalide donc toutes les sessions ouvertes.
+ */
+let derived: string | null = null;
+async function secretKey(): Promise<string | null> {
+  const s = process.env.SESSION_SECRET;
+  if (s && s.length >= 32) return s;
+  const pw = process.env.ADMIN_PASSWORD, db = process.env.DATABASE_URL;
+  if (!pw || !db) return null;
+  if (!derived) derived = toHex(await crypto.subtle.digest("SHA-256", enc.encode(`creator-hub-session-v1\n${pw}\n${db}`)));
+  return derived;
+}
+
 export function authConfigured() {
-  return Boolean(process.env.ADMIN_PASSWORD && process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 32);
+  return Boolean(process.env.ADMIN_PASSWORD && ((process.env.SESSION_SECRET?.length ?? 0) >= 32 || process.env.DATABASE_URL));
 }
 
 export async function createSessionToken(): Promise<string> {
-  const secret = process.env.SESSION_SECRET!;
+  const secret = (await secretKey())!;
   const exp = Date.now() + SESSION_DAYS * 86400000;
   const payload = `v1.${exp}`;
   return `${payload}.${await hmac(secret, payload)}`;
 }
 
 export async function verifySessionToken(token: string | undefined | null): Promise<boolean> {
-  const secret = process.env.SESSION_SECRET;
-  if (!token || !secret || secret.length < 32) return false;
+  const secret = await secretKey();
+  if (!token || !secret) return false;
   const parts = token.split(".");
   if (parts.length !== 3 || parts[0] !== "v1") return false;
   const exp = Number(parts[1]);

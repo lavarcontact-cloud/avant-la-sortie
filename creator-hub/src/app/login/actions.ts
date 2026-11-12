@@ -7,7 +7,7 @@ import { audit } from "@/lib/audit";
 const attempts = new Map<string, { n: number; until: number }>();
 
 export async function login(_: { error?: string } | undefined, fd: FormData) {
-  if (!authConfigured()) return { error: "Accès non configuré : définissez ADMIN_PASSWORD et SESSION_SECRET (32+ caractères) dans les variables d'environnement." };
+  if (!authConfigured()) return { error: "Accès non configuré : définissez ADMIN_PASSWORD (et DATABASE_URL ou SESSION_SECRET) dans les variables d'environnement." };
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const a = attempts.get(ip);
   if (a && a.n >= 5 && a.until > Date.now()) return { error: "Trop de tentatives. Réessayez dans quelques minutes." };
