@@ -32,7 +32,7 @@ server.listen(0, async () => {
       path: out, format: "A4", printBackground: true, preferCSSPageSize: true,
       displayHeaderFooter: true,
       headerTemplate: "<span></span>",
-      footerTemplate: `<div style="width:100%;font-size:7pt;color:#777;padding:0 14mm;display:flex;justify-content:space-between;font-family:Arial,sans-serif"><span>${D.identite.nom} · Dossier de candidature locataire</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`
+      footerTemplate: `<div style="width:100%;font-size:7pt;color:#777;padding:0 14mm;display:flex;justify-content:space-between;font-family:Arial,sans-serif"><span>LA VAR · Dossier de candidature locataire présenté par ${D.identite.nom}, président</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`
     });
     console.log("OK : " + path.relative(root, out));
   } finally { await browser.close(); server.close(); }

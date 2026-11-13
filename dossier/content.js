@@ -18,7 +18,7 @@ const DOSSIER = {
     titre: "Réalisateur · Photographe · Producteur audiovisuel",
     accroche: "Un parcours construit sur l'image, la création et la production audiovisuelle.",
     base: "Région parisienne",
-    resume: "Réalisateur, photographe, cadreur et monteur, je travaille dans la musique et la culture urbaine : clips, photographie de plateau et de presse, direction artistique, interviews et contenus pour les artistes. Je travaille avec mon propre matériel et je recherche aujourd'hui un local privatif pour structurer cette activité.",
+    resume: "Réalisateur, photographe, cadreur et monteur, je travaille dans la musique et la culture urbaine : clips, photographie de plateau et de presse, direction artistique, interviews et contenus pour les artistes. Je préside aussi LA VAR, l'association qui envisage de prendre en location un local de travail pour ses activités audiovisuelles.",
     email: "sebastienfp@hotmail.com",
     telephone: "07 53 74 55 00",
     telephoneLien: "+33753745500",
@@ -44,7 +44,7 @@ const DOSSIER = {
     { quand: "Image", titre: "Devant puis derrière la caméra", texte: "La rencontre avec Nocolor : d'abord acteur dans des clips, puis photographe de plateau, direction artistique et réalisation." },
     { quand: "Générations", titre: "Six mois comme monteur-réalisateur", texte: "Montage et cadrage d'interviews, contenus éditoriaux, intros et habillages, au studio de Générations. Photographe accrédité pour Générations au festival FCNY." },
     { quand: "Artiste", titre: "Développement de BRK", texte: "Image et branding, choix des réalisateurs et des beatmakers, direction artistique et étalonnage de trois clips. Communauté passée de 8 000 à 10 500 abonnés (+31 %)." },
-    { quand: "Aujourd'hui", titre: "Indépendant et président de LA VAR", texte: "Réalisation, photographie, montage et contenus pour des artistes, avec mon propre matériel. En parallèle, présidence de LA VAR, association loi 1901." }
+    { quand: "Aujourd'hui", titre: "Indépendant et président de LA VAR", texte: "Réalisation, photographie, montage et contenus pour des artistes. En parallèle, présidence de LA VAR, association loi 1901, qui envisage de prendre un local pour ses activités." }
   ],
 
   competences: [
@@ -57,9 +57,11 @@ const DOSSIER = {
     { titre: "Contenus réseaux sociaux", texte: "Formats éditoriaux, habillages, génériques." },
     { titre: "Production et gestion de projet", texte: "Coordination entre artistes, équipes et calendrier de sortie." }
   ],
-  materiel: "Matériel personnel : caméras Sony, objectifs, stabilisateurs, systèmes audio et éclairage.",
+  materiel: "Matériel audiovisuel : caméras Sony, objectifs, stabilisateurs, systèmes audio et éclairage. Ce qui appartient à l'association et ce qui reste personnel sera précisé par écrit.",
 
   // Références : uniquement des rôles documentés. `valide: false` = jamais affiché.
+  // `structure` (facultatif) : label ou société liée AU PROJET précis, affichée seulement si renseignée.
+  // Ex. { nom: "Gazo", role: "...", structure: "Sony Music / Epic Records", valide: true } une fois le projet confirmé.
   references: {
     artistes: [
       { nom: "L2B", role: "Acteur principal du clip \"Noir\". Passé par le studio cofondé en 2021.", valide: true },
@@ -116,15 +118,23 @@ const DOSSIER = {
   ],
 
   projet: {
-    intro: "Je recherche un local privatif, calme et sécurisé pour installer un véritable environnement de travail : y monter mes projets, gérer mon activité, ranger mon matériel en sécurité et produire du contenu dans de bonnes conditions.",
-    fonctions: [
-      { titre: "Bureau et gestion de projets", texte: "Organisation des tournages, échanges avec les artistes et les équipes, administratif.", principal: true },
-      { titre: "Montage et postproduction", texte: "Montage, étalonnage et finalisation des projets sur poste fixe.", principal: true },
-      { titre: "Stockage sécurisé du matériel", texte: "Caméras, objectifs, stabilisateurs, audio et lumière rangés dans un lieu fermé.", principal: true },
-      { titre: "Création de contenu et streaming", texte: "Un petit espace de création et de diffusion, à volume maîtrisé.", principal: true },
-      { titre: "Photographie, tournages, interviews", texte: "Ponctuellement, en petite équipe, uniquement si le bail le permet et avec votre accord.", principal: false }
+    intro: "LA VAR, association loi 1901 que je préside, envisage de porter la location d'un local privatif, calme et sécurisé. Il servira avant tout de bureau, de lieu de gestion de projets, d'espace de postproduction et de stockage du matériel audiovisuel de l'association.",
+    locataire: [
+      ["Locataire envisagé", "LA VAR, association loi 1901, représentée par son président, Sébastien Fula-Pitu"],
+      ["Usage principal", "Bureau, gestion de projets, postproduction et stockage de matériel audiovisuel"],
+      ["Nature de l'activité", "Audiovisuel associatif, calme : ni studio d'enregistrement professionnel, ni cabine, ni accueil du public"],
+      ["Usages complémentaires", "Toute occupation personnelle ou professionnelle complémentaire sera encadrée et soumise à votre autorisation écrite"]
     ],
-    exclus: ["Événements ou soirées", "Activité nocturne", "Accueil permanent du public", "Flux importants de visiteurs", "Studio d'enregistrement avec cabine"],
+    fonctions: [
+      { titre: "Bureau et administration", texte: "Siège de travail de LA VAR : administratif, réunions de bureau, organisation des projets.", principal: true },
+      { titre: "Gestion de projets", texte: "Préparation des tournages et des actions de l'association, coordination des membres et des partenaires.", principal: true },
+      { titre: "Postproduction", texte: "Montage, étalonnage et finalisation des projets audiovisuels de l'association, sur poste fixe.", principal: true },
+      { titre: "Stockage du matériel audiovisuel", texte: "Caméras, objectifs, stabilisateurs, audio et lumière rangés dans un lieu fermé et sécurisé.", principal: true },
+      { titre: "Création de contenu et streaming", texte: "Contenus du média de l'association, enregistrés à volume maîtrisé, sans cabine ni studio d'enregistrement.", principal: true },
+      { titre: "Photographie, tournages, interviews", texte: "Ponctuellement, en petite équipe, uniquement si le bail le permet et avec votre accord.", principal: false },
+      { titre: "Usage professionnel personnel", texte: "Toute utilisation par Sébastien Fula-Pitu pour son activité personnelle sera encadrée, et seulement si vous l'autorisez par écrit.", principal: false }
+    ],
+    exclus: ["Événements ou soirées", "Activité nocturne", "Accueil permanent du public", "Flux importants de visiteurs", "Studio d'enregistrement professionnel ou cabine", "Sous-location ou occupation partagée non autorisée par le propriétaire"],
     recherche: [
       ["Surface", "30 à 60 m², idéalement 40 à 50 m²"],
       ["Secteur", "Paris et première couronne"],
@@ -148,7 +158,7 @@ const DOSSIER = {
       ["105 979", "spectateurs sur 90 jours"]
     ],
     sourceChiffres: "Média Instagram de LA VAR, statistiques relevées en 2026.",
-    distinction: "L'association, ses finances et ses activités sont distinctes de mon activité professionnelle individuelle. LA VAR n'est pas présentée comme locataire : la structure qui signera le bail sera précisée avec vous.",
+    distinction: "LA VAR est la structure envisagée pour porter initialement la location. Les activités et les finances de l'association restent distinctes de mon activité professionnelle personnelle : le loyer et les charges relèvent de l'association, et toute utilisation du local à titre personnel ou professionnel par son président sera encadrée et soumise à l'accord écrit du propriétaire.",
     visuels: [
       { type: "image", src: "/images/lavar-post-klm.jpg", titre: "Publication LA VAR" },
       { type: "image", src: "/images/lavar-post-creamy.jpg", titre: "Publication LA VAR" },
@@ -158,24 +168,26 @@ const DOSSIER = {
   },
 
   engagements: [
-    ["Destination respectée", "Utilisation conforme à la destination prévue au bail."],
+    ["Destination respectée", "Utilisation conforme à la destination prévue au bail, pour les activités de l'association."],
     ["Voisinage", "Respect du voisinage et maîtrise des nuisances sonores."],
     ["Parties communes", "Respect des parties communes et du règlement de l'immeuble."],
     ["Entretien", "Entretien régulier du local, rangé en permanence."],
     ["Matériel", "Stockage organisé et attention constante à la sécurité des équipements."],
     ["Accès", "Respect des règles d'accès et des horaires de l'immeuble."],
-    ["Assurance", "Assurance adaptée à l'activité et au matériel, souscrite avant l'entrée dans les lieux."],
-    ["Public", "Aucun accueil permanent du public : visites ponctuelles de collaborateurs, sur rendez-vous."]
+    ["Assurance", "Assurance adaptée à l'activité et au matériel, souscrite par l'association avant l'entrée dans les lieux."],
+    ["Public", "Aucun accueil permanent du public : membres et collaborateurs reçus ponctuellement, sur rendez-vous."],
+    ["Usage encadré", "Aucune sous-location ni occupation par un tiers sans votre autorisation écrite."]
   ],
 
-  // Justificatifs : `fichier` = chemin d'un fichier réellement présent, sinon null.
+  // Justificatifs : seuls des documents NON sensibles peuvent avoir un lien (public: true + fichier présent).
+  // Pièce d'identité, avis d'imposition, relevés bancaires : JAMAIS dans ce dépôt, il est public.
   justificatifs: [
-    { nom: "Statuts de LA VAR", statut: "À joindre", fichier: null },
-    { nom: "Récépissé de déclaration (RNA) de LA VAR", statut: "À joindre", fichier: null },
-    { nom: "Attestation d'assurance", statut: "Fournie avant l'entrée dans les lieux", fichier: null },
-    { nom: "Justificatifs financiers", statut: "Transmis sur demande, directement au bailleur", fichier: null },
-    { nom: "Pièce d'identité", statut: "Transmise sur demande, directement au bailleur", fichier: null },
-    { nom: "Structure signataire du bail", statut: "À préciser avec le bailleur", fichier: null }
+    { nom: "Statuts de LA VAR", statut: "Transmis sur demande", fichier: null, public: false },
+    { nom: "Récépissé de déclaration en préfecture (RNA) de LA VAR", statut: "Transmis sur demande", fichier: null, public: false },
+    { nom: "Décision du bureau de LA VAR autorisant la prise à bail", statut: "À établir avant la signature", fichier: null, public: false },
+    { nom: "Attestation d'assurance de l'association", statut: "Fournie avant l'entrée dans les lieux", fichier: null, public: false },
+    { nom: "Éléments financiers de l'association", statut: "Transmis sur demande, directement au bailleur", fichier: null, public: false },
+    { nom: "Pièce d'identité du président", statut: "Transmise sur demande, directement au bailleur", fichier: null, public: false }
   ],
 
   pdf: "/dossier/dossier-candidature-sebastien-fula-pitu.pdf"

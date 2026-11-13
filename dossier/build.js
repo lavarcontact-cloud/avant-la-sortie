@@ -11,11 +11,28 @@ const fileExists = p => p && fs.existsSync(path.join(__dirname, "..", p.replace(
 const today = new Date().toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"});
 const cats = [...new Set(D.galerie.map(g => g.cat))];
 
+// Dimensions réelles des images (évite les sauts de mise en page pendant le chargement).
+function imgSize(p) {
+  try {
+    const b = fs.readFileSync(path.join(__dirname, "..", p.replace(/^\//, "")));
+    if (b[0] === 0x89 && b[1] === 0x50) return [b.readUInt32BE(16), b.readUInt32BE(20)];
+    let i = 2;
+    while (i < b.length) {
+      if (b[i] !== 0xFF) { i++; continue; }
+      const m = b[i + 1], len = b.readUInt16BE(i + 2);
+      if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)];
+      i += 2 + len;
+    }
+  } catch (e) {}
+  return null;
+}
+const dim = p => { const s = imgSize(p); return s ? ` width="${s[0]}" height="${s[1]}"` : ""; };
+
 function tuile(g, i, opts = {}) {
   const img = g.type === "video" ? g.poster : g.src;
   const hidePrint = opts.printLimit && i >= opts.printLimit ? " print-hide" : "";
   return `<button class="tuile${hidePrint}" type="button" data-cat="${esc(g.cat || "")}" data-type="${g.type}" data-src="${esc(g.src)}" data-titre="${esc(g.titre)}" data-credit="${esc(g.credit || "")}" aria-label="Agrandir : ${esc(g.titre)}">
-      <img src="${esc(img)}" alt="${esc(g.titre)}${g.credit ? ", " + esc(g.credit) : ""}" loading="lazy">
+      <img src="${esc(img)}"${dim(img)} alt="${esc(g.titre)}${g.credit ? ", " + esc(g.credit) : ""}" loading="lazy">
       ${g.type === "video" ? '<span class="play">VIDÉO</span>' : ""}
       ${g.titre ? `<span class="cap"><b>${esc(g.titre)}</b>${g.credit ? `<span>${esc(g.credit)}</span>` : ""}</span>` : ""}
     </button>`;
@@ -24,13 +41,14 @@ function tuile(g, i, opts = {}) {
 function page(version) {
   const proprio = version === "proprietaire";
   const refsA = D.references.artistes.filter(r => r.valide);
+  const struct = r => r.structure ? ` <span class="chip" style="margin-left:6px">${esc(r.structure)}</span>` : "";
   const refsS = D.references.structures.filter(r => r.valide);
   const liens = I.liens.filter(l => l.actif);
   const L = D.lavar, P = D.projet;
   const canon = proprio ? "/dossier/proprietaire" : "/dossier";
-  const title = proprio ? `Dossier de candidature locataire, ${I.nom}` : `${I.nom}, réalisateur et photographe`;
+  const title = proprio ? `Dossier de candidature locataire, LA VAR, ${I.nom}` : `${I.nom}, réalisateur et photographe`;
   const desc = proprio
-    ? `Dossier de candidature de ${I.nom} pour la location d'un local professionnel : profil, références, projet d'occupation, LA VAR, engagements et justificatifs.`
+    ? `Dossier de candidature de LA VAR, présenté par son président ${I.nom}, pour la location d'un local : profil, références, projet d'occupation, engagements et pièces.`
     : `${I.nom}, réalisateur, photographe et producteur audiovisuel en région parisienne. Parcours, références, réalisations et projet de local professionnel.`;
   const navLinks = [["#parcours","Parcours"],["#references","Références"],["#portfolio","Réalisations"],["#projet","Projet de local"],["#lavar","LA VAR"],["#engagements","Engagements"],["#contact","Contact"]];
 
@@ -71,7 +89,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
 <section class="hero" aria-labelledby="nom">
   <div class="wrap">
     <div class="rv">
-      <p class="label">${proprio ? "<b>●</b> Dossier de candidature locataire" : "<b>●</b> Profil professionnel"} · ${esc(I.base)}</p>
+      <p class="label">${proprio ? "<b>●</b> Candidature locataire de LA VAR · présentée par son président" : "<b>●</b> Profil professionnel · " + esc(I.base)}</p>
       <h1 id="nom" style="margin-top:22px">${I.nom.split(" ").map(w => `<span>${esc(w)}</span>`).join("")}</h1>
       <p class="titres">${I.titre.split(" · ").map(esc).join("<i>·</i>")}</p>
       <p class="accroche">"${esc(I.accroche)}"</p>
@@ -121,7 +139,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
       <p>Chaque nom est associé au rôle exact que j'ai tenu sur le projet. Ce sont des collaborations ponctuelles sur des projets, pas des partenariats commerciaux.</p>
     </div>
     <div class="refs rv">
-      ${refsA.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><span class="role">${esc(r.role)}</span></div>`).join("")}
+      ${refsA.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><span class="role">${esc(r.role)}${struct(r)}</span></div>`).join("")}
     </div>
     <div class="refs-struct rv">
       ${refsS.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><p class="role">${esc(r.role)}</p></div>`).join("")}
@@ -149,21 +167,22 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
 <section id="projet" class="papier print-break" aria-labelledby="t-projet">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>05</b> / Mon projet de local</p>
-      <h2 id="t-projet">Un bureau de production, pas un lieu d'accueil.</h2>
+      <p class="label"><b>05</b> / Le projet de local</p>
+      <h2 id="t-projet">Un bureau de production associatif, pas un lieu d'accueil.</h2>
       <p class="lead">${esc(P.intro)}</p>
     </div>
     <div class="fonctions rv">
       ${P.fonctions.map((f,i) => `<div class="fonction"><span class="tag${f.principal ? "" : " ponct"}">${f.principal ? "Usage principal" : "Ponctuel, avec accord"}</span><h3>${esc(f.titre)}</h3><p>${esc(f.texte)}</p></div>`).join("")}
-      <div class="fonction"><span class="tag">Fonctionnement</span><h3>Calme et organisé</h3><p>Un occupant principal. Collaborateurs reçus ponctuellement, sur rendez-vous. Aucune musique amplifiée.</p></div>
+      <div class="fonction"><span class="tag">Fonctionnement</span><h3>Calme et organisé</h3><p>Occupation gérée par l'association et coordonnée par son président. Membres et collaborateurs reçus ponctuellement, sur rendez-vous. Aucune musique amplifiée.</p></div>
     </div>
+    <dl class="spec rv" style="margin-top:clamp(40px,6vw,70px)">${P.locataire.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
     <div class="projet-bas">
       <div class="rv">
         <h3>Ce que le local ne sera pas</h3>
         <ul class="liste-non">${P.exclus.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
       </div>
       <div class="rv">
-        <h3>Ce que je recherche</h3>
+        <h3>Le local recherché</h3>
         <dl class="spec">${P.recherche.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
       </div>
     </div>
@@ -173,9 +192,9 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
 <section id="lavar" class="print-break" aria-labelledby="t-lavar">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>06</b> / Engagement associatif</p>
+      <p class="label"><b>06</b> / LA VAR, locataire envisagé</p>
       <h2 id="t-lavar">${esc(L.nom)}</h2>
-      <p>Une dimension complémentaire de mon parcours, distincte de mon activité professionnelle.</p>
+      <p>La structure envisagée pour porter la location, distincte de mon activité professionnelle personnelle.</p>
     </div>
     <div class="lavar">
       <div class="rv">
@@ -200,7 +219,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
     <div class="sec-head rv">
       <p class="label"><b>07</b> / Engagements</p>
       <h2 id="t-eng">Un espace de travail sérieux, organisé et respectueux.</h2>
-      <p>Ce à quoi je m'engage en tant que locataire. Les justificatifs correspondants sont listés ${proprio ? "ci-dessous" : "dans la version propriétaire du dossier"}.</p>
+      <p>Ce à quoi LA VAR et son président s'engagent pour l'occupation du local. Les pièces correspondantes sont listées ${proprio ? "ci-dessous" : "dans la version propriétaire du dossier"}.</p>
     </div>
     <div class="eng rv">
       ${D.engagements.map(([t,p]) => `<div><b>${esc(t)}</b><p>${esc(p)}</p></div>`).join("")}
@@ -208,9 +227,10 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
     ${proprio ? `
     <div class="docs rv">
       <h3>Pièces du dossier</h3>
-      <p class="muted" style="margin-top:8px;max-width:62ch">Aucune pièce personnelle n'est publiée sur cette page. Les documents sont transmis directement au bailleur, à sa demande.</p>
+      <p class="muted no-print" style="margin-top:8px;max-width:62ch">Cette page est accessible à toute personne qui en possède le lien : elle ne contient aucune information confidentielle. Les pièces ci-dessous ne sont pas publiées en ligne ; elles sont transmises directement au bailleur, à sa demande.</p>
+      <p class="muted print-only" style="margin-top:8px;max-width:62ch">Les pièces ci-dessous ne sont pas jointes à ce document : elles sont transmises directement au bailleur, à sa demande.</p>
       <div class="tabwrap"><table class="tab"><thead><tr><th>Document</th><th>Disponibilité</th></tr></thead><tbody>
-        ${D.justificatifs.map(j => `<tr><td>${esc(j.nom)}</td><td>${fileExists(j.fichier) ? `<a href="${esc(j.fichier)}" download>Télécharger</a>` : esc(j.statut)}</td></tr>`).join("")}
+        ${D.justificatifs.map(j => `<tr><td>${esc(j.nom)}</td><td>${j.public === true && fileExists(j.fichier) ? `<a href="${esc(j.fichier)}" download>Télécharger</a>` : esc(j.statut)}</td></tr>`).join("")}
       </tbody></table></div>
     </div>` : `
     <div class="no-print" style="margin-top:40px"><a class="btn" href="/dossier/proprietaire#engagements">Voir la version propriétaire et les pièces du dossier <span class="fl">→</span></a></div>`}
@@ -227,7 +247,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
       <div><span class="label">En ligne</span><p class="v">${liens.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("<br>")}</p></div>
     </div>
     <div class="ctas rv">
-      <a class="btn plein" href="mailto:${esc(I.email)}?subject=${encodeURIComponent("Location d'un local, candidature de " + I.nom)}">Me contacter <span class="fl">→</span></a>
+      <a class="btn plein" href="mailto:${esc(I.email)}?subject=${encodeURIComponent("Location d'un local, candidature de LA VAR (" + I.nom + ")")}">Me contacter <span class="fl">→</span></a>
       <a class="btn" href="${esc(D.pdf)}" download>Télécharger le dossier PDF</a>
       ${proprio ? "" : `<a class="btn" href="/dossier/proprietaire">Version propriétaire</a>`}
     </div>
