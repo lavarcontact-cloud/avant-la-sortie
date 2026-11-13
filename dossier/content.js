@@ -190,6 +190,33 @@ const DOSSIER = {
     { nom: "Pièce d'identité du président", statut: "Transmise sur demande, directement au bailleur", fichier: null, public: false }
   ],
 
+  // Versions ciblées pour un site précis. Pas de prix ni d'avance de paiement : ces points se discutent de vive voix.
+  cibles: {
+    noiseau: {
+      page: "noiseau",
+      pdf: "/dossier/proposition-occupation-chateau-noiseau-la-var.pdf",
+      label: "Proposition d'occupation temporaire · Château de Noiseau",
+      titre: "Une occupation temporaire, simple et encadrée.",
+      intro: "Le bâtiment du Château, dans la ZAC des Portes de Noiseau, a été ouvert aux associations loi 1901 par l'appel à manifestation d'intérêt de Grand Paris Sud Est Avenir et de la SPLA Avenir Développement. LA VAR souhaite y occuper un petit espace de travail, d'abord pour trois mois.",
+      demande: [
+        ["Site", "Bâtiment du Château, ZAC des Portes de Noiseau, 34 route de la Queue-en-Brie, Noiseau"],
+        ["Occupant", "LA VAR, association loi 1901, représentée par son président, Sébastien Fula-Pitu"],
+        ["Surface", "35 à 50 m², un bureau fermé à clé ; si possible un petit espace de stockage en sous-sol"],
+        ["Usage", "Bureau associatif, gestion de projets, montage, postproduction et stockage de matériel audiovisuel"],
+        ["Public", "Ni accueil du public ni événements dans le local"],
+        ["Durée", "Une première période de trois mois, prolongeable par avenant jusqu'à fin 2027 si cela convient à toutes les parties"],
+        ["Cadre", "Convention d'occupation temporaire, aux conditions tarifaires du site"],
+        ["Démarrage", "Dès que possible, après signature de la convention"]
+      ],
+      apports: [
+        ["Une présence régulière", "Un bâtiment occupé et entretenu au quotidien, en journée, par une petite équipe identifiée."],
+        ["Un usage calme", "Travail de bureau et postproduction : pas de flux de visiteurs, pas de nuisance pour les autres occupants."],
+        ["Un projet associatif", "Une association tournée vers l'audiovisuel, la création et la valorisation des jeunes, en cohérence avec l'ouverture du site à l'économie sociale et solidaire."],
+        ["Un engagement court et réversible", "Trois mois pour faire ses preuves, sans engagement lourd pour le site, puis une prolongation seulement si elle convient à tous."]
+      ]
+    }
+  },
+
   pdf: "/dossier/dossier-candidature-sebastien-fula-pitu.pdf"
 };
 if (typeof module !== "undefined") module.exports = DOSSIER;

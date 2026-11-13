@@ -6,11 +6,13 @@ Deux pages générées à partir d'un seul fichier de contenu :
 |---|---|---|
 | `index.html` | `/dossier` | Version publique : profil, parcours, références, réalisations, projet de local |
 | `proprietaire.html` | `/dossier/proprietaire` | Version propriétaire : tout, plus la liste des pièces du dossier (sans aucun document en ligne) |
+| `noiseau.html` | `/dossier/noiseau` | Version ciblée Château de Noiseau : proposition d'occupation temporaire de 3 mois (`node dossier/pdf.js noiseau` pour son PDF) |
+| `proposition-occupation-chateau-noiseau-la-var.pdf` | `/dossier/proposition-occupation-chateau-noiseau-la-var.pdf` | PDF de la version Noiseau |
 | `dossier-candidature-sebastien-fula-pitu.pdf` | `/dossier/dossier-candidature-sebastien-fula-pitu.pdf` | PDF A4 tiré de la version propriétaire |
 
 ## Modifier le contenu
 
-1. Éditer **`dossier/content.js`** (textes, références, galerie, justificatifs).
+1. Éditer **`dossier/content.js`** (textes, références, galerie, justificatifs ; versions ciblées dans `cibles`).
 2. `node dossier/build.js` : régénère les deux pages.
 3. `node dossier/pdf.js` : régénère le PDF (nécessite Playwright et Chromium).
 4. Commiter et pousser.

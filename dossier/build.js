@@ -39,18 +39,20 @@ function tuile(g, i, opts = {}) {
 }
 
 function page(version) {
-  const proprio = version === "proprietaire";
+  const proprio = version !== "public";
+  const cible = D.cibles && D.cibles[version];
+  const pdfHref = cible ? cible.pdf : D.pdf;
   const refsA = D.references.artistes.filter(r => r.valide);
   const struct = r => r.structure ? ` <span class="chip" style="margin-left:6px">${esc(r.structure)}</span>` : "";
   const refsS = D.references.structures.filter(r => r.valide);
   const liens = I.liens.filter(l => l.actif);
   const L = D.lavar, P = D.projet;
-  const canon = proprio ? "/dossier/proprietaire" : "/dossier";
-  const title = proprio ? `Dossier de candidature locataire, LA VAR, ${I.nom}` : `${I.nom}, réalisateur et photographe`;
+  const canon = cible ? "/dossier/" + cible.page : proprio ? "/dossier/proprietaire" : "/dossier";
+  const title = cible ? `${cible.label}, LA VAR` : proprio ? `Dossier de candidature locataire, LA VAR, ${I.nom}` : `${I.nom}, réalisateur et photographe`;
   const desc = proprio
     ? `Dossier de candidature de LA VAR, présenté par son président ${I.nom}, pour la location d'un local : profil, références, projet d'occupation, engagements et pièces.`
     : `${I.nom}, réalisateur, photographe et producteur audiovisuel en région parisienne. Parcours, références, réalisations et projet de local professionnel.`;
-  const navLinks = [["#parcours","Parcours"],["#references","Références"],["#portfolio","Réalisations"],["#projet","Projet de local"],["#lavar","LA VAR"],["#engagements","Engagements"],["#contact","Contact"]];
+  const navLinks = [...(D.cibles && D.cibles[version] ? [["#proposition","Proposition"]] : []), ["#parcours","Parcours"],["#references","Références"],["#portfolio","Réalisations"],["#projet","Projet de local"],["#lavar","LA VAR"],["#engagements","Engagements"],["#contact","Contact"]];
 
   return `<!doctype html>
 <html lang="fr">
@@ -80,7 +82,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav class="nav" id="nav" aria-label="Sections">
       ${navLinks.map(([h,l]) => `<a href="${h}">${l}</a>`).join("")}
-      <a class="btn petit plein" href="${esc(D.pdf)}" download>Dossier PDF</a>
+      <a class="btn petit plein" href="${esc(pdfHref)}" download>Dossier PDF</a>
     </nav>
   </div>
 </header>
@@ -89,13 +91,14 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
 <section class="hero" aria-labelledby="nom">
   <div class="wrap">
     <div class="rv">
-      <p class="label">${proprio ? "<b>●</b> Candidature locataire de LA VAR · présentée par son président" : "<b>●</b> Profil professionnel · " + esc(I.base)}</p>
+      <p class="label">${cible ? "<b>●</b> " + esc(cible.label) : proprio ? "<b>●</b> Candidature locataire de LA VAR · présentée par son président" : "<b>●</b> Profil professionnel · " + esc(I.base)}</p>
       <h1 id="nom" style="margin-top:22px">${I.nom.split(" ").map(w => `<span>${esc(w)}</span>`).join("")}</h1>
       <p class="titres">${I.titre.split(" · ").map(esc).join("<i>·</i>")}</p>
       <p class="accroche">"${esc(I.accroche)}"</p>
       <div class="ctas">
         <a class="btn" href="#parcours">Découvrir mon profil <span class="fl">→</span></a>
-        ${proprio ? `<a class="btn plein" href="#projet">Consulter mon dossier de candidature <span class="fl">→</span></a>`
+        ${cible ? `<a class="btn plein" href="#proposition">Voir la proposition d'occupation <span class="fl">→</span></a>`
+                : proprio ? `<a class="btn plein" href="#projet">Consulter mon dossier de candidature <span class="fl">→</span></a>`
                   : `<a class="btn plein" href="/dossier/proprietaire">Consulter mon dossier de candidature <span class="fl">→</span></a>`}
       </div>
     </div>
@@ -164,7 +167,21 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
   </div>
 </section>
 
-<section id="projet" class="papier print-break" aria-labelledby="t-projet">
+${cible ? `
+<section id="proposition" class="papier print-break" aria-labelledby="t-prop">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>●</b> / Proposition d'occupation</p>
+      <h2 id="t-prop">${esc(cible.titre)}</h2>
+      <p class="lead">${esc(cible.intro)}</p>
+    </div>
+    <dl class="spec rv">${cible.demande.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+    <div class="fonctions rv" style="margin-top:clamp(40px,6vw,70px)">
+      ${cible.apports.map(([h,p]) => `<div class="fonction"><span class="tag">Pour le site</span><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join("")}
+    </div>
+  </div>
+</section>` : ""}
+<section id="projet" class="${cible ? "sombre " : "papier "}print-break" aria-labelledby="t-projet">
   <div class="wrap">
     <div class="sec-head rv">
       <p class="label"><b>05</b> / Le projet de local</p>
@@ -181,10 +198,10 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
         <h3>Ce que le local ne sera pas</h3>
         <ul class="liste-non">${P.exclus.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
       </div>
-      <div class="rv">
+      ${cible ? "" : `<div class="rv">
         <h3>Le local recherché</h3>
         <dl class="spec">${P.recherche.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
-      </div>
+      </div>`}
     </div>
   </div>
 </section>
@@ -248,7 +265,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
     </div>
     <div class="ctas rv">
       <a class="btn plein" href="mailto:${esc(I.email)}?subject=${encodeURIComponent("Location d'un local, candidature de LA VAR (" + I.nom + ")")}">Me contacter <span class="fl">→</span></a>
-      <a class="btn" href="${esc(D.pdf)}" download>Télécharger le dossier PDF</a>
+      <a class="btn" href="${esc(pdfHref)}" download>Télécharger le dossier PDF</a>
       ${proprio ? "" : `<a class="btn" href="/dossier/proprietaire">Version propriétaire</a>`}
     </div>
   </div>
@@ -272,6 +289,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
 
 fs.writeFileSync(path.join(__dirname, "index.html"), page("public"));
 fs.writeFileSync(path.join(__dirname, "proprietaire.html"), page("proprietaire"));
+for (const k of Object.keys(D.cibles || {})) fs.writeFileSync(path.join(__dirname, D.cibles[k].page + ".html"), page(k));
 const hidden = [...D.references.artistes, ...D.references.structures].filter(r => !r.valide).map(r => r.nom);
 console.log("OK : dossier/index.html et dossier/proprietaire.html générés.");
 if (hidden.length) console.log("Références masquées en attente de validation : " + hidden.join(", "));

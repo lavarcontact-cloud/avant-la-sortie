@@ -6,6 +6,12 @@ const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
 const D = require("./content.js");
+// node dossier/pdf.js            -> PDF de la version propriétaire
+// node dossier/pdf.js noiseau    -> PDF de la version ciblée "noiseau"
+const cible = process.argv[2] && D.cibles && D.cibles[process.argv[2]];
+const pageUrl = cible ? "/dossier/" + cible.page : "/dossier/proprietaire";
+const pdfPath = cible ? cible.pdf : D.pdf;
+const footerTitle = cible ? cible.label + " · LA VAR" : "LA VAR · Dossier de candidature locataire présenté par " + D.identite.nom + ", président";
 
 const root = path.join(__dirname, "..");
 const types = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".jpg": "image/jpeg", ".png": "image/png", ".mp4": "video/mp4", ".pdf": "application/pdf" };
@@ -24,15 +30,15 @@ server.listen(0, async () => {
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage();
-    await page.goto(`http://localhost:${port}/dossier/proprietaire`, { waitUntil: "networkidle" });
+    await page.goto(`http://localhost:${port}${pageUrl}`, { waitUntil: "networkidle" });
     await page.emulateMedia({ media: "print" });
     await page.evaluate(() => document.fonts && document.fonts.ready);
-    const out = path.join(root, D.pdf.replace(/^\//, ""));
+    const out = path.join(root, pdfPath.replace(/^\//, ""));
     await page.pdf({
       path: out, format: "A4", printBackground: true, preferCSSPageSize: true,
       displayHeaderFooter: true,
       headerTemplate: "<span></span>",
-      footerTemplate: `<div style="width:100%;font-size:7pt;color:#777;padding:0 14mm;display:flex;justify-content:space-between;font-family:Arial,sans-serif"><span>LA VAR · Dossier de candidature locataire présenté par ${D.identite.nom}, président</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`
+      footerTemplate: `<div style="width:100%;font-size:7pt;color:#777;padding:0 14mm;display:flex;justify-content:space-between;font-family:Arial,sans-serif"><span>${footerTitle}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`
     });
     console.log("OK : " + path.relative(root, out));
   } finally { await browser.close(); server.close(); }

@@ -766,6 +766,11 @@ function tabAnalyse(o, sc){
   <section class="panel"><div class="ph"><h2>Fiabilité de l'annonce</h2><span class="mono">${checklist(o).filter(x=>x[1]).length}/13</span></div>
     <div class="tblwrap"><table><tbody>${checklist(o).map(([l,ok])=>`<tr><td>${esc(l)}</td><td>${ok?'<span class="pill good">renseigné</span>':'<span class="pill bad">inconnu</span>'}</td></tr>`).join("")}</tbody></table></div>
   </section>
+  ${o.appel?`<section class="panel" data-copybox><div class="ph"><h2>Fiche d'appel</h2><span class="eyebrow">Agent 04</span></div>
+    ${o.appel.script?`<h3 style="margin:0 0 6px">Ce que tu peux dire</h3><div class="doc">${esc(o.appel.script)}</div>`:""}
+    ${(o.appel.questions||[]).length?`<h3 style="margin:14px 0 6px">Questions à poser</h3><ul class="clean small">${o.appel.questions.map(q=>`<li>${esc(q)}</li>`).join("")}</ul>`:""}
+    ${o.appel.avance?`<div class="note warn" style="margin-top:12px"><b>Paiement anticipé :</b> ${esc(o.appel.avance)}</div>`:""}
+  </section>`:""}
   ${sc.aVerifier.length?`<section class="panel"><div class="ph"><h2>À demander à l'appel</h2><span class="eyebrow">${sc.aVerifier.length}</span></div><ul class="clean small">${[...new Set([...sc.aVerifier, ...questionsFor(o).map(q=>q.charAt(0).toUpperCase()+q.slice(1))])].map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p class="small muted" style="margin:8px 0 0">Après l'appel, onglet Modifier : renseigne les réponses et le niveau de vérification. Le classement se recalcule.</p></section>`:""}
   <section class="panel"><div class="ph"><h2>Coûts</h2><span class="small muted">confirmé ≠ estimé</span></div>
     <div class="tblwrap"><table><tbody>

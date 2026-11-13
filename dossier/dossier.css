@@ -175,6 +175,14 @@ section{padding:clamp(80px,11vw,150px) 0;position:relative;scroll-margin-top:56p
 .spec div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:13px 0;border-bottom:1px solid var(--ligne-p)}
 .spec dt{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--encre-2);padding-top:3px}
 .spec dd{margin:0}
+.sombre .fonctions{background:var(--ligne);border-color:var(--ligne)}
+.sombre .fonction{background:var(--noir)}
+.sombre .fonction p,.sombre .fonction .i{color:var(--argent)}
+.sombre .fonction .tag{border-color:var(--blanc)}
+.sombre .fonction .tag.ponct{color:var(--accent)}
+.sombre .liste-non,.sombre .liste-non li,.sombre .spec,.sombre .spec div{border-color:var(--ligne)}
+.sombre .spec dt{color:var(--argent)}
+.sombre .liste-non li::before{color:var(--accent)}
 .papier .btn{border-color:var(--encre);color:var(--encre)}
 .papier .btn:hover{background:var(--encre);color:var(--papier)}
 
