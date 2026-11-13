@@ -16,9 +16,9 @@ const DOSSIER = {
   identite: {
     nom: "Sébastien Fula-Pitu",
     titre: "Réalisateur · Photographe · Producteur audiovisuel",
-    accroche: "Un parcours construit sur l'image, la création et la production audiovisuelle.",
-    base: "Région parisienne",
-    resume: "Réalisateur, photographe, cadreur et monteur, je travaille dans la musique et la culture urbaine : clips, photographie de plateau et de presse, direction artistique, interviews et contenus pour les artistes. Je préside aussi LA VAR, l'association qui envisage de prendre en location un local de travail pour ses activités audiovisuelles.",
+    accroche: "Un lieu pour faire grandir la création audiovisuelle dans le Val-de-Marne.",
+    base: "Originaire de Champigny-sur-Marne, Val-de-Marne",
+    resume: "Réalisateur, photographe, cadreur et monteur, je travaille dans la musique et la culture urbaine : clips, photographie de plateau et de presse, direction artistique, interviews et contenus pour les artistes. Je préside aussi LA VAR, média et association loi 1901 ancrés dans le Val-de-Marne.",
     email: "sebastienfp@hotmail.com",
     telephone: "07 53 74 55 00",
     telephoneLien: "+33753745500",
@@ -118,29 +118,38 @@ const DOSSIER = {
   ],
 
   projet: {
-    intro: "LA VAR, association loi 1901 que je préside, envisage de porter la location d'un local privatif, calme et sécurisé. Il servira avant tout de bureau, de lieu de gestion de projets, d'espace de postproduction et de stockage du matériel audiovisuel de l'association.",
+    titre: "Un espace de création privatif, calme et encadré.",
+    // Argument central, rédigé par Sébastien.
+    argument: [
+      "Originaire de Champigny-sur-Marne, je souhaite développer un espace de création audiovisuelle au cœur de mon territoire. Mon objectif est de disposer d'un lieu professionnel, entièrement privatif, où je pourrai réaliser des shootings, produire des contenus vidéo, accompagner des artistes et développer des projets culturels.",
+      "Ce projet s'appuie sur une expérience concrète dans l'audiovisuel et les musiques urbaines, ainsi que sur le développement de LA VAR, un média et une association ancrés dans le territoire.",
+      "Installer cette activité à proximité de Champigny permettrait de faire vivre un espace de création local, de développer des collaborations et de valoriser les talents du département."
+    ],
+    introCourte: "Un espace de création audiovisuelle privatif, utilisé de façon calme et encadrée : shootings, contenus vidéo, montage, accompagnement d'artistes et projets de LA VAR.",
     locataire: [
       ["Locataire envisagé", "LA VAR, association loi 1901, représentée par son président, Sébastien Fula-Pitu"],
-      ["Usage principal", "Bureau, gestion de projets, postproduction et stockage de matériel audiovisuel"],
-      ["Nature de l'activité", "Audiovisuel associatif, calme : ni studio d'enregistrement professionnel, ni cabine, ni accueil du public"],
+      ["Usage principal", "Création audiovisuelle : shootings photo, contenus vidéo, montage et postproduction, accompagnement d'artistes, projets culturels de LA VAR, stockage du matériel"],
+      ["Fonctionnement", "Calme et encadré : en petite équipe, sur rendez-vous, aux horaires convenus avec vous"],
+      ["Ce que ce n'est pas", "Ni accueil du public, ni événement, ni studio d'enregistrement professionnel ou cabine"],
       ["Usages complémentaires", "Toute occupation personnelle ou professionnelle complémentaire sera encadrée et soumise à votre autorisation écrite"]
     ],
     fonctions: [
-      { titre: "Bureau et administration", texte: "Siège de travail de LA VAR : administratif, réunions de bureau, organisation des projets.", principal: true },
-      { titre: "Gestion de projets", texte: "Préparation des tournages et des actions de l'association, coordination des membres et des partenaires.", principal: true },
-      { titre: "Postproduction", texte: "Montage, étalonnage et finalisation des projets audiovisuels de l'association, sur poste fixe.", principal: true },
-      { titre: "Stockage du matériel audiovisuel", texte: "Caméras, objectifs, stabilisateurs, audio et lumière rangés dans un lieu fermé et sécurisé.", principal: true },
-      { titre: "Création de contenu et streaming", texte: "Contenus du média de l'association, enregistrés à volume maîtrisé, sans cabine ni studio d'enregistrement.", principal: true },
-      { titre: "Photographie, tournages, interviews", texte: "Ponctuellement, en petite équipe, uniquement si le bail le permet et avec votre accord.", principal: false },
+      { titre: "Shootings photo", texte: "Portraits, photos de presse et visuels d'artistes, en petite équipe et sur rendez-vous.", principal: true },
+      { titre: "Contenus vidéo", texte: "Interviews, formats courts et contenus pour les artistes et le média de LA VAR.", principal: true },
+      { titre: "Montage et postproduction", texte: "Montage, étalonnage et finalisation des projets, sur poste fixe.", principal: true },
+      { titre: "Accompagnement d'artistes", texte: "Rendez-vous de travail, préparation de projets, conseil en image : quelques personnes à la fois.", principal: true },
+      { titre: "Projets culturels de LA VAR", texte: "Préparation des actions de l'association et de son média autour des talents du département.", principal: true },
+      { titre: "Bureau et gestion de projets", texte: "Organisation des tournages, administratif, coordination des équipes.", principal: true },
+      { titre: "Stockage sécurisé du matériel", texte: "Caméras, objectifs, stabilisateurs, audio et lumière rangés dans un lieu fermé.", principal: true },
       { titre: "Usage professionnel personnel", texte: "Toute utilisation par Sébastien Fula-Pitu pour son activité personnelle sera encadrée, et seulement si vous l'autorisez par écrit.", principal: false }
     ],
-    exclus: ["Événements ou soirées", "Activité nocturne", "Accueil permanent du public", "Flux importants de visiteurs", "Studio d'enregistrement professionnel ou cabine", "Sous-location ou occupation partagée non autorisée par le propriétaire"],
+    exclus: ["Événements ou soirées", "Activité nocturne", "Accueil du public", "Flux importants de visiteurs", "Studio d'enregistrement professionnel ou cabine", "Sous-location ou occupation partagée non autorisée par le propriétaire"],
     recherche: [
+      ["Secteur", "Champigny-sur-Marne et communes voisines : Chennevières, Le Plessis-Trévise, Villiers-sur-Marne, Bry-sur-Marne, Ormesson, La Queue-en-Brie, Noiseau ; puis Saint-Maur et Joinville"],
       ["Surface", "30 à 60 m², idéalement 40 à 50 m²"],
-      ["Secteur", "Paris et première couronne"],
-      ["Type", "Local d'activité, atelier, bureau ou local professionnel, à usage exclusif"],
+      ["Type", "Local d'activité, atelier, local professionnel ou commercial, à usage exclusif"],
       ["Budget", "Jusqu'à 800 € TTC par mois, charges comprises"],
-      ["Accès", "Transports à proximité, accès pratique pour le matériel"]
+      ["Accès", "Accès pratique pour le matériel, stationnement apprécié"]
     ]
   },
 
@@ -170,12 +179,12 @@ const DOSSIER = {
   engagements: [
     ["Destination respectée", "Utilisation conforme à la destination prévue au bail, pour les activités de l'association."],
     ["Voisinage", "Respect du voisinage et maîtrise des nuisances sonores."],
-    ["Parties communes", "Respect des parties communes et du règlement de l'immeuble."],
+    ["Parties communes", "Respect des parties communes, des règles d'accès et du règlement de l'immeuble."],
     ["Entretien", "Entretien régulier du local, rangé en permanence."],
     ["Matériel", "Stockage organisé et attention constante à la sécurité des équipements."],
-    ["Accès", "Respect des règles d'accès et des horaires de l'immeuble."],
+    ["Tournages encadrés", "Shootings et tournages en petite équipe, sur rendez-vous, aux horaires convenus, sans nuisance."],
     ["Assurance", "Assurance adaptée à l'activité et au matériel, souscrite par l'association avant l'entrée dans les lieux."],
-    ["Public", "Aucun accueil permanent du public : membres et collaborateurs reçus ponctuellement, sur rendez-vous."],
+    ["Public", "Aucun accueil du public : artistes et collaborateurs reçus sur rendez-vous, en petit comité."],
     ["Usage encadré", "Aucune sous-location ni occupation par un tiers sans votre autorisation écrite."]
   ],
 

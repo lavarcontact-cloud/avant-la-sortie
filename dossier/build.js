@@ -48,11 +48,11 @@ function page(version) {
   const liens = I.liens.filter(l => l.actif);
   const L = D.lavar, P = D.projet;
   const canon = cible ? "/dossier/" + cible.page : proprio ? "/dossier/proprietaire" : "/dossier";
-  const title = cible ? `${cible.label}, LA VAR` : proprio ? `Dossier de candidature locataire, LA VAR, ${I.nom}` : `${I.nom}, réalisateur et photographe`;
+  const title = cible ? `${cible.label}, LA VAR` : proprio ? `Dossier de candidature locataire, LA VAR, ${I.nom}` : `${I.nom}, création audiovisuelle dans le Val-de-Marne`;
   const desc = proprio
     ? `Dossier de candidature de LA VAR, présenté par son président ${I.nom}, pour la location d'un local : profil, références, projet d'occupation, engagements et pièces.`
     : `${I.nom}, réalisateur, photographe et producteur audiovisuel en région parisienne. Parcours, références, réalisations et projet de local professionnel.`;
-  const navLinks = [...(D.cibles && D.cibles[version] ? [["#proposition","Proposition"]] : []), ["#parcours","Parcours"],["#references","Références"],["#portfolio","Réalisations"],["#projet","Projet de local"],["#lavar","LA VAR"],["#engagements","Engagements"],["#contact","Contact"]];
+  const navLinks = [...(D.cibles && D.cibles[version] ? [["#proposition","Proposition"]] : []), ["#projet","Le projet"],["#parcours","Parcours"],["#references","Références"],["#portfolio","Réalisations"],["#lavar","LA VAR"],["#engagements","Engagements"],["#contact","Contact"]];
 
   return `<!doctype html>
 <html lang="fr">
@@ -91,12 +91,12 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
 <section class="hero" aria-labelledby="nom">
   <div class="wrap">
     <div class="rv">
-      <p class="label">${cible ? "<b>●</b> " + esc(cible.label) : proprio ? "<b>●</b> Candidature locataire de LA VAR · présentée par son président" : "<b>●</b> Profil professionnel · " + esc(I.base)}</p>
+      <p class="label">${cible ? "<b>●</b> " + esc(cible.label) : proprio ? "<b>●</b> Candidature locataire de LA VAR · présentée par son président" : "<b>●</b> " + esc(I.base)}</p>
       <h1 id="nom" style="margin-top:22px">${I.nom.split(" ").map(w => `<span>${esc(w)}</span>`).join("")}</h1>
       <p class="titres">${I.titre.split(" · ").map(esc).join("<i>·</i>")}</p>
-      <p class="accroche">"${esc(I.accroche)}"</p>
+      <p class="accroche-titre">${esc(I.accroche)}</p>
       <div class="ctas">
-        <a class="btn" href="#parcours">Découvrir mon profil <span class="fl">→</span></a>
+        <a class="btn" href="#projet">Découvrir le projet <span class="fl">→</span></a>
         ${cible ? `<a class="btn plein" href="#proposition">Voir la proposition d'occupation <span class="fl">→</span></a>`
                 : proprio ? `<a class="btn plein" href="#projet">Consulter mon dossier de candidature <span class="fl">→</span></a>`
                   : `<a class="btn plein" href="/dossier/proprietaire">Consulter mon dossier de candidature <span class="fl">→</span></a>`}
@@ -107,63 +107,6 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
       <span class="rec">TOURNAGE</span></div>
       <figcaption>${esc(D.hero.legende)}</figcaption>
     </figure>
-  </div>
-</section>
-
-<section id="parcours" aria-labelledby="t-parcours">
-  <div class="wrap">
-    <div class="sec-head rv">
-      <p class="label"><b>02</b> / Mon parcours</p>
-      <h2 id="t-parcours">Un métier appris sur le terrain.</h2>
-      <p>Du studio de quartier aux tournages de clips, puis à la direction artistique et au montage : une progression concrète, projet après projet.</p>
-    </div>
-    <div class="parcours">
-      <div class="intro rv">
-        <p class="lead">${esc(I.resume)}</p>
-        <p class="muted" style="margin-top:22px">${esc(D.materiel)}</p>
-        <div class="kit"><span>Logiciels</span>${I.logiciels.map(l => `<span class="chip">${esc(l)}</span>`).join("")}</div>
-        <div class="kit"><span>Langues</span><span class="chip">${esc(I.langues)}</span></div>
-      </div>
-      <ol class="timeline rv">
-        ${D.parcours.map(p => `<li><span class="quand">${esc(p.quand)}</span><div><h3>${esc(p.titre)}</h3><p>${esc(p.texte)}</p></div></li>`).join("")}
-      </ol>
-    </div>
-    <div class="skills rv" aria-label="Savoir-faire">
-      ${D.competences.map((c,i) => `<div class="skill"><span class="n">${String(i+1).padStart(2,"0")}</span><h3>${esc(c.titre)}</h3><p>${esc(c.texte)}</p></div>`).join("")}
-    </div>
-  </div>
-</section>
-
-<section id="references" aria-labelledby="t-refs" style="background:var(--noir-2)">
-  <div class="wrap">
-    <div class="sec-head rv">
-      <p class="label"><b>03</b> / Références et collaborations</p>
-      <h2 id="t-refs">Avec qui j'ai travaillé, et à quel titre.</h2>
-      <p>Chaque nom est associé au rôle exact que j'ai tenu sur le projet. Ce sont des collaborations ponctuelles sur des projets, pas des partenariats commerciaux.</p>
-    </div>
-    <div class="refs rv">
-      ${refsA.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><span class="role">${esc(r.role)}${struct(r)}</span></div>`).join("")}
-    </div>
-    <div class="refs-struct rv">
-      ${refsS.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><p class="role">${esc(r.role)}</p></div>`).join("")}
-    </div>
-  </div>
-</section>
-
-<section id="portfolio" aria-labelledby="t-port">
-  <div class="wrap">
-    <div class="sec-head rv">
-      <p class="label"><b>04</b> / Réalisations</p>
-      <h2 id="t-port">Le travail, plutôt que les promesses.</h2>
-      <p>Photographies, covers, images de tournage et extraits montés. Toutes les images de cette page sont issues de projets réels.</p>
-    </div>
-    <div class="filtres no-print" role="group" aria-label="Filtrer les réalisations">
-      <button type="button" data-filtre="" aria-pressed="true">Tout</button>
-      ${cats.map(c => `<button type="button" data-filtre="${esc(c)}" aria-pressed="false">${esc(c)}</button>`).join("")}
-    </div>
-    <div class="galerie" id="galerie">
-      ${D.galerie.map((g,i) => tuile(g, i, {printLimit: 8})).join("")}
-    </div>
   </div>
 </section>
 
@@ -189,13 +132,17 @@ ${cible ? `
 <section id="projet" class="${cible ? "sombre " : "papier "}print-break" aria-labelledby="t-projet">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>05</b> / Le projet de local</p>
-      <h2 id="t-projet">Un bureau de production associatif, pas un lieu d'accueil.</h2>
-      <p class="lead">${esc(P.intro)}</p>
+      <p class="label"><b>02</b> / Le projet</p>
+      <h2 id="t-projet">${esc(P.titre)}</h2>
+      <p class="lead">${esc(P.introCourte)}</p>
     </div>
+    ${cible && cible.territoire ? "" : `<div class="territoire rv">
+      <h3>Un projet ancré dans le Val-de-Marne</h3>
+      ${P.argument.map(x => `<p>${esc(x)}</p>`).join("")}
+      <p class="sig">${esc(I.nom)}, président de LA VAR</p>
+    </div>`}
     <div class="fonctions rv">
-      ${P.fonctions.map((f,i) => `<div class="fonction"><span class="tag${f.principal ? "" : " ponct"}">${f.principal ? "Usage principal" : "Ponctuel, avec accord"}</span><h3>${esc(f.titre)}</h3><p>${esc(f.texte)}</p></div>`).join("")}
-      <div class="fonction"><span class="tag">Fonctionnement</span><h3>Calme et organisé</h3><p>Occupation gérée par l'association et coordonnée par son président. Membres et collaborateurs reçus ponctuellement, sur rendez-vous. Aucune musique amplifiée.</p></div>
+      ${P.fonctions.map((f,i) => `<div class="fonction"><span class="tag${f.principal ? "" : " ponct"}">${f.principal ? "Usage principal" : "Encadré, avec accord"}</span><h3>${esc(f.titre)}</h3><p>${esc(f.texte)}</p></div>`).join("")}
     </div>
     <dl class="spec rv" style="margin-top:clamp(40px,6vw,70px)">${P.locataire.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
     <div class="projet-bas">
@@ -207,6 +154,63 @@ ${cible ? `
         <h3>Le local recherché</h3>
         <dl class="spec">${P.recherche.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
       </div>`}
+    </div>
+  </div>
+</section>
+
+<section id="parcours" aria-labelledby="t-parcours">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>03</b> / Mon parcours</p>
+      <h2 id="t-parcours">Un métier appris sur le terrain.</h2>
+      <p>Du studio de quartier aux tournages de clips, puis à la direction artistique et au montage : une progression concrète, projet après projet.</p>
+    </div>
+    <div class="parcours">
+      <div class="intro rv">
+        <p class="lead">${esc(I.resume)}</p>
+        <p class="muted" style="margin-top:22px">${esc(D.materiel)}</p>
+        <div class="kit"><span>Logiciels</span>${I.logiciels.map(l => `<span class="chip">${esc(l)}</span>`).join("")}</div>
+        <div class="kit"><span>Langues</span><span class="chip">${esc(I.langues)}</span></div>
+      </div>
+      <ol class="timeline rv">
+        ${D.parcours.map(p => `<li><span class="quand">${esc(p.quand)}</span><div><h3>${esc(p.titre)}</h3><p>${esc(p.texte)}</p></div></li>`).join("")}
+      </ol>
+    </div>
+    <div class="skills rv" aria-label="Savoir-faire">
+      ${D.competences.map((c,i) => `<div class="skill"><span class="n">${String(i+1).padStart(2,"0")}</span><h3>${esc(c.titre)}</h3><p>${esc(c.texte)}</p></div>`).join("")}
+    </div>
+  </div>
+</section>
+
+<section id="references" aria-labelledby="t-refs" style="background:var(--noir-2)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>04</b> / Références et collaborations</p>
+      <h2 id="t-refs">Avec qui j'ai travaillé, et à quel titre.</h2>
+      <p>Chaque nom est associé au rôle exact que j'ai tenu sur le projet. Ce sont des collaborations ponctuelles sur des projets, pas des partenariats commerciaux.</p>
+    </div>
+    <div class="refs rv">
+      ${refsA.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><span class="role">${esc(r.role)}${struct(r)}</span></div>`).join("")}
+    </div>
+    <div class="refs-struct rv">
+      ${refsS.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><p class="role">${esc(r.role)}</p></div>`).join("")}
+    </div>
+  </div>
+</section>
+
+<section id="portfolio" aria-labelledby="t-port">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>05</b> / Réalisations</p>
+      <h2 id="t-port">Le travail, plutôt que les promesses.</h2>
+      <p>Photographies, covers, images de tournage et extraits montés. Toutes les images de cette page sont issues de projets réels.</p>
+    </div>
+    <div class="filtres no-print" role="group" aria-label="Filtrer les réalisations">
+      <button type="button" data-filtre="" aria-pressed="true">Tout</button>
+      ${cats.map(c => `<button type="button" data-filtre="${esc(c)}" aria-pressed="false">${esc(c)}</button>`).join("")}
+    </div>
+    <div class="galerie" id="galerie">
+      ${D.galerie.map((g,i) => tuile(g, i, {printLimit: 8})).join("")}
     </div>
   </div>
 </section>

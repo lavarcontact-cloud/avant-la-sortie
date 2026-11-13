@@ -66,6 +66,7 @@ p{margin:0}
 .hero h1 span:last-child{color:transparent;-webkit-text-stroke:1.5px var(--blanc)}
 .hero .titres{margin-top:26px;font-family:var(--f-mono);font-size:clamp(.72rem,1.2vw,.86rem);letter-spacing:.2em;text-transform:uppercase;color:var(--blanc)}
 .hero .titres i{color:var(--accent);font-style:normal;padding:0 .5em}
+.hero .accroche-titre{margin-top:26px;font-family:var(--f-display);font-weight:700;font-stretch:85%;font-size:clamp(1.35rem,2.6vw,2.1rem);line-height:1.12;letter-spacing:-.01em;max-width:24ch;color:var(--blanc)}
 .hero .accroche{margin-top:22px;font-size:clamp(1.05rem,1.7vw,1.3rem);color:var(--argent);max-width:34ch;font-style:italic}
 .hero .ctas{margin-top:34px;display:flex;flex-wrap:wrap;gap:12px}
 .viseur{position:relative;margin-left:auto;width:100%;max-width:min(380px,40vh)}
@@ -260,6 +261,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   .hero{min-height:0;padding:0}
   .hero .wrap{padding:0;grid-template-columns:1.4fr .6fr;align-items:center}
   .hero h1{font-size:46pt}
+  .hero .accroche-titre{font-size:16pt}
   .hero h1 span:last-child{-webkit-text-stroke:1px #141416}
   .viseur{max-width:52mm;max-height:none}
   .viseur .cadre::before{display:none}

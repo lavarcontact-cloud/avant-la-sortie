@@ -188,17 +188,19 @@ const DEFAULT_SETTINGS = {
   estimations:{chargesM2An:30, tfM2An:10, elec:45, chauffage:0, internet:30, assurance:25, depotMois:3},
   styleBonus:{loft:5, atelier_americain:5, garage:4, industriel:4, verriere:3, mezzanine:2, grande_hauteur:2},
   zones:{
+    proche:["Champigny-sur-Marne","Chennevières-sur-Marne","Le Plessis-Trévise","Villiers-sur-Marne","Bry-sur-Marne","Ormesson-sur-Marne","La Queue-en-Brie","Noiseau"],
+    secondaire:["Saint-Maur-des-Fossés","Joinville-le-Pont"],
     paris:["Paris"],
     c1:["Saint-Ouen","Saint-Ouen-sur-Seine","Saint-Denis","Aubervilliers","Pantin","Montreuil","Bagnolet","Ivry-sur-Seine","Clichy","Les Lilas","Le Pré-Saint-Gervais","Saint-Mandé","Vitry-sur-Seine","Vincennes","Gentilly","Le Kremlin-Bicêtre","Malakoff","Montrouge","Charenton-le-Pont","Romainville","Noisy-le-Sec","La Courneuve"],
-    c2:["Champigny-sur-Marne","Joinville-le-Pont","Nogent-sur-Marne","Rosny-sous-Bois","Fontenay-sous-Bois"]
+    c2:["Nogent-sur-Marne","Rosny-sous-Bois","Fontenay-sous-Bois","Sucy-en-Brie","Bonneuil-sur-Marne","Créteil","Le Perreux-sur-Marne"]
   },
   veille:{requetes:[
-    "location atelier OR loft OR \"local d'activité\" 30 à 60 m² Montreuil OR Pantin OR Bagnolet OR Saint-Ouen moins de 800 €",
-    "location \"ancien garage\" OR \"garage aménageable\" OR \"atelier d'artisan\" Paris OR \"Seine-Saint-Denis\" OR \"Val-de-Marne\"",
-    "site:leboncoin.fr bureaux_commerces atelier OR local OR studio 30 m² OR 40 m² OR 50 m² Paris OR Montreuil OR Pantin OR Ivry",
-    "site:lamaisondesartistes.fr atelier à louer entier Paris OR Saint-Ouen OR Montreuil OR Pantin",
-    "site:pap.fr location local d'activité OR local commercial Paris OR 93 OR 94 m²",
-    "location studio indépendant OR \"local en rez-de-chaussée\" OR \"local avec mezzanine\" Paris 18 OR 19 OR 20 OR 11 OR 12 OR 13 particulier"
+    "location local d'activité OR atelier OR local commercial Champigny-sur-Marne 30 à 60 m²",
+    "location local professionnel OR atelier OR garage Chennevières-sur-Marne OR \"Le Plessis-Trévise\" OR Villiers-sur-Marne OR Bry-sur-Marne",
+    "location local OR atelier OR bureau Ormesson-sur-Marne OR \"La Queue-en-Brie\" OR Noiseau",
+    "site:leboncoin.fr bureaux_commerces Champigny-sur-Marne OR Chennevières OR \"Plessis-Trévise\" OR Villiers-sur-Marne",
+    "location local d'activité OR atelier Saint-Maur-des-Fossés OR Joinville-le-Pont moins de 800 €",
+    "site:pap.fr location local Champigny-sur-Marne OR Saint-Maur OR Villiers-sur-Marne"
   ]},
   horaires:["08:30","13:00","20:30"]
 };
@@ -309,6 +311,8 @@ const verifDate = o => o.verification?.date || o.dateVerif;
 function zoneOf(o){
   if(o.zone) return o.zone;
   const z = settings().zones, v = (o.ville||"").toLowerCase();
+  if((z.proche||[]).some(c=>v.includes(c.toLowerCase()))) return "proche";
+  if((z.secondaire||[]).some(c=>v.includes(c.toLowerCase()))) return "secondaire";
   if(v.startsWith("paris")) return "paris";
   if(z.c1.some(c=>v.includes(c.toLowerCase()))) return "c1";
   if(z.c2.some(c=>v.includes(c.toLowerCase()))) return "c2";
@@ -341,9 +345,11 @@ function computeScore(o){
     if(s < sf.min-tol || s > sf.max+tol) elim.push(`Surface hors critères (${s} m²)`);
   }
   const z = zoneOf(o);
-  let p4 = z==="paris"||z==="c1" ? 9 : z==="c2" ? 4 : 0;
+  // Priorité : Champigny et voisines, puis Saint-Maur / Joinville ; Paris et 1re couronne seulement si l'offre vaut le déplacement.
+  let p4 = z==="proche" ? 9 : z==="secondaire" ? 7 : z==="paris"||z==="c1" ? 3 : z==="c2" ? 3 : 0;
+  if(z==="paris"||z==="c1") notes.push("Hors secteur prioritaire (Champigny et voisines)");
   if(z==="hors") elim.push("Hors Paris et petite couronne");
-  if(z==="c2" && !o.exceptionnel) elim.push("2e couronne sans caractère exceptionnel");
+  if(z==="c2" && !o.exceptionnel) elim.push("Hors secteur, sans caractère exceptionnel");
   if(z==="inconnu") aVerifier.push("Commune à préciser");
   const tm = num(o.transports?.minutesPied), tsv = o.transports?.statut;
   if(tm!=null && tsv!=="inconnu") p4 += tm<=5?6 : tm<=10?5 : tm<=15?3 : 1;
@@ -675,7 +681,7 @@ function viewRecherche(){
   <details class="panel" id="filtersBox" ${window.innerWidth>900||S.filtersOpen?"open":""}><summary style="cursor:pointer;font-weight:600" data-act="toggleFilters">Filtres${Object.entries(f).filter(([k,v])=>v&&k!=="tri").length?` · ${Object.entries(f).filter(([k,v])=>v&&k!=="tri").length} actif(s)`:""}</summary>
     <div class="filters" style="margin-top:12px">
       <label class="f">Recherche<input type="text" data-filter="q" id="f-q" value="${esc(f.q)}" placeholder="Mot, ville…"></label>
-      <label class="f">Zone${sel("zone",[["","Toutes"],["paris","Paris"],["c1","1re couronne"],["c2","2e couronne"],["inconnu","Non classée"]],f.zone)}</label>
+      <label class="f">Zone${sel("zone",[["","Toutes"],["proche","Champigny et voisines"],["secondaire","Saint-Maur, Joinville"],["paris","Paris"],["c1","1re couronne"],["c2","Autres communes"],["inconnu","Non classée"]],f.zone)}</label>
       <label class="f">Budget max / mois${sel("budget",[["","Tous"],["700","≤ 700 €"],["800","≤ 800 €"],["900","≤ 900 €"],["1000","≤ 1 000 €"]],f.budget)}</label>
       <label class="f">Surface min<input type="number" data-filter="surfMin" id="f-surfMin" value="${esc(f.surfMin)}" placeholder="30"></label>
       <label class="f">Surface max<input type="number" data-filter="surfMax" id="f-surfMax" value="${esc(f.surfMax)}" placeholder="60"></label>
@@ -739,7 +745,7 @@ function tabAnalyse(o, sc){
   return `<div class="grid g2">
   <section class="panel"><h2>Fiche</h2><div class="spec">
     <div>Type</div><div>${esc(TYPES[o.type]||"?")}${(o.styles||[]).length?" · "+o.styles.map(s=>esc(STYLES[s]||s)).join(", "):""}</div>
-    <div>Localisation</div><div>${esc([o.adresse,o.quartier,o.ville].filter(Boolean).join(" · ")||"?")} <span class="pill">${{paris:"Paris",c1:"1re couronne",c2:"2e couronne",inconnu:"zone ?",hors:"hors zone"}[zoneOf(o)]}</span></div>
+    <div>Localisation</div><div>${esc([o.adresse,o.quartier,o.ville].filter(Boolean).join(" · ")||"?")} <span class="pill">${{proche:"Champigny et voisines",secondaire:"Saint-Maur, Joinville",paris:"Paris",c1:"1re couronne",c2:"autre commune",inconnu:"zone ?",hors:"hors zone"}[zoneOf(o)]}</span></div>
     <div>Transports</div><div>${esc(o.transports?.texte||"inconnu")}${o.transports?.minutesPied?` · ${o.transports.minutesPied} min à pied`:""} ${stPill(o.transports?.statut||"inconnu")}</div>
     <div>Surface</div><div class="mono">${o.surface?.min!=null&&o.surface?.max!=null&&o.surface.min!==o.surface.max?`${o.surface.min}–${o.surface.max} m² (retenue ${surfaceOf(o)})`:`${surfaceOf(o)??"?"} m²`} ${stPill(o.surface?.statut||"inconnu")}</div>
     <div>Privatif</div><div>${esc(o.prive?.valeur||"inconnu")} ${stPill(o.prive?.statut||"inconnu")}${o.prive?.note?`<br><span class="small muted">${esc(o.prive.note)}</span>`:""}</div>
@@ -866,7 +872,7 @@ function tabEdit(o){
     ${t("e-titre","titre","Nom de l'offre",o.titre)}
     <div class="filters">${t("e-ville","ville","Ville",o.ville)}${t("e-adresse","adresse","Adresse",o.adresse)}</div>
     <div class="filters"><label class="f">Type<select id="e-type" data-k="type">${Object.entries(TYPES).map(([k,l])=>`<option value="${k}" ${o.type===k?"selected":""}>${l}</option>`).join("")}</select></label>
-    <label class="f">Zone<select id="e-zone" data-k="zone">${[["","Automatique"],["paris","Paris"],["c1","1re couronne"],["c2","2e couronne"],["hors","Hors zone"]].map(([k,l])=>`<option value="${k}" ${(o.zone||"")===k?"selected":""}>${l}</option>`).join("")}</select></label>
+    <label class="f">Zone<select id="e-zone" data-k="zone">${[["","Automatique"],["proche","Champigny et voisines"],["secondaire","Saint-Maur, Joinville"],["paris","Paris"],["c1","1re couronne"],["c2","Autre commune"],["hors","Hors zone"]].map(([k,l])=>`<option value="${k}" ${(o.zone||"")===k?"selected":""}>${l}</option>`).join("")}</select></label>
     <label class="f">État de l'annonce<select id="e-etat" data-k="etatAnnonce">${Object.entries(ETAT).map(([k,v])=>`<option value="${k}" ${o.etatAnnonce===k?"selected":""}>${v[0]}</option>`).join("")}</select></label>
     <label class="f">Fiabilité<select id="e-fiab" data-k="fiabilite">${Object.entries(FIAB).map(([k,v])=>`<option value="${k}" ${o.fiabilite===k?"selected":""}>${v}</option>`).join("")}</select></label></div>
     <fieldset class="stack" style="border:1px solid var(--line);border-radius:var(--r);padding:10px"><legend class="eyebrow">Styles</legend><div class="row">${Object.entries(STYLES).map(([k,l])=>`<label class="check"><input type="checkbox" id="e-st-${k}" data-style="${k}" ${(o.styles||[]).includes(k)?"checked":""}> ${l}</label>`).join("")}</div>
@@ -1011,7 +1017,7 @@ function viewParametres(){
     <section class="panel"><h2>Barème de pertinence /100</h2><div class="tblwrap"><table><tbody>
       <tr><td>Exclusivité et jouissance privative</td><td class="num">25</td></tr><tr><td>Prix total</td><td class="num">20</td></tr><tr><td>Surface</td><td class="num">15</td></tr><tr><td>Localisation et transports</td><td class="num">15</td></tr><tr><td>Configuration et esthétique</td><td class="num">10</td></tr><tr><td>Autorisation d'activité audiovisuelle</td><td class="num">10</td></tr><tr><td>État et aménagement</td><td class="num">5</td></tr><tr class="total"><td>Total</td><td class="num">100</td></tr></tbody></table></div>
       <p class="small muted">Une information confirmée compte en entier, une information déclarative compte partiellement, une information inconnue ne rapporte rien. Au-delà du plafond, l'annonce est écartée ; si seule l'estimation haute dépasse, elle reste « À appeler » avec un budget à confirmer. Coworkings, tiers-lieux mutualisés et espaces partagés sont toujours mis à part. Les lofts, ateliers américains, garages et lieux industriels reçoivent un bonus de classement (jusqu'à +5), séparé du score.</p></section>
-    <section class="panel"><h2>Zones</h2><p class="small"><b>Paris</b> et <b>1re couronne</b> prioritaires : ${esc(st.zones.c1.join(", "))}.</p><p class="small"><b>2e couronne</b> si exceptionnel : ${esc(st.zones.c2.join(", "))}.</p></section>
+    <section class="panel"><h2>Zones</h2><p class="small"><b>Priorité</b> : ${esc((st.zones.proche||[]).join(", "))}.</p><p class="small"><b>Ensuite</b> : ${esc((st.zones.secondaire||[]).join(", "))}.</p><p class="small muted">Paris et la 1re couronne restent possibles mais moins bien notés ; les autres communes seulement si l'offre est exceptionnelle.</p></section>
     <section class="panel"><h2>Veille et notifications</h2>
       <div class="note warn">Horaires prévus (Europe/Paris) : ${st.horaires.join(" · ")}. <b>Non programmés pour l'instant.</b> La veille se lance à la main avec le bouton « Lancer la veille » de la page Recherche.</div>
       <p class="small muted">Notifications push iPhone et Telegram : non branchées. Les alertes s'affichent dans le Dashboard.</p>
