@@ -183,6 +183,11 @@ section{padding:clamp(80px,11vw,150px) 0;position:relative;scroll-margin-top:56p
 .sombre .liste-non,.sombre .liste-non li,.sombre .spec,.sombre .spec div{border-color:var(--ligne)}
 .sombre .spec dt{color:var(--argent)}
 .sombre .liste-non li::before{color:var(--accent)}
+.territoire{max-width:68ch;margin:0 0 clamp(40px,6vw,70px);border-left:2px solid var(--accent);padding:4px 0 4px clamp(18px,3vw,32px)}
+.territoire h3{font-size:clamp(1.3rem,2.4vw,1.8rem);margin-bottom:14px}
+.territoire p{margin-top:12px;color:var(--encre);font-size:1.02rem;line-height:1.65}
+.territoire .sig{margin-top:18px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--encre-2)}
+@media print{.territoire{break-inside:avoid}.territoire p{font-size:10pt}}
 .papier .btn{border-color:var(--encre);color:var(--encre)}
 .papier .btn:hover{background:var(--encre);color:var(--papier)}
 

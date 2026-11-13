@@ -175,6 +175,11 @@ ${cible ? `
       <h2 id="t-prop">${esc(cible.titre)}</h2>
       <p class="lead">${esc(cible.intro)}</p>
     </div>
+    ${cible.territoire ? `<div class="territoire rv">
+      <h3>${esc(cible.territoire.titre)}</h3>
+      ${cible.territoire.paragraphes.map(p => `<p>${esc(p)}</p>`).join("")}
+      <p class="sig">${esc(cible.territoire.signature)}</p>
+    </div>` : ""}
     <dl class="spec rv">${cible.demande.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
     <div class="fonctions rv" style="margin-top:clamp(40px,6vw,70px)">
       ${cible.apports.map(([h,p]) => `<div class="fonction"><span class="tag">Pour le site</span><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join("")}

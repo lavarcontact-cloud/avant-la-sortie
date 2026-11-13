@@ -208,6 +208,17 @@ const DOSSIER = {
         ["Cadre", "Convention d'occupation temporaire, aux conditions tarifaires du site"],
         ["Démarrage", "Dès que possible, après signature de la convention"]
       ],
+      territoire: {
+        titre: "Un projet porté par un jeune du territoire",
+        paragraphes: [
+          "Originaire de Champigny-sur-Marne, dans le Val-de-Marne, je souhaite aujourd'hui développer mon activité et mes engagements associatifs au cœur du territoire qui m'a vu grandir.",
+          "À travers LA VAR, association loi 1901 que je préside, je porte un projet autour de l'audiovisuel, de la création, de la valorisation des jeunes et de l'accompagnement des initiatives locales.",
+          "L'opportunité de pouvoir installer ce projet à Noiseau, commune voisine de Champigny-sur-Marne, aurait une signification particulière pour moi. Je serais fier de pouvoir contribuer, à mon échelle, à la dynamique de ce territoire et de montrer qu'un jeune issu du Val-de-Marne peut construire des projets, développer une activité et participer à la valorisation de son département.",
+          "Mon souhait est de m'inscrire durablement dans cet environnement, en commençant par une occupation temporaire de trois mois, afin de démontrer concrètement le sérieux, la régularité et l'utilité du projet.",
+          "Au-delà de la mise à disposition d'un local, je vois cette opportunité comme la possibilité de développer une initiative locale, portée par quelqu'un qui connaît ce territoire et souhaite y construire son avenir."
+        ],
+        signature: "Sébastien Fula-Pitu, président de LA VAR"
+      },
       apports: [
         ["Une présence régulière", "Un bâtiment occupé et entretenu au quotidien, en journée, par une petite équipe identifiée."],
         ["Un usage calme", "Travail de bureau et postproduction : pas de flux de visiteurs, pas de nuisance pour les autres occupants."],
