@@ -47,6 +47,21 @@ const DOSSIER = {
     { quand: "Aujourd'hui", titre: "Indépendant et président de LA VAR", texte: "Réalisation, photographie, montage et contenus pour des artistes. En parallèle, présidence de LA VAR, association loi 1901, qui envisage de prendre un local pour ses activités." }
   ],
 
+  // Réalisations marquantes : uniquement des projets documentés dans le dépôt.
+  tempsForts: [
+    { image: "/dossier/posters/scene-rue-groupe.jpg", role: "Co-réalisation", projet: "V2V, \"Crapuleux\"", texte: "Co-réalisation du clip, à la caméra sur le tournage." },
+    { image: "/dossier/posters/generations-my-g-avec-jeff.jpg", role: "Monteur-réalisateur, 6 mois", projet: "Générations", texte: "Cadrage et montage d'interviews, habillages et contenus éditoriaux, au studio. Photographe accrédité au festival FCNY." },
+    { image: "/dossier/posters/brk-katimini-highlights.jpg", role: "Direction artistique et étalonnage", projet: "BRK, \"Katimini\", \"Everyday\", \"Flex\"", texte: "Trois clips, trois ambiances couleur, dans le cadre du développement de l'artiste." },
+    { image: "/images/image-cover-leto-pessas.jpg", role: "Direction artistique", projet: "Leto, \"Enlève tes Pessas\"", texte: "Cover et synopsis du clip écrit pour Nocolor ; photo de presse de l'artiste." },
+    { image: "/images/timal-synopsis-01.jpg", role: "Synopsis et moodboard", projet: "Timal, \"760\"", texte: "Cosignés avec Cherif Nocolor Filho." },
+    { image: "/dossier/posters/l2b-noir-cuts.jpg", role: "Acteur principal", projet: "L2B, \"Noir\"", texte: "Rôle principal du clip ; également acteur dans \"Maybach\" (Landy feat. Gazo) et \"Afro Trap Part. 11\" (MHD)." }
+  ],
+  chiffresCles: [
+    ["25", "réalisations présentées dans ce dossier"],
+    ["20+", "artistes filmés, photographiés ou accompagnés"],
+    ["6", "mois de montage et réalisation chez Générations"],
+    ["2021", "cofondation d'un studio à Champigny-sur-Marne"]
+  ],
   competences: [
     { titre: "Réalisation de clips", texte: "Écriture, synopsis, moodboard, réalisation et co-réalisation." },
     { titre: "Photographie", texte: "Plateau, presse, portrait et concert." },
@@ -134,21 +149,25 @@ const DOSSIER = {
       ["Usages complémentaires", "Toute occupation personnelle ou professionnelle complémentaire sera encadrée et soumise à votre autorisation écrite"]
     ],
     fonctions: [
-      { titre: "Shootings photo", texte: "Portraits, photos de presse et visuels d'artistes, en petite équipe et sur rendez-vous.", principal: true },
+      { titre: "Shootings photo", texte: "Portraits et visuels pour les artistes accompagnés par LA VAR, en petite équipe et sur rendez-vous.", principal: true },
       { titre: "Contenus vidéo", texte: "Interviews, formats courts et contenus pour les artistes et le média de LA VAR.", principal: true },
       { titre: "Montage et postproduction", texte: "Montage, étalonnage et finalisation des projets, sur poste fixe.", principal: true },
       { titre: "Accompagnement d'artistes", texte: "Rendez-vous de travail, préparation de projets, conseil en image : quelques personnes à la fois.", principal: true },
       { titre: "Projets culturels de LA VAR", texte: "Préparation des actions de l'association et de son média autour des talents du département.", principal: true },
       { titre: "Bureau et gestion de projets", texte: "Organisation des tournages, administratif, coordination des équipes.", principal: true },
       { titre: "Stockage sécurisé du matériel", texte: "Caméras, objectifs, stabilisateurs, audio et lumière rangés dans un lieu fermé.", principal: true },
-      { titre: "Usage professionnel personnel", texte: "Toute utilisation par Sébastien Fula-Pitu pour son activité personnelle sera encadrée, et seulement si vous l'autorisez par écrit.", principal: false }
+      { titre: "Prestations personnelles du président", texte: "Les prestations de Sébastien Fula-Pitu pour des artistes ou des clients, hors association, ne se feront dans le local qu'avec votre accord écrit.", principal: false }
+    ],
+    pourVous: [
+      { titre: "Ce que le local accueillera", points: ["Un poste fixe de montage et de postproduction", "Un coin de prise de vue démontable : fond, lumières et pieds, rangés après chaque séance", "Des rangements fermés pour les caméras, objectifs et le son", "Un espace de travail pour recevoir un artiste ou un collaborateur à la fois"] },
+      { titre: "Comment il sera entretenu", points: ["Local rangé et nettoyé après chaque séance de prise de vue", "Aucune modification ni aménagement sans votre accord écrit", "Matériel stocké hors des passages, câbles rangés, sorties dégagées", "État des lieux d'entrée et de sortie, assurance souscrite avant l'entrée"] },
+      { titre: "Pourquoi c'est compatible", points: ["La plus grande partie du temps : montage et bureau, une activité silencieuse", "Prises de vue en petite équipe, sans musique amplifiée ni public", "Pas de machines bruyantes, pas de produits dangereux, pas d'installation électrique lourde", "Un occupant identifié, des horaires convenus avec vous"] }
     ],
     exclus: ["Événements ou soirées", "Activité nocturne", "Accueil du public", "Flux importants de visiteurs", "Studio d'enregistrement professionnel ou cabine", "Sous-location ou occupation partagée non autorisée par le propriétaire"],
     recherche: [
       ["Secteur", "Champigny-sur-Marne et communes voisines : Chennevières, Le Plessis-Trévise, Villiers-sur-Marne, Bry-sur-Marne, Ormesson, La Queue-en-Brie, Noiseau ; puis Saint-Maur et Joinville"],
       ["Surface", "30 à 60 m², idéalement 40 à 50 m²"],
       ["Type", "Local d'activité, atelier, local professionnel ou commercial, à usage exclusif"],
-      ["Budget", "Jusqu'à 800 € TTC par mois, charges comprises"],
       ["Accès", "Accès pratique pour le matériel, stationnement apprécié"]
     ]
   },

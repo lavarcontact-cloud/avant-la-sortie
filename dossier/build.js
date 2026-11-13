@@ -52,7 +52,7 @@ function page(version) {
   const desc = proprio
     ? `Dossier de candidature de LA VAR, présenté par son président ${I.nom}, pour la location d'un local : profil, références, projet d'occupation, engagements et pièces.`
     : `${I.nom}, réalisateur, photographe et producteur audiovisuel en région parisienne. Parcours, références, réalisations et projet de local professionnel.`;
-  const navLinks = [...(D.cibles && D.cibles[version] ? [["#proposition","Proposition"]] : []), ["#projet","Le projet"],["#parcours","Parcours"],["#references","Références"],["#portfolio","Réalisations"],["#lavar","LA VAR"],["#engagements","Engagements"],["#contact","Contact"]];
+  const navLinks = [...(D.cibles && D.cibles[version] ? [["#proposition","Proposition"]] : []), ["#projet","Le projet"],["#experience","Expérience"],["#parcours","Parcours"],["#references","Références"],["#portfolio","Réalisations"],["#lavar","LA VAR"],["#engagements","Engagements"],["#contact","Contact"]];
 
   return `<!doctype html>
 <html lang="fr">
@@ -98,7 +98,7 @@ ${proprio ? '<meta name="robots" content="noindex">' : ""}
       <div class="ctas">
         <a class="btn" href="#projet">Découvrir le projet <span class="fl">→</span></a>
         ${cible ? `<a class="btn plein" href="#proposition">Voir la proposition d'occupation <span class="fl">→</span></a>`
-                : proprio ? `<a class="btn plein" href="#projet">Consulter mon dossier de candidature <span class="fl">→</span></a>`
+                : proprio ? `<a class="btn plein" href="${esc(pdfHref)}" download>Télécharger le dossier PDF <span class="fl">↓</span></a>`
                   : `<a class="btn plein" href="/dossier/proprietaire">Consulter mon dossier de candidature <span class="fl">→</span></a>`}
       </div>
     </div>
@@ -145,6 +145,9 @@ ${cible ? `
       ${P.fonctions.map((f,i) => `<div class="fonction"><span class="tag${f.principal ? "" : " ponct"}">${f.principal ? "Usage principal" : "Encadré, avec accord"}</span><h3>${esc(f.titre)}</h3><p>${esc(f.texte)}</p></div>`).join("")}
     </div>
     <dl class="spec rv" style="margin-top:clamp(40px,6vw,70px)">${P.locataire.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+    <div class="pourvous rv">
+      ${(P.pourVous||[]).map(c => `<div><h3>${esc(c.titre)}</h3><ul>${c.points.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}
+    </div>
     <div class="projet-bas">
       <div class="rv">
         <h3>Ce que le local ne sera pas</h3>
@@ -158,10 +161,24 @@ ${cible ? `
   </div>
 </section>
 
+<section id="experience" aria-labelledby="t-exp">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>03</b> / Expérience terrain</p>
+      <h2 id="t-exp">Des tournages réels, des artistes reconnus.</h2>
+      <p>Réalisation, direction artistique, montage, photographie : quelques projets qui montrent ce que je fais concrètement sur un tournage.</p>
+    </div>
+    <div class="chiffres-cles rv">${D.chiffresCles.map(([v,l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>
+    <div class="temps rv">
+      ${D.tempsForts.map(x => `<article class="tf"><img src="${esc(x.image)}"${dim(x.image)} alt="${esc(x.projet)}" loading="lazy"><div><span class="label"><b>${esc(x.role)}</b></span><h3>${esc(x.projet)}</h3><p>${esc(x.texte)}</p></div></article>`).join("")}
+    </div>
+  </div>
+</section>
+
 <section id="parcours" aria-labelledby="t-parcours">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>03</b> / Mon parcours</p>
+      <p class="label"><b>04</b> / Mon parcours</p>
       <h2 id="t-parcours">Un métier appris sur le terrain.</h2>
       <p>Du studio de quartier aux tournages de clips, puis à la direction artistique et au montage : une progression concrète, projet après projet.</p>
     </div>
@@ -185,7 +202,7 @@ ${cible ? `
 <section id="references" aria-labelledby="t-refs" style="background:var(--noir-2)">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>04</b> / Références et collaborations</p>
+      <p class="label"><b>05</b> / Références et collaborations</p>
       <h2 id="t-refs">Avec qui j'ai travaillé, et à quel titre.</h2>
       <p>Chaque nom est associé au rôle exact que j'ai tenu sur le projet. Ce sont des collaborations ponctuelles sur des projets, pas des partenariats commerciaux.</p>
     </div>
@@ -201,7 +218,7 @@ ${cible ? `
 <section id="portfolio" aria-labelledby="t-port">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>05</b> / Réalisations</p>
+      <p class="label"><b>06</b> / Réalisations</p>
       <h2 id="t-port">Le travail, plutôt que les promesses.</h2>
       <p>Photographies, covers, images de tournage et extraits montés. Toutes les images de cette page sont issues de projets réels.</p>
     </div>
@@ -218,7 +235,7 @@ ${cible ? `
 <section id="lavar" class="print-break" aria-labelledby="t-lavar">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>06</b> / LA VAR, locataire envisagé</p>
+      <p class="label"><b>07</b> / LA VAR, locataire envisagé</p>
       <h2 id="t-lavar">${esc(L.nom)}</h2>
       <p>La structure envisagée pour porter la location, distincte de mon activité professionnelle personnelle.</p>
     </div>
@@ -243,7 +260,7 @@ ${cible ? `
 <section id="engagements" class="print-break" aria-labelledby="t-eng" style="background:var(--noir-2)">
   <div class="wrap">
     <div class="sec-head rv">
-      <p class="label"><b>07</b> / Engagements</p>
+      <p class="label"><b>08</b> / Engagements</p>
       <h2 id="t-eng">Un espace de travail sérieux, organisé et respectueux.</h2>
       <p>Ce à quoi LA VAR et son président s'engagent pour l'occupation du local. Les pièces correspondantes sont listées ${proprio ? "ci-dessous" : "dans la version propriétaire du dossier"}.</p>
     </div>
@@ -265,7 +282,7 @@ ${cible ? `
 
 <section id="contact" class="contact" aria-labelledby="t-contact">
   <div class="wrap">
-    <p class="label rv"><b>08</b> / Contact et dossier</p>
+    <p class="label rv"><b>09</b> / Contact et dossier</p>
     <h2 id="t-contact" class="rv" style="margin-top:20px">${I.nom.split(" ").map(esc).join("<br>")}</h2>
     <div class="coord rv">
       <div><span class="label">E-mail</span><p class="v"><a href="mailto:${esc(I.email)}">${esc(I.email)}</a></p></div>
