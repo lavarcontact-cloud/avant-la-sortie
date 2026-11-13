@@ -149,6 +149,17 @@ section{padding:clamp(80px,11vw,150px) 0;position:relative;scroll-margin-top:56p
 @media (max-width:720px){.refs-struct{grid-template-columns:1fr}}
 .note{margin-top:30px;font-size:.84rem;color:var(--argent-2);max-width:70ch}
 
+/* Références professionnelles (logos) */
+.refpro{margin-bottom:clamp(40px,6vw,64px)}
+.logos{margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.logo-card{margin:0;border:1px solid var(--ligne);background:var(--noir);display:flex;flex-direction:column}
+.logo-zone{background:#fff;height:120px;display:flex;align-items:center;justify-content:center;padding:18px}
+.logo-zone img{max-height:84px;max-width:80%;width:auto;height:auto;object-fit:contain}
+.logo-card figcaption{padding:14px 16px 18px;display:flex;flex-direction:column;gap:4px;font-size:.88rem;color:var(--argent)}
+.logo-card figcaption b{color:var(--blanc);font-weight:600}
+@media (max-width:760px){.logos{grid-template-columns:1fr}}
+@media print{.logos{grid-template-columns:repeat(3,1fr)}.logo-zone{height:24mm}.logo-card{break-inside:avoid}}
+
 /* Galerie */
 .filtres{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
 .filtres button{background:none;border:1px solid var(--ligne);color:var(--argent);padding:9px 15px;font:inherit;font-size:.82rem;cursor:pointer;transition:all .2s}

@@ -103,6 +103,17 @@ const DOSSIER = {
     ]
   },
 
+  // Références professionnelles avec logo. Un logo n'est affiché que si `valide: true`
+  // ET que `projet`, `role` et `lien` sont renseignés : un logo seul laisserait croire à un client.
+  //   projet : artiste, titre et année   ex. "Landy feat. Gazo, \"Maybach\" (2023)"
+  //   role   : ton rôle exact            ex. "Acteur"
+  //   lien   : lien réel avec la structure, ex. "Projet sorti chez Sony Music" ou "Mission confiée par Believe"
+  referencesPro: [
+    { structure: "Universal Music France", logo: "/dossier/logos/universal-music-france.png", projet: "", role: "", lien: "", valide: false },
+    { structure: "Sony Music", logo: "/dossier/logos/sony-music.png", projet: "", role: "", lien: "", valide: false },
+    { structure: "Believe", logo: "/dossier/logos/believe.png", projet: "", role: "", lien: "", valide: false }
+  ],
+
   // Galerie : catégories filtrables. `type` image ou video.
   galerie: [
     { type: "video", src: "/videos/scene-rue-groupe.mp4", poster: "/dossier/posters/scene-rue-groupe.jpg", cat: "Tournages", titre: "V2V, \"Crapuleux\"", credit: "Co-réalisation · à la caméra" },

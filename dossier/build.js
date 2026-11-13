@@ -206,6 +206,12 @@ ${cible ? `
       <h2 id="t-refs">Avec qui j'ai travaillé, et à quel titre.</h2>
       <p>Chaque nom est associé au rôle exact que j'ai tenu sur le projet. Ce sont des collaborations ponctuelles sur des projets, pas des partenariats commerciaux.</p>
     </div>
+    ${(() => {
+      const rp = (D.referencesPro || []).filter(x => x.valide && x.projet && x.role && x.lien);
+      return rp.length ? `<div class="refpro rv"><h3>Références professionnelles</h3><div class="logos">
+        ${rp.map(x => `<figure class="logo-card"><div class="logo-zone"><img src="${esc(x.logo)}"${dim(x.logo)} alt="${esc(x.structure)}" loading="lazy"></div><figcaption><b>${esc(x.projet)}</b><span>${esc(x.role)}</span><span>${esc(x.lien)}</span></figcaption></figure>`).join("")}
+      </div><p class="note">Logos affichés pour situer les projets réalisés. Ils ne signifient pas un partenariat commercial avec ces structures.</p></div>` : "";
+    })()}
     <div class="refs rv">
       ${refsA.map(r => `<div class="ref"><span class="nom">${esc(r.nom)}</span><span class="role">${esc(r.role)}${struct(r)}</span></div>`).join("")}
     </div>
