@@ -95,7 +95,7 @@ export default async function Watch({ searchParams }: { searchParams: Promise<SP
 
       {rows.length === 0 ? <Empty title="Aucune opportunité dans cette vue">{provider ? "Lancez la veille ou élargissez les filtres." : "Importez des résultats ou configurez la source automatique."}</Empty> : (
         <form>
-          <div className="mb-2 flex gap-2"><button formAction={prepareSelection} className="btn btn-accent">Préparer les démarches de la sélection</button><button formAction={dismissCandidates} className="btn btn-ghost">Ignorer la sélection</button></div>
+          <div className="mb-3 flex flex-wrap gap-2"><button formAction={prepareSelection} className="btn btn-accent">Préparer les démarches de la sélection</button><button formAction={dismissCandidates} className="btn btn-ghost">Ignorer la sélection</button></div>
           <Card pad={false}><div className="overflow-x-auto"><table className="w-full min-w-[980px]">
             <thead><tr><th className="th w-8" /><th className="th">Opportunité</th><th className="th text-right">Score</th><th className="th">Signaux</th><th className="th">Collaborations</th><th className="th">Contact</th><th className="th">Vue</th></tr></thead>
             <tbody>{rows.map((r) => (
@@ -105,7 +105,7 @@ export default async function Watch({ searchParams }: { searchParams: Promise<SP
                   <div className="text-xs text-zinc-500">{r.sector ? <span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: r.color }} /> : null}{r.sector ?? "Secteur non déterminé"} · <a href={r.url} target="_blank" rel="noreferrer" className="underline">{r.domain} ↗</a></div>
                   {r.snippet && <div className="mt-0.5 line-clamp-2 max-w-md text-xs text-zinc-500">« {r.snippet} »</div>}</td>
                 <td className="td text-right"><span className="font-display text-lg font-semibold tabular">{r.score ?? "—"}</span>
-                  <details className="text-left text-[0.68rem] text-zinc-500"><summary className="cursor-pointer text-right">détail</summary><ul className="mt-1 w-64 space-y-0.5">{(r.score_breakdown ?? []).map((l: any) => <li key={l.key}><b>{l.points}/{l.max}</b> {l.label} — {l.reason}</li>)}</ul></details></td>
+                  <details className="text-left text-[0.68rem] text-zinc-500"><summary className="cursor-pointer text-right">détail</summary><ul className="mt-1 w-full max-w-64 space-y-0.5 whitespace-normal">{(r.score_breakdown ?? []).map((l: any) => <li key={l.key}><b>{l.points}/{l.max}</b> {l.label} — {l.reason}</li>)}</ul></details></td>
                 <td className="td"><div className="flex max-w-60 flex-wrap gap-1">{(r.signals as Signal[]).map((s) => <Badge key={s} tone="violet">{SIGNALS[s]?.label ?? s}</Badge>)}</div></td>
                 <td className="td"><div className="flex max-w-48 flex-wrap gap-1">{(r.opportunities as string[]).map((o) => <Badge key={o}>{COLLAB_TYPES[o as keyof typeof COLLAB_TYPES]?.short ?? o}</Badge>)}</div></td>
                 <td className="td"><Badge tone={QUALITY_TONE[r.contact_quality ?? "aucun"]}>{r.contact_quality ?? "aucun"}</Badge>{r.contacts > 0 && <div className="text-xs text-zinc-500">{r.contacts} profil(s)</div>}</td>

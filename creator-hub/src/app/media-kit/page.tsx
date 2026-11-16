@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SocialLinks, socialList } from "@/components/social-links";
 import { getSetting, DEFAULT_PROFILE, type ProfileSettings } from "@/lib/settings";
 import { getSectors } from "@/lib/data";
 import { COLLAB_TYPES } from "@/lib/constants";
@@ -10,8 +11,9 @@ export default async function MediaKit() {
   const [p, sectors] = await Promise.all([getSetting<ProfileSettings>("profile", DEFAULT_PROFILE), getSectors()]);
   return (
     <main className="min-h-dvh bg-paper text-ink print:bg-white">
+      <div className="rise">
       <div className="mx-auto max-w-4xl px-5 py-14 sm:px-8">
-        <div className="flex items-center justify-between font-mono text-xs uppercase tracking-[0.2em] print:hidden"><Link href="/">← Site</Link><span className="text-ink/40">Imprimer → PDF (Ctrl/Cmd + P)</span></div>
+        <div className="flex items-center justify-between font-mono text-xs uppercase tracking-[0.2em] print:hidden"><Link href="/" className="rounded-full border border-ink/15 px-3 py-1.5 transition hover:bg-ink hover:text-paper">← Site</Link><span className="text-ink/40">Imprimer → PDF (Ctrl/Cmd + P)</span></div>
         <header className="mt-12 border-b-4 border-ink pb-8">
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Media Kit · {new Date().getFullYear()}</p>
           <h1 className="mt-4 font-display text-6xl font-extrabold tracking-tight">{p.display_name}</h1>
@@ -34,9 +36,12 @@ export default async function MediaKit() {
         {p.references.length > 0 && <section className="mt-12"><h2 className="font-mono text-xs uppercase tracking-[0.2em] text-ink/50">Références</h2>
           <ul className="mt-4 divide-y divide-ink/10">{p.references.map((r, i) => <li key={i} className="flex justify-between gap-4 py-3"><span><b>{r.name}</b> — {r.detail}</span><span className="font-mono text-xs text-ink/50">{r.year}</span></li>)}</ul></section>}
         <footer className="mt-14 border-t border-ink/10 pt-6 text-sm">
-          <b>Contact</b> {p.email && <>· {p.email}</>} {[p.instagram, p.tiktok, p.youtube, p.linkedin].filter(Boolean).map((u) => <span key={u}> · {u}</span>)}
+          <b>Contact</b> {p.email && <>· <a className="underline decoration-ink/30 underline-offset-4" href={`mailto:${p.email}`}>{p.email}</a></>}
+          <div className="no-print mt-4"><SocialLinks profile={p} variant="light" /></div>
+          <ul className="hidden print:block">{socialList(p).map((x) => <li key={x.key}>{x.label} : {x.url}</li>)}</ul>
           <p className="mt-2 text-xs text-ink/50">Tous les contenus sponsorisés et produits reçus sont clairement identifiés.</p>
         </footer>
+      </div>
       </div>
     </main>
   );

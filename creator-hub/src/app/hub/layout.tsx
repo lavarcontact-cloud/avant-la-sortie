@@ -3,27 +3,13 @@ import { requireAuth } from "@/lib/auth";
 import { unreadCount } from "@/lib/data";
 import { q } from "@/lib/db";
 import { logout } from "../login/actions";
-import { NavLink } from "./nav-link";
+import { NavLink, MobileNav } from "./nav-link";
+import { TableCards } from "./table-cards";
+import { NAV } from "./nav";
+import { Icon } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
-
-const NAV = [
-  { href: "/hub", label: "Dashboard", icon: "◧" },
-  { href: "/hub/watch", label: "Veille", icon: "✦", countKey: "watch" },
-  { href: "/hub/forecast", label: "Business Forecast", icon: "↗" },
-  { href: "/hub/audience", label: "Audience Value", icon: "◉" },
-  { href: "/hub/brands", label: "Marques · CRM", icon: "◎" },
-  { href: "/hub/pipeline", label: "Pipeline", icon: "▤" },
-  { href: "/hub/followups", label: "Relances", icon: "↻", countKey: "followups" },
-  { href: "/hub/responses", label: "Réponses", icon: "✉" },
-  { href: "/hub/contacts", label: "Interlocuteurs", icon: "◌" },
-  { href: "/hub/finance", label: "Finances", icon: "€" },
-  { href: "/hub/documents", label: "Devis & factures", icon: "▭" },
-  { href: "/hub/notifications", label: "Notifications", icon: "●", countKey: "notifs" },
-  { href: "/hub/reports", label: "Bilans", icon: "◷" },
-  { href: "/hub/settings", label: "Paramètres", icon: "⚙" },
-];
 
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   await requireAuth();
@@ -36,37 +22,45 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     q<{ c: number }>(`select count(*)::int c from watch_candidates where kind='brand' and status='new'`),
   ]);
   const counts: Record<string, number> = { notifs, followups: fu[0]?.c ?? 0, watch: watchNew[0]?.c ?? 0 };
+  const groups = [...new Set(NAV.map((n) => n.group))];
   return (
-    <div className="min-h-dvh lg:flex">
-      <aside className="sticky top-0 z-30 border-b border-zinc-200 bg-white lg:h-dvh lg:w-60 lg:shrink-0 lg:border-b-0 lg:border-r">
-        <div className="flex items-center justify-between px-4 py-3 lg:py-5">
-          <Link href="/hub" className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-zinc-900"><span className="h-3 w-3 rounded-full border-2 border-accent" /></span>
-            <span className="text-sm font-semibold tracking-tight">Business & PR Hub</span>
-          </Link>
-          <Link href="/hub/brands/new" className="btn btn-accent !px-2.5 !py-1 lg:hidden">+ Marque</Link>
-        </div>
-        <form action="/hub/search" className="hidden px-3 pb-3 lg:block">
-          <input name="q" placeholder="Rechercher…  marque, contact, facture" className="input !text-xs" />
+    <div className="min-h-dvh lg:grid lg:grid-cols-[256px_1fr]">
+      {/* Barre latérale (ordinateur) */}
+      <aside className="sticky top-0 hidden h-dvh flex-col overflow-y-auto bg-ink px-3 pb-4 text-zinc-300 lg:flex">
+        <Link href="/hub" className="flex items-center gap-2.5 px-3 pb-6 pt-6">
+          <span className="relative grid h-8 w-8 place-items-center rounded-[10px] bg-accent"><span className="h-3 w-3 rounded-full border-2 border-ink" /></span>
+          <span className="leading-tight"><span className="block font-display text-[0.95rem] font-semibold text-white">Business & PR Hub</span><span className="eyebrow !text-[0.58rem] !text-zinc-500">Studio commercial</span></span>
+        </Link>
+        <form action="/hub/search" className="mb-5 px-1">
+          <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-zinc-400 transition focus-within:border-accent/70">
+            <Icon name="search" size={15} /><input name="q" placeholder="Rechercher…" className="w-full bg-transparent text-[0.82rem] text-white outline-none placeholder:text-zinc-500" />
+          </label>
         </form>
-        <nav className="flex gap-1 overflow-x-auto px-2 pb-2 lg:flex-col lg:overflow-visible lg:pb-0">
-          {NAV.map((n) => <NavLink key={n.href} href={n.href} icon={n.icon} label={n.label} count={n.countKey ? counts[n.countKey] : 0} />)}
+        <nav className="flex-1 space-y-5">
+          {groups.map((g) => (
+            <div key={g}>
+              <div className="eyebrow mb-1.5 px-3 !text-[0.58rem] !text-zinc-600">{g}</div>
+              <div className="space-y-0.5">{NAV.filter((n) => n.group === g).map((n) => <NavLink key={n.href} href={n.href} icon={n.icon} label={n.label} count={"countKey" in n ? counts[n.countKey] : 0} />)}</div>
+            </div>
+          ))}
         </nav>
-        <div className="hidden px-3 pt-4 lg:block">
-          <Link href="/hub/brands/new" className="btn btn-accent w-full">+ Ajouter une marque</Link>
-          {inbound[0]?.c > 0 && <Link href="/hub/notifications" className="mt-2 block rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">{inbound[0].c} demande(s) entrante(s) à traiter</Link>}
-        </div>
-        <div className="absolute bottom-0 hidden w-full border-t border-zinc-100 p-3 lg:block">
-          <div className="flex items-center justify-between text-xs text-zinc-500">
-            <Link href="/" target="_blank" className="hover:text-zinc-900">Site public ↗</Link>
-            <form action={logout}><button className="hover:text-zinc-900">Déconnexion</button></form>
+        <div className="mt-6 space-y-3 px-1">
+          <Link href="/hub/brands/new" className="btn btn-accent w-full"><Icon name="plus" size={16} />Ajouter une marque</Link>
+          {inbound[0]?.c > 0 && <Link href="/hub/notifications" className="block rounded-xl bg-accent/15 px-3 py-2 text-xs text-[#ffb8a6]">{inbound[0].c} demande(s) entrante(s) à traiter</Link>}
+          <div className="flex items-center justify-between border-t border-white/10 px-2 pt-3 text-xs text-zinc-500">
+            <Link href="/" target="_blank" className="inline-flex items-center gap-1.5 hover:text-white"><Icon name="external" size={13} />Site public</Link>
+            <form action={logout}><button className="inline-flex items-center gap-1.5 hover:text-white"><Icon name="logout" size={13} />Quitter</button></form>
           </div>
         </div>
       </aside>
-      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
-        <form action="/hub/search" className="mb-4 lg:hidden"><input name="q" placeholder="Rechercher…" className="input" /></form>
-        {children}
+
+      {/* Navigation mobile / tablette */}
+      <MobileNav counts={counts} inbound={inbound[0]?.c ?? 0} logout={logout} />
+
+      <main className="min-w-0 px-4 pb-28 pt-5 sm:px-6 lg:px-12 lg:pb-16 lg:pt-10">
+        <div className="mx-auto max-w-[1360px]">{children}</div>
       </main>
+      <TableCards />
     </div>
   );
 }

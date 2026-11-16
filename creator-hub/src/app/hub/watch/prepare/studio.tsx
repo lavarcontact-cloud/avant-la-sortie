@@ -23,7 +23,7 @@ export function CandidateStudio({ brand, defaultAngle, collabs, contacts, profil
       </div>
       <textarea className="input !text-xs" rows={2} value={angle} onChange={(e) => setAngle(e.target.value)} />
       <div className="flex flex-wrap gap-1">{(Object.keys(labels) as (keyof typeof labels)[]).map((k) => <button type="button" key={k} onClick={() => setTab(k)} className={`rounded-md px-2 py-0.5 text-xs ${tab === k ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"}`}>{labels[k]}</button>)}</div>
-      <div className="relative"><pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 font-sans text-xs leading-relaxed">{text}</pre><div className="absolute right-2 top-2"><CopyButton text={text} /></div></div>
+      <div className="relative"><pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-xl border border-zinc-200 bg-zinc-50 p-3 font-sans text-xs leading-relaxed">{text}</pre><div className="absolute right-2 top-2"><CopyButton text={text} /></div></div>
       {m.missing.length > 0 && <p className="text-[0.7rem] text-amber-700">À compléter : {m.missing.map((x) => x.replace(/^\[À COMPLÉTER : |\]$/g, "")).join(" · ")}</p>}
     </div>
   );

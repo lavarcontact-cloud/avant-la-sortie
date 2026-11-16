@@ -11,7 +11,7 @@ export function BrandForm({ sectors, stages, brand }: { sectors: Opt[]; stages: 
     <ActionForm action={brand ? updateBrand : createBrand} submitLabel={brand ? "Enregistrer la fiche" : "Créer la marque"} className="space-y-6">
       {brand && <input type="hidden" name="id" value={brand.id} />}
       <fieldset className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Identité</legend>
+        <legend className="eyebrow mb-2 ">Identité</legend>
         <label className="field"><span>Nom de la marque *</span><input name="name" required defaultValue={v("name")} className="input" placeholder="ex. Sony France" /></label>
         <label className="field"><span>Secteur</span>
           <select name="sector_id" defaultValue={v("sector_id")} className="input"><option value="">—</option>{sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
@@ -26,7 +26,7 @@ export function BrandForm({ sectors, stages, brand }: { sectors: Opt[]; stages: 
       </fieldset>
 
       <fieldset className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Canaux officiels</legend>
+        <legend className="eyebrow mb-2 ">Canaux officiels</legend>
         <label className="field"><span>Instagram</span><input name="instagram" defaultValue={v("instagram")} className="input" placeholder="@compte" /></label>
         <label className="field"><span>LinkedIn (page entreprise)</span><input name="linkedin" defaultValue={v("linkedin")} className="input" /></label>
         <label className="field"><span>TikTok</span><input name="tiktok" defaultValue={v("tiktok")} className="input" /></label>
@@ -38,7 +38,7 @@ export function BrandForm({ sectors, stages, brand }: { sectors: Opt[]; stages: 
       </fieldset>
 
       <fieldset className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Qualification</legend>
+        <legend className="eyebrow mb-2 ">Qualification</legend>
         <label className="field"><span>Score de pertinence /100</span><input name="score" type="number" min={0} max={100} defaultValue={v("score")} className="input" /></label>
         <label className="field sm:col-span-2"><span>Justification du score (pas une probabilité de signature)</span><input name="score_notes" defaultValue={v("score_notes")} className="input" placeholder="Programme créateurs actif, besoin contenu vidéo, produit cohérent avec mon matériel…" /></label>
         <div className="field sm:col-span-2 lg:col-span-3"><span>Opportunités de collaboration possibles</span>

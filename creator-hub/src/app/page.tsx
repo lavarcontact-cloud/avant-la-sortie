@@ -2,6 +2,9 @@ import Link from "next/link";
 import { getSetting, DEFAULT_PROFILE, type ProfileSettings } from "@/lib/settings";
 import { getSectors } from "@/lib/data";
 import { ContactForm } from "./contact-form";
+import { SocialLinks, socialList } from "@/components/social-links";
+import { RevealOnScroll } from "@/components/reveal";
+import { Icon } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -17,20 +20,25 @@ const OFFERS = [
 export default async function Home() {
   const [p, sectors] = await Promise.all([getSetting<ProfileSettings>("profile", DEFAULT_PROFILE), getSectors()]);
   const name = p.display_name || "Sébastien Fula-Pitu";
-  const socials = [["Instagram", p.instagram], ["TikTok", p.tiktok], ["YouTube", p.youtube], ["LinkedIn", p.linkedin]].filter(([, v]) => v);
+  const socials = socialList(p);
+  const insta = socials.find((x) => x.key === "instagram");
   const universes = sectors.filter((s) => !s.archived).map((s) => s.name);
   return (
     <main className="grain min-h-dvh overflow-x-hidden bg-ink text-paper">
-      <header className="fixed inset-x-0 top-0 z-50 mix-blend-difference">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
-          <span className="font-mono text-xs uppercase tracking-[0.2em]">{name}</span>
-          <nav className="flex items-center gap-5 font-mono text-[0.7rem] uppercase tracking-[0.18em]">
-            <a href="#offres" className="hidden sm:inline">Offres</a><Link href="/media-kit">Media Kit</Link><a href="#contact" className="text-accent">Collaborer</a>
+      <RevealOnScroll />
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-ink/70 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+          <a href="#" className="truncate font-mono text-[0.7rem] uppercase tracking-[0.2em] text-paper/90 sm:text-xs">{name}</a>
+          <nav className="flex shrink-0 items-center gap-1 font-mono text-[0.68rem] uppercase tracking-[0.16em] sm:gap-2">
+            <a href="#offres" className="hidden rounded-full px-3 py-2 text-paper/70 transition hover:text-paper sm:inline">Offres</a>
+            <Link href="/media-kit" className="rounded-full px-3 py-2 text-paper/70 transition hover:text-paper">Media Kit</Link>
+            {insta && <a href={insta.url} target="_blank" rel="noopener noreferrer me" aria-label="Instagram (nouvel onglet)" className="grid h-9 w-9 place-items-center rounded-full text-paper/80 transition hover:bg-white/10 hover:text-white"><Icon name="instagram" size={18} /></a>}
+            <a href="#contact" className="rounded-full bg-accent px-4 py-2 text-white transition hover:bg-accent-deep">Collaborer</a>
           </nav>
         </div>
       </header>
 
-      <section className="relative flex min-h-dvh flex-col justify-end px-5 pb-14 pt-32 sm:px-8">
+      <section className="relative flex min-h-[92svh] flex-col justify-end px-5 pb-14 pt-32 sm:min-h-dvh sm:px-8">
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_75%_30%,rgba(255,91,60,.22),transparent_70%),radial-gradient(40%_40%_at_10%_90%,rgba(246,243,236,.06),transparent_70%)]" />
         <div className="relative mx-auto w-full max-w-7xl">
           <p className="rise font-mono text-xs uppercase tracking-[0.25em] text-accent">{p.headline || "Créateur de contenu · Réalisateur · Photographe"}</p>
@@ -41,6 +49,7 @@ export default async function Home() {
             <p className="max-w-xl text-lg leading-relaxed text-paper/70">{p.bio || "UGC, production photo et vidéo, partenariats de marque et activations musicales — avec une exigence de cinéma et une transparence totale sur ce qui est sponsorisé."}</p>
             <a href="#contact" className="group inline-flex items-center gap-3 self-start rounded-full border border-paper/20 px-6 py-3.5 text-sm transition hover:border-accent hover:bg-accent">Travaillons ensemble <span className="transition group-hover:translate-x-1">→</span></a>
           </div>
+          {socials.length > 0 && <div className="rise mt-10" style={{ animationDelay: ".4s" }}><SocialLinks profile={p} /></div>}
         </div>
       </section>
 
@@ -53,13 +62,13 @@ export default async function Home() {
       )}
 
       <section id="offres" className="mx-auto max-w-7xl px-5 py-28 sm:px-8">
-        <div className="mb-14 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="reveal mb-14 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <h2 className="font-display text-5xl font-bold tracking-tight sm:text-7xl">Offres</h2>
           <p className="max-w-md text-paper/60">Chaque type de collaboration a ses propres conditions, livrables, droits d'usage et rémunération. Rien n'est mélangé.</p>
         </div>
         <div className="grid border-t border-paper/10 md:grid-cols-2 lg:grid-cols-3">
           {OFFERS.map((o) => (
-            <article key={o.n} className="group relative border-b border-paper/10 p-7 transition-colors hover:bg-paper/[0.03] md:border-r">
+            <article key={o.n} className="reveal group relative border-b border-paper/10 p-7 transition-colors hover:bg-paper/[0.03] md:border-r">
               <span className="font-mono text-xs text-accent">{o.n}</span>
               <h3 className="mt-6 font-display text-3xl font-semibold">{o.t}</h3>
               <p className="mt-3 leading-relaxed text-paper/60">{o.d}</p>
@@ -91,7 +100,7 @@ export default async function Home() {
       )}
 
       <section className="bg-paper text-ink">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-24 sm:px-8 lg:grid-cols-2">
+        <div className="reveal mx-auto grid max-w-7xl gap-12 px-5 py-24 sm:px-8 lg:grid-cols-2">
           <h2 className="font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-6xl">Une façon de travailler claire.</h2>
           <ul className="space-y-5 text-lg">
             {["Contenus sponsorisés et produits reçus toujours signalés.", "Aucun chiffre gonflé, aucune promesse de viralité.", "Retours honnêtes sur les produits testés.", "Droits d'usage et livrables écrits avant de commencer.", "Pas de jeux d'argent, trading, crypto spéculative ni MLM."].map((x) => (
@@ -101,19 +110,20 @@ export default async function Home() {
       </section>
 
       <section id="contact" className="mx-auto max-w-7xl px-5 py-28 sm:px-8">
-        <div className="grid gap-14 lg:grid-cols-[1fr_1.4fr]">
+        <div className="reveal grid gap-14 lg:grid-cols-[1fr_1.4fr]">
           <div>
             <h2 className="font-display text-5xl font-bold tracking-tight sm:text-7xl">Un projet&nbsp;?</h2>
             <p className="mt-5 max-w-sm text-paper/60">Décrivez votre besoin : je réponds personnellement avec une proposition adaptée.</p>
             {p.email && <a href={`mailto:${p.email}`} className="mt-8 block font-mono text-sm text-accent">{p.email}</a>}
-            {socials.length > 0 && <div className="mt-6 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-wider text-paper/50">{socials.map(([l, v]) => <a key={l} href={v} target="_blank" rel="noreferrer" className="hover:text-paper">{l} ↗</a>)}</div>}
+            {socials.length > 0 && <div className="mt-8"><SocialLinks profile={p} size="lg" /></div>}
           </div>
           <ContactForm />
         </div>
       </section>
 
       <footer className="border-t border-paper/10 px-5 py-8 font-mono text-[0.68rem] uppercase tracking-wider text-paper/35 sm:px-8">
-        <div className="mx-auto flex max-w-7xl justify-between"><span>© {new Date().getFullYear()} {name}</span><Link href="/media-kit">Media Kit</Link></div>
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4"><span>© {new Date().getFullYear()} {name}</span>
+          <span className="flex items-center gap-4">{socials.map((x) => <a key={x.key} href={x.url} target="_blank" rel="noopener noreferrer me" aria-label={x.label} className="transition hover:text-paper"><Icon name={x.key} size={16} /></a>)}<Link href="/media-kit" className="hover:text-paper">Media Kit</Link></span></div>
       </footer>
     </main>
   );

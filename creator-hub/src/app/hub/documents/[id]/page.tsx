@@ -46,13 +46,13 @@ ${sender}`;
       )}
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
+        <div className="min-w-0 space-y-4 lg:col-span-2">
           <Card title="Aperçu">
             <iframe src={`/api/hub/documents/${id}/pdf?inline=1`} className="h-[720px] w-full rounded-lg border border-zinc-200" title="Aperçu PDF" />
           </Card>
           {!d.number && <Card title="Modifier le brouillon"><DocumentEditor doc={d} brands={brands} deals={deals} defaultVat={legal.default_vat_rate} vatExempt={legal.vat_exempt} /></Card>}
         </div>
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card title="Actions">
             {!d.number ? (
               <ActionForm action={issueDocument} submitLabel={`Émettre (attribuer le numéro)`} submitClass="btn btn-accent w-full">

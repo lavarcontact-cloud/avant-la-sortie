@@ -85,7 +85,7 @@ export default async function BrandPage({ params }: { params: Promise<{ id: stri
       )}
 
       <div className="grid gap-4 xl:grid-cols-5">
-        <div className="space-y-4 xl:col-span-3">
+        <div className="min-w-0 space-y-4 xl:col-span-3">
           {!blocked && <Card title="Préparer la prospection"><MessageStudio brand={{ name: brand.name, description: brand.description, opportunities: brand.opportunities, website: brand.website }} contacts={contacts} profile={profile} sector={brand.sector} /></Card>}
           <Card title="Enregistrer">
             <div className="flex flex-wrap gap-2">
@@ -112,7 +112,7 @@ export default async function BrandPage({ params }: { params: Promise<{ id: stri
           </Card>
         </div>
 
-        <div className="space-y-4 xl:col-span-2">
+        <div className="min-w-0 space-y-4 xl:col-span-2">
           <Card title={`Interlocuteurs (${contacts.length})`}>
             <ul className="mb-3 divide-y divide-zinc-100">
               {contacts.map((c: any) => (

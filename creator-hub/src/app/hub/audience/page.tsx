@@ -169,8 +169,8 @@ export default async function Audience({ searchParams }: { searchParams: Promise
       </Card>}
 
       {/* Potentiel actuel */}
-      <h3 className="mb-2 mt-6 text-xs font-semibold uppercase tracking-wider text-zinc-400">Potentiel commercial mensuel aujourd'hui</h3>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <h3 className="eyebrow mb-2 mt-6 ">Potentiel commercial mensuel aujourd'hui</h3>
+      <div className="stagger grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Potentiel théorique" value={eur0(potential.theoretical)} hint="capacité entièrement vendue" tone="muted" />
         <Kpi label="CA accessible (réaliste)" value={eur0(potential.accessible.central)} hint={`${eur0(potential.accessible.prudent)} – ${eur0(potential.accessible.ambitious)}`} tone="accent" />
         <Kpi label="CA réalisé (30 j encaissés)" value={eur0(potential.realized)} tone="green" />

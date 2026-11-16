@@ -117,7 +117,7 @@ export default async function Settings() {
       <Card title="Données & RGPD">
         <div className="flex flex-wrap gap-2"><a href="/api/hub/export" className="btn btn-primary">↓ Exporter toutes les données (JSON)</a><Link href="/hub/contacts" className="btn btn-ghost">Gérer / supprimer des contacts</Link></div>
         <p className="mt-2 text-xs text-zinc-500">Chaque contact conserve sa source. Suppression individuelle depuis la fiche marque (droit à l'effacement), opposition via « Opposition ».</p>
-        <div className="mt-4 text-xs font-semibold uppercase tracking-wider text-zinc-400">Journal des actions</div>
+        <div className="eyebrow mt-4 ">Journal des actions</div>
         <ul className="mt-2 max-h-64 overflow-auto text-xs text-zinc-600">{logs.map((l) => <li key={l.id} className="flex gap-3 border-b border-zinc-50 py-1"><span className="w-28 shrink-0 text-zinc-400">{fmtDateTime(l.created_at)}</span><span className="font-mono">{l.action}</span><span className="text-zinc-400">{l.entity ? `${l.entity} #${l.entity_id}` : ""}</span></li>)}</ul>
       </Card>
     </div>

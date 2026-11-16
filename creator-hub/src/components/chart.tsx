@@ -4,8 +4,8 @@ export interface Series { label: string; color: string; values: number[]; dashed
 export function ScenarioChart({ labels, series, unit = "€", height = 200, empty }: { labels: string[]; series: Series[]; unit?: string; height?: number; empty?: string }) {
   const all = series.flatMap((s) => s.values);
   const max = Math.max(0, ...all);
-  if (!all.length || max === 0) return <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-zinc-200 text-center text-xs text-zinc-500">{empty ?? "Pas encore de données à projeter"}</div>;
-  const W = 560, H = height, L = 52, R = 10, T = 10, B = 26;
+  if (!all.length || max === 0) return <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-zinc-300 px-6 text-center text-xs leading-relaxed text-zinc-500">{empty ?? "Pas encore de données à projeter"}</div>;
+  const W = 560, H = height, L = 64, R = 12, T = 12, B = 30;
   const x = (i: number) => L + (i * (W - L - R)) / Math.max(1, labels.length - 1);
   const y = (v: number) => T + (1 - v / (max * 1.1)) * (H - T - B);
   const fmt = (v: number) => (unit === "€" ? new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(v) + " €" : new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1, notation: v >= 10000 ? "compact" : "standard" }).format(v));
@@ -14,13 +14,15 @@ export function ScenarioChart({ labels, series, unit = "€", height = 200, empt
   return (
     <div>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={series.map((s) => s.label).join(", ")}>
-        {ticks.map((tv, i) => <g key={i}><line x1={L} x2={W - R} y1={y(tv)} y2={y(tv)} stroke="#f1f1f3" /><text x={L - 6} y={y(tv) + 3} textAnchor="end" fontSize="9" fill="#a1a1aa">{fmt(tv)}</text></g>)}
-        {labels.map((l, i) => <text key={l} x={x(i)} y={H - 8} textAnchor="middle" fontSize="9" fill="#71717a">{l}</text>)}
-        {band && <path d={band} fill="#ff5b3c" opacity="0.08" />}
+        {ticks.map((tv, i) => <g key={i}><line x1={L} x2={W - R} y1={y(tv)} y2={y(tv)} stroke="#ebe6dc" strokeDasharray={i === 0 ? undefined : "2 4"} /><text x={L - 6} y={y(tv) + 3} textAnchor="end" fontSize="12" fill="#a59c8d" fontFamily="var(--font-mono)">{fmt(tv)}</text></g>)}
+        {labels.map((l, i) => <text key={l} x={x(i)} y={H - 8} textAnchor="middle" fontSize="12" fill="#7a7266" fontFamily="var(--font-mono)">{l}</text>)}
+        {band && <path className="chart-fade" d={band} fill="#ff5b3c" fillOpacity={0.1} stroke="none" />}
         {series.map((s) => (
           <g key={s.label}>
-            <polyline fill="none" stroke={s.color} strokeWidth={s.dashed ? 1.5 : 2.2} strokeDasharray={s.dashed ? "4 3" : undefined} points={s.values.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />
-            {s.values.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r={s.dashed ? 0 : 2.5} fill={s.color}><title>{`${s.label} · ${labels[i]} : ${fmt(v)}`}</title></circle>)}
+            {s.dashed
+              ? <polyline className="chart-fade" fill="none" stroke={s.color} strokeWidth={1.5} strokeDasharray="4 3" points={s.values.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />
+              : <polyline className="chart-line" pathLength={1} style={{ ["--len" as string]: 1 } as React.CSSProperties} fill="none" stroke={s.color} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" points={s.values.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />}
+            {s.values.map((v, i) => <circle key={i} className="chart-fade" cx={x(i)} cy={y(v)} r={s.dashed ? 0 : 3} fill="#fffdf9" stroke={s.color} strokeWidth={2}><title>{`${s.label} · ${labels[i]} : ${fmt(v)}`}</title></circle>)}
           </g>
         ))}
       </svg>
@@ -29,4 +31,4 @@ export function ScenarioChart({ labels, series, unit = "€", height = 200, empt
   );
 }
 
-export const SCENARIO_COLORS = { prudent: "#a1a1aa", central: "#ff5b3c", ambitious: "#18181b" } as const;
+export const SCENARIO_COLORS = { prudent: "#a59c8d", central: "#ff5b3c", ambitious: "#171513" } as const;

@@ -56,11 +56,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         title="Dashboard"
         subtitle={<>Période du {fmtDate(fromYmd)} au {fmtDate(toYmd)} · comparée à la période précédente de même durée</>}
         actions={
-          <form className="flex flex-wrap items-center gap-1.5">
-            <div className="flex rounded-lg border border-zinc-200 bg-white p-0.5">
+          <form className="flex w-full min-w-0 flex-wrap items-center gap-1.5 lg:w-auto">
+            <div className="flex max-w-full overflow-x-auto rounded-full border border-zinc-200 bg-[#fffdf9] p-1">
               {PERIODS.map((x) => (
                 <Link key={x.k} href={x.k === "custom" ? `/hub?p=custom&from=${fromYmd}&to=${toYmd}` : `/hub?p=${x.k}`}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium ${p === x.k ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100"}`}>{x.l}</Link>
+                  className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors duration-200 ${p === x.k ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100"}`}>{x.l}</Link>
               ))}
             </div>
             {p === "custom" && (<>
@@ -146,8 +146,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </div>
 
       {/* KPIs prospection */}
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Prospection</h3>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <h3 className="eyebrow mb-2 ">Prospection</h3>
+      <div className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Kpi label="Marques identifiées" value={k.brands} delta={d("brands")} hint={`${ds.brands.length} au total`} href="/hub/brands" />
         <Kpi label="Marques qualifiées" value={k.qualified} delta={d("qualified")} />
         <Kpi label="Contacts pros" value={k.contacts} hint="au total" href="/hub/contacts" />
@@ -162,8 +162,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <Kpi label="Dépenses" value={eur0(k.expenses)} tone="muted" />
       </div>
 
-      <h3 className="mb-2 mt-6 text-xs font-semibold uppercase tracking-wider text-zinc-400">Argent</h3>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <h3 className="eyebrow mb-2 mt-6 ">Argent</h3>
+      <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="CA signé" value={eur0(k.signed)} delta={Math.round(d("signed"))} href="/hub/finance" />
         <Kpi label="Facturé (TTC)" value={eur0(k.invoiced)} delta={Math.round(d("invoiced"))} href="/hub/documents" />
         <Kpi label="Encaissé" value={eur0(k.collected)} delta={Math.round(d("collected"))} tone="green" />
@@ -210,7 +210,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <Card title="Meilleurs moments pour démarcher" className="xl:col-span-2">
           {ds.outreach.length === 0 ? <Empty title="Pas encore de données">La heatmap compare les réponses au nombre d'envois de chaque créneau (taux, pas volume brut).</Empty> : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] border-separate border-spacing-1">
+              <table className="no-rt w-full min-w-[560px] border-separate border-spacing-1">
                 <thead><tr><th />{TIME_SLOTS.map((s) => <th key={s.key} className="text-[0.68rem] font-medium text-zinc-500">{s.label}</th>)}<th className="text-[0.68rem] font-medium text-zinc-500">Total</th></tr></thead>
                 <tbody>
                   {timing.grid.map((row, i) => (

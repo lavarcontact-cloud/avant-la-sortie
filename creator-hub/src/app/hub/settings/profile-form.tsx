@@ -20,12 +20,12 @@ export function ProfileForm({ p }: { p: ProfileSettings }) {
         {f("pitch", "Pitch une phrase (utilisé dans les messages)", "Je réalise des contenus vidéo et photo pour des marques et des artistes.", true)}
         {f("bio", "Présentation (site public)", "", true)}
         {f("city", "Ville")}{f("email", "Email professionnel public")}
-        {f("instagram", "Instagram (URL)")}{f("tiktok", "TikTok (URL)")}{f("youtube", "YouTube (URL)")}{f("linkedin", "LinkedIn (URL)")}
+        {f("instagram", "Instagram (URL du profil)", "https://www.instagram.com/…")}{f("tiktok", "TikTok (URL)", "https://www.tiktok.com/@…")}{f("snapchat", "Snapchat (URL)", "https://www.snapchat.com/add/…")}{f("youtube", "YouTube (URL)")}{f("linkedin", "LinkedIn (URL)")}
         {f("portfolio_url", "Lien portfolio")}{f("media_kit_url", "Lien Media Kit (PDF ou page /media-kit)")}
         {f("signature", "Signature des messages", "Sébastien Fula-Pitu\nCréateur de contenu · 06…", true)}
       </div>
       <div>
-        <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-zinc-400">Statistiques vérifiées (Media Kit)</div>
+        <div className="eyebrow mb-1 ">Statistiques vérifiées (Media Kit)</div>
         <p className="mb-2 text-xs text-zinc-500">Uniquement des chiffres issus de vos outils (Instagram Insights, YouTube Studio…), avec source et date.</p>
         {stats.map((s, i) => (
           <div key={i} className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -38,7 +38,7 @@ export function ProfileForm({ p }: { p: ProfileSettings }) {
         <button type="button" className="btn btn-ghost" onClick={() => setStats([...stats, { label: "", value: "", source: "", date: "" }])}>+ Statistique</button>
       </div>
       <div>
-        <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-zinc-400">Références réellement réalisées</div>
+        <div className="eyebrow mb-1 ">Références réellement réalisées</div>
         {refs.map((r, i) => (
           <div key={i} className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
             <input className="input" placeholder="Projet / client" value={r.name} onChange={(e) => setRefs(refs.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />

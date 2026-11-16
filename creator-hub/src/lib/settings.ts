@@ -7,7 +7,7 @@ export interface LegalSettings {
 }
 export interface ProfileSettings {
   display_name: string; headline: string; pitch: string; bio: string; city: string; email: string;
-  instagram: string; tiktok: string; youtube: string; linkedin: string; portfolio_url: string; media_kit_url: string; signature: string;
+  instagram: string; tiktok: string; snapchat: string; youtube: string; linkedin: string; portfolio_url: string; media_kit_url: string; signature: string;
   stats: { label: string; value: string; source: string; date: string }[];
   references: { name: string; detail: string; year: string; url: string }[];
 }
@@ -19,7 +19,7 @@ export const DEFAULT_LEGAL: LegalSettings = {
   late_penalty: "", currency: "EUR", default_vat_rate: 0, ape: "",
 };
 export const DEFAULT_PROFILE: ProfileSettings = {
-  display_name: "Sébastien Fula-Pitu", headline: "", pitch: "", bio: "", city: "", email: "", instagram: "", tiktok: "",
+  display_name: "Sébastien Fula-Pitu", headline: "", pitch: "", bio: "", city: "", email: "", instagram: "", tiktok: "", snapchat: "",
   youtube: "", linkedin: "", portfolio_url: "", media_kit_url: "", signature: "", stats: [], references: [],
 };
 export const DEFAULT_NOTIF: NotifSettings = { morning: "09:00", midday: "13:00", evening: "19:00", enabled: true, max_follow_ups: 2, follow_up_days: 7 };

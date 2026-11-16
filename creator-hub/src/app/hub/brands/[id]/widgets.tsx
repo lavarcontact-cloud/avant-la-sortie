@@ -33,7 +33,7 @@ export function MessageStudio({ brand, contacts, profile, sector }: { brand: any
       <div className="flex flex-wrap gap-1">{(Object.keys(labels) as (keyof typeof labels)[]).map((k) => (
         <button key={k} type="button" onClick={() => setTab(k)} className={`rounded-md px-2.5 py-1 text-xs font-medium ${tab === k ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}>{labels[k]}</button>))}</div>
       <div className="relative">
-        <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-lg border border-zinc-200 bg-zinc-50 p-3 font-sans text-[0.82rem] leading-relaxed text-zinc-800">{text}</pre>
+        <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-xl border border-zinc-200 bg-zinc-50 p-3 font-sans text-[0.82rem] leading-relaxed text-zinc-800">{text}</pre>
         <div className="absolute right-2 top-2"><CopyButton text={text} /></div>
       </div>
       {m.missing.length > 0 && <p className="rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800">À compléter avant envoi : {m.missing.map((x) => x.replace("[À COMPLÉTER : ", "").replace("]", "")).join(" · ")}</p>}
@@ -70,7 +70,7 @@ export function ResponseForm({ brandId, contacts, outreach }: { brandId: number;
       <label className="field"><span>De</span><select name="contact_id" className="input"><option value="">— (auto : interlocuteur de la démarche)</option>{contacts.map((c) => <option key={c.id} value={c.id}>{cname(c)}</option>)}</select></label>
       <label className="field"><span>En réponse à</span><select name="outreach_id" className="input"><option value="">Auto : dernière démarche</option>{outreach.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select></label>
       <label className="field sm:col-span-2"><span>Contenu de la réponse (collez le message)</span><textarea name="content" rows={4} className="input" value={content} onChange={(e) => setContent(e.target.value)} /></label>
-      <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs sm:col-span-2">
+      <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs sm:col-span-2">
         <div className="flex flex-wrap items-center gap-2"><span className="font-medium text-zinc-700">Détection par règles :</span>
           <span className="font-semibold">{CLASSIFICATIONS[auto.classification].label}</span>
           <span className="text-zinc-500">confiance {Math.round(auto.confidence * 100)} %</span>

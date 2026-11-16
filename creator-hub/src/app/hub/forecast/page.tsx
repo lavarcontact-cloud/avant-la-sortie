@@ -29,8 +29,8 @@ export default async function Forecast() {
 
       {bf.confidence === "faible" && <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><b>Prévision provisoire.</b> {bf.outcomes} issue(s) connue(s) seulement : les probabilités reposent surtout sur les hypothèses affichées plus bas (modifiables dans <Link href="/hub/settings#forecast" className="underline">Paramètres</Link>). Elles se corrigent automatiquement à mesure que vos démarches aboutissent ou échouent.</div>}
 
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Aujourd'hui</h3>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+      <h3 className="eyebrow mb-2 ">Aujourd'hui</h3>
+      <div className="stagger grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
         <Kpi label="Contrats potentiels" value={bf.totals.potentialCount} hint="opportunités ouvertes" />
         <Kpi label="Contrats probables" value={numFr(bf.totals.probable.central)} hint={`${numFr(bf.totals.probable.prudent)} – ${numFr(bf.totals.probable.ambitious)}`} />
         <Kpi label="Signés ce mois" value={bf.totals.signedCount} tone="green" />
@@ -77,7 +77,7 @@ export default async function Forecast() {
         <Card title="Hypothèses utilisées" className="xl:col-span-2">
           <ul className="divide-y divide-zinc-100 text-sm">{bf.assumptions.map((a) => (
             <li key={a.label} className="flex flex-wrap items-baseline justify-between gap-2 py-2"><span>{a.label}<div className="text-xs text-zinc-500">{a.detail}</div></span><span className="flex items-center gap-2 text-right font-medium">{a.value}<Badge tone={SRC_TONE[a.source]}>{a.source}</Badge></span></li>))}</ul>
-          <div className="mt-4 text-xs font-semibold uppercase tracking-wider text-zinc-400">Probabilité de signature par étape</div>
+          <div className="eyebrow mt-4 ">Probabilité de signature par étape</div>
           <div className="mt-2 overflow-x-auto"><table className="w-full min-w-[600px]">
             <thead><tr><th className="th">Étape</th><th className="th text-right">Marques passées</th><th className="th text-right">Issues connues</th><th className="th text-right">Gagnées</th><th className="th text-right">Hypothèse</th><th className="th text-right">Probabilité (intervalle)</th><th className="th">Source</th></tr></thead>
             <tbody>{bf.stageProbs.map((p) => <tr key={p.key}><td className="td">{p.label}</td><td className="td text-right tabular">{p.reached}</td><td className="td text-right tabular">{p.closed}</td><td className="td text-right tabular">{p.won}</td><td className="td text-right tabular text-zinc-500">{pct(p.prior)}</td><td className="td text-right tabular"><b>{pct(p.p)}</b> <span className="text-xs text-zinc-500">({pct(p.low)} – {pct(p.high)})</span></td><td className="td"><Badge tone={SRC_TONE[p.source]}>{p.source}</Badge></td></tr>)}</tbody></table></div>

@@ -27,7 +27,7 @@ export default async function Finance() {
     <div className="mx-auto max-w-7xl">
       <PageHeader title="Porte-monnaie" subtitle="Signé, facturé, encaissé et gifting sont quatre informations distinctes. Le gifting n'est jamais compté en chiffre d'affaires."
         actions={<Link href="/hub/documents/new?kind=invoice" className="btn btn-primary">+ Facture</Link>} />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Revenus signés (HT)" value={eur0(f.signed)} />
         <Kpi label="Revenus facturés (TTC)" value={eur0(f.invoiced)} />
         <Kpi label="Revenus encaissés" value={eur0(f.collected)} tone="green" />

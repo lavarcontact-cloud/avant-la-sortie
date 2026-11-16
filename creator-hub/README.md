@@ -24,13 +24,20 @@ npm run build && npm start        # ou : npm run dev
 Ouvrez http://localhost:3000/hub et connectez-vous avec `ADMIN_PASSWORD`.
 Sans `DATABASE_URL`, les données sont stockées dans `creator-hub/.data/pglite` (ignoré par git). Sauvegarde : Paramètres → Exporter toutes les données.
 
+## Production actuelle
+
+- Site : https://creator-hub-eight-ebon.vercel.app (espace privé : `/hub`)
+- Vercel : projet `creator-hub`, Root Directory `creator-hub`, déployé depuis la branche `claude/creator-business-pr-hub-4teili`
+- Supabase : projet `creator-hub` (eu-west-3), migrations 001 à 004 appliquées, RLS activée sur toutes les tables (aucun accès via l'API publique — vérifié)
+- Variables à définir dans Vercel (Settings → Environment Variables, environnement Production) : `DATABASE_URL` (Supabase → Connect → Transaction pooler), `ADMIN_PASSWORD`. Facultatif : `CRON_SECRET`, `FIRECRAWL_API_KEY`, clés VAPID.
+
 ## Mise en production (Vercel + Supabase)
 
 1. **Supabase** : créez un projet, copiez la chaîne de connexion *Transaction pooler* (port 6543).
    Les tables sont créées automatiquement au premier accès (migrations versionnées dans `migrations/`, suivies par `schema_migrations`).
    Vous pouvez aussi les appliquer à la main via le SQL Editor (`migrations/001_init.sql`).
 2. **Vercel** : importez le dépôt, **Root Directory = `creator-hub`**, puis définissez les variables d'environnement :
-   `ADMIN_PASSWORD`, `SESSION_SECRET`, `DATABASE_URL`, `CRON_SECRET` (+ VAPID si push).
+   `ADMIN_PASSWORD`, `DATABASE_URL` (+ `CRON_SECRET`, VAPID si push). `SESSION_SECRET` est facultatif : sans lui, la clé de session est dérivée de `ADMIN_PASSWORD` et `DATABASE_URL`.
    Sur Vercel, l'application refuse de démarrer sans `DATABASE_URL` (le disque y est éphémère).
 3. **Bilans planifiés** : appelez `GET /api/cron/reports` toutes les heures avec `Authorization: Bearer $CRON_SECRET`.
    Un workflow GitHub Actions prêt à l'emploi est fourni (`.github/workflows/creator-hub-reports.yml`) : ajoutez les secrets `HUB_URL` et `CRON_SECRET` au dépôt.

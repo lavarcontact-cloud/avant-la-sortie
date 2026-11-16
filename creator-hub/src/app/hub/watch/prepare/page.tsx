@@ -54,16 +54,16 @@ export default async function Prepare({ searchParams }: { searchParams: Promise<
             <Card key={c.id} title={<span className="flex flex-wrap items-center gap-2"><span className="text-zinc-400">{idx + 1}.</span>{c.name}<Badge tone="dark">Score {c.score ?? "—"}/100</Badge>{c.status !== "new" && <Badge tone="amber">{c.status === "known" ? "Déjà au CRM" : c.status}</Badge>}</span>}>
               <div className="grid gap-5 lg:grid-cols-2">
                 <div className="space-y-3 text-sm">
-                  <div><div className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Présentation (extrait de la source)</div>
+                  <div><div className="eyebrow ">Présentation (extrait de la source)</div>
                     <p className="mt-1 text-zinc-700">{c.snippet ? `« ${c.snippet} »` : "Aucun extrait fourni par la source."}</p>
                     <p className="text-xs text-zinc-500"><a href={c.url} target="_blank" rel="noreferrer" className="underline">{c.url}</a> · vu le {fmtDate(c.first_seen_at)} · {c.sector ?? "secteur non déterminé"}</p></div>
-                  <div><div className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Pourquoi la contacter</div>
+                  <div><div className="eyebrow ">Pourquoi la contacter</div>
                     {signals.length ? <ul className="mt-1 list-inside list-disc text-zinc-700">{signals.map((s) => <li key={s}>{SIGNALS[s]?.label}</li>)}</ul> : <p className="mt-1 text-zinc-500">Aucun signal commercial détecté dans la source : vérifiez la pertinence avant d'aller plus loin.</p>}</div>
-                  <div><div className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Interlocuteur à privilégier</div>
+                  <div><div className="eyebrow ">Interlocuteur à privilégier</div>
                     {best ? <p className="mt-1"><b>{best.person_name ?? "Nom non publié"}</b> — {best.person_role ?? "fonction non publiée"} <Badge tone={best.contact_quality === "excellent" ? "green" : "blue"}>{best.contact_quality}</Badge><br /><a className="text-xs underline" href={best.url} target="_blank" rel="noreferrer">{best.platform} ↗</a> <span className="text-xs text-amber-700">poste actuel à confirmer sur le profil</span></p>
                       : <p className="mt-1 text-zinc-500">Interlocuteur introuvable dans les résultats publics. Recherchez-le vous-même :</p>}
                     <ul className="mt-1 space-y-0.5 text-xs">{manualSearchLinks(c.name).map((l) => <li key={l.url}><a href={l.url} target="_blank" rel="noreferrer" className="underline">{l.label} ↗</a></li>)}</ul></div>
-                  <div><div className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Proposition commerciale</div>
+                  <div><div className="eyebrow ">Proposition commerciale</div>
                     <ul className="mt-1 space-y-0.5 text-zinc-700">{collabs.slice(0, 3).map((k) => <li key={k}>• {PROPOSAL[k]}</li>)}</ul></div>
                   <div className="rounded-lg border border-zinc-200 p-3">
                     <ActionForm action={acceptCandidate} submitLabel={c.status === "known" ? "Relier à la fiche CRM existante" : "Valider : créer la fiche CRM"} submitClass="btn btn-primary">
@@ -74,7 +74,7 @@ export default async function Prepare({ searchParams }: { searchParams: Promise<
                     </ActionForm>
                   </div>
                 </div>
-                <div><div className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Messages préparés</div>
+                <div><div className="eyebrow mb-2 ">Messages préparés</div>
                   <CandidateStudio brand={{ name: c.name, sector: c.sector }} defaultAngle={defaultAngle} collabs={collabs} profile={profile}
                     contacts={people.filter((p: any) => p.person_name).map((p: any) => ({ id: p.id, first_name: p.person_name.split(" ")[0], label: `${p.person_name} — ${p.person_role ?? ""}` }))} />
                   <p className="mt-2 text-[0.7rem] text-zinc-400">L'angle est pré-rempli à partir des signaux trouvés dans la source. Reformulez-le avec ce que vous avez réellement vu.</p>

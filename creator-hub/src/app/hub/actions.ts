@@ -522,6 +522,15 @@ export async function saveProfile(_: ActionState, fd: FormData): Promise<ActionS
     v.references = z.array(z.object({ name: z.string().max(200), detail: z.string().max(500), year: z.string().max(10), url: z.string().max(500) }))
       .parse(JSON.parse(s(fd.get("references")) || "[]")).filter((x) => x.name);
   } catch { return { error: "Statistiques ou références invalides" }; }
+  // Liens sociaux : uniquement des URL https du bon réseau (lien cliquable fiable sur le site public).
+  const SOCIAL_HOSTS: Record<string, RegExp> = { instagram: /(^|\.)instagram\.com$/, tiktok: /(^|\.)tiktok\.com$/, snapchat: /(^|\.)snapchat\.com$/, youtube: /(^|\.)(youtube\.com|youtu\.be)$/, linkedin: /(^|\.)linkedin\.com$/ };
+  for (const [k, re] of Object.entries(SOCIAL_HOSTS)) {
+    const val = (v as any)[k] as string;
+    if (!val) continue;
+    let host = "";
+    try { const u = new URL(val); if (u.protocol !== "https:") throw 0; host = u.hostname.toLowerCase(); } catch { return { error: `Lien ${k} invalide : indiquez l'adresse complète du profil (https://…).` }; }
+    if (!re.test(host)) return { error: `Le lien ${k} doit pointer vers ${k}.com (reçu : ${host}).` };
+  }
   if (v.stats.some((x) => !x.source)) return { error: "Chaque statistique doit indiquer sa source (ex. Instagram Insights) — aucune donnée non vérifiée." };
   await setSetting("profile", v);
   await audit("settings.profile");

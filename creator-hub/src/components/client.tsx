@@ -11,7 +11,11 @@ export function ActionForm({ action, children, className = "", resetOnOk = false
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const ref = useRef<HTMLFormElement>(null);
-  useEffect(() => { if (state?.ok && resetOnOk) ref.current?.reset(); }, [state, resetOnOk]);
+  const [toast, setToast] = useState<ActionState>(undefined);
+  useEffect(() => {
+    if (state?.ok && resetOnOk) ref.current?.reset();
+    if (state?.ok) { setToast(state); const t = setTimeout(() => setToast(undefined), 4500); return () => clearTimeout(t); }
+  }, [state, resetOnOk]);
   // Soumission manuelle : évite la remise à zéro automatique de React 19,
   // pour que la saisie soit conservée en cas d'erreur de validation.
   return (
@@ -22,11 +26,16 @@ export function ActionForm({ action, children, className = "", resetOnOk = false
       startTransition(() => formAction(fd));
     }}>
       {children}
-      {(submitLabel || state) && (
+      {(submitLabel || state?.error) && (
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          {submitLabel && <button type="submit" className={submitClass} disabled={pending}>{pending ? "…" : submitLabel}</button>}
+          {submitLabel && <button type="submit" className={submitClass} disabled={pending} data-pending={pending}>{submitLabel}</button>}
           {state?.error && <p role="alert" className="text-sm text-red-600">{state.error}</p>}
-          {state?.ok && <p className="text-sm text-emerald-600">{state.ok}</p>}
+        </div>
+      )}
+      {toast && (
+        <div role="status" className="toast fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-[70] mx-auto flex max-w-md items-start gap-2.5 rounded-2xl bg-zinc-900 px-4 py-3 text-sm text-zinc-50 shadow-2xl lg:bottom-6 lg:left-auto lg:right-6 lg:mx-0">
+          <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-600 text-[0.7rem] font-bold">✓</span>
+          <span className="min-w-0 leading-snug">{toast.ok}</span>
         </div>
       )}
     </form>
@@ -35,7 +44,7 @@ export function ActionForm({ action, children, className = "", resetOnOk = false
 
 export function Submit({ children, className = "btn btn-primary" }: { children: React.ReactNode; className?: string }) {
   const { pending } = useFormStatus();
-  return <button type="submit" className={className} disabled={pending}>{pending ? "…" : children}</button>;
+  return <button type="submit" className={className} disabled={pending} data-pending={pending}>{children}</button>;
 }
 
 export function CopyButton({ text, label = "Copier" }: { text: string; label?: string }) {

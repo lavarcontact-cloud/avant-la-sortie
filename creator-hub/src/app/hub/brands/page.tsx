@@ -45,9 +45,12 @@ export default async function Brands({ searchParams }: { searchParams: Promise<S
         actions={<><Link href="/hub/pipeline" className="btn btn-ghost">Vue pipeline</Link><Link href="/hub/brands/new" className="btn btn-accent">+ Ajouter une marque</Link></>} />
       <Card className="mb-4">
         <form className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-          <input name="q" defaultValue={sp.q} placeholder="Recherche…" className="input lg:col-span-2" />
+          <input name="q" defaultValue={sp.q} placeholder="Recherche…" className="input sm:col-span-3 lg:col-span-2" />
           <select name="sector" defaultValue={sp.sector ?? ""} className="input"><option value="">Tous secteurs</option>{sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
           <select name="stage" defaultValue={sp.stage ?? ""} className="input"><option value="">Tous statuts</option>{stages.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</select>
+          <details className="group sm:col-span-3 lg:col-span-6" open={Boolean(sp.collab || sp.country || sp.city || sp.size || sp.type || sp.min || sp.sort)}>
+          <summary className="cursor-pointer list-none py-1 text-xs font-medium text-zinc-600 [&::-webkit-details-marker]:hidden"><span className="group-open:hidden">+ Plus de filtres</span><span className="hidden group-open:inline">− Moins de filtres</span></summary>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
           <select name="collab" defaultValue={sp.collab ?? ""} className="input"><option value="">Toute collaboration</option>{Object.entries(COLLAB_TYPES).map(([k, c]) => <option key={k} value={k}>{c.label}</option>)}</select>
           <select name="sort" defaultValue={sp.sort ?? ""} className="input"><option value="">Tri : pertinence</option><option value="recent">Plus récentes</option><option value="followup">Prochaine relance</option><option value="name">Nom</option></select>
           <input name="country" defaultValue={sp.country} placeholder="Pays" className="input" />
@@ -55,7 +58,8 @@ export default async function Brands({ searchParams }: { searchParams: Promise<S
           <select name="size" defaultValue={sp.size ?? ""} className="input"><option value="">Toute taille</option>{COMPANY_SIZES.map((s) => <option key={s}>{s}</option>)}</select>
           <select name="type" defaultValue={sp.type ?? ""} className="input"><option value="">Tout type</option>{BRAND_TYPES.map((s) => <option key={s}>{s}</option>)}</select>
           <input name="min" type="number" min={0} max={100} defaultValue={sp.min} placeholder="Score min." className="input" />
-          <div className="flex gap-2"><button className="btn btn-primary flex-1">Filtrer</button><Link href="/hub/brands" className="btn btn-ghost">×</Link></div>
+          </div></details>
+          <div className="flex gap-2 sm:col-span-3 lg:col-span-6 lg:justify-end"><button className="btn btn-primary flex-1 lg:flex-none">Filtrer</button><Link href="/hub/brands" className="btn btn-ghost" aria-label="Réinitialiser les filtres">Réinitialiser</Link></div>
         </form>
       </Card>
       {rows.length === 0 ? (

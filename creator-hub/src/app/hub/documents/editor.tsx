@@ -26,7 +26,7 @@ export function DocumentEditor({ doc, brands, deals, defaultVat, vatExempt }: {
         <label className="field"><span>Acompte versé (€)</span><input type="number" step="0.01" min={0} name="deposit" value={deposit} onChange={(e) => setDeposit(Number(e.target.value))} className="input" /></label>
       </div>
       <fieldset className="grid gap-3 sm:grid-cols-2">
-        <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Client (informations fournies par l'entreprise)</legend>
+        <legend className="eyebrow mb-2 ">Client (informations fournies par l'entreprise)</legend>
         <label className="field"><span>Raison sociale *</span><input name="client_name" required defaultValue={doc.client_name ?? ""} className="input" /></label>
         <label className="field"><span>Email facturation</span><input name="client_email" type="email" defaultValue={doc.client_email ?? ""} className="input" /></label>
         <label className="field sm:col-span-2"><span>Adresse</span><textarea name="client_address" rows={2} defaultValue={doc.client_address ?? ""} className="input" /></label>
@@ -34,7 +34,7 @@ export function DocumentEditor({ doc, brands, deals, defaultVat, vatExempt }: {
         <label className="field"><span>N° TVA client</span><input name="client_vat" defaultValue={doc.client_vat ?? ""} className="input" /></label>
       </fieldset>
       <div>
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">Lignes de prestation</div>
+        <div className="eyebrow mb-2 ">Lignes de prestation</div>
         <div className="space-y-2">
           {lines.map((l, i) => (
             <div key={i} className="grid grid-cols-12 gap-2 rounded-lg border border-zinc-100 p-2">
