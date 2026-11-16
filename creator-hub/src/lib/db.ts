@@ -50,6 +50,11 @@ async function createDb(): Promise<Db> {
 async function migrate(db: Db) {
   await db.query(`create table if not exists schema_migrations (name text primary key, applied_at timestamptz not null default now())`);
   const dir = path.join(process.cwd(), "migrations");
+  if (!fs.existsSync(dir)) {
+    // Dossier absent du bundle : la base doit déjà être migrée (ex. migrations appliquées via Supabase).
+    console.warn(`[db] dossier migrations introuvable (${dir}) : aucune migration appliquée au démarrage`);
+    return;
+  }
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
   const done = new Set((await db.query<{ name: string }>(`select name from schema_migrations`)).map((r) => r.name));
   for (const f of files) {

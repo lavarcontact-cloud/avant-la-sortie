@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@electric-sql/pglite", "postgres"],
   poweredByHeader: false,
+  // Les fichiers SQL des migrations doivent être embarqués dans les fonctions serveur (Vercel).
+  outputFileTracingIncludes: { "/**": ["./migrations/**/*.sql"] },
   async headers() {
     return [
       {
