@@ -29,7 +29,8 @@ Sans `DATABASE_URL`, les données sont stockées dans `creator-hub/.data/pglite`
 - Site : https://creator-hub-eight-ebon.vercel.app (espace privé : `/hub`)
 - Vercel : projet `creator-hub`, Root Directory `creator-hub`, déployé depuis la branche `claude/creator-business-pr-hub-4teili`
 - Supabase : projet `creator-hub` (eu-west-3), migrations 001 à 004 appliquées, RLS activée sur toutes les tables (aucun accès via l'API publique — vérifié)
-- Variables à définir dans Vercel (Settings → Environment Variables, environnement Production) : `DATABASE_URL` (Supabase → Connect → Transaction pooler), `ADMIN_PASSWORD`. Facultatif : `CRON_SECRET`, `FIRECRAWL_API_KEY`, clés VAPID.
+- `DATABASE_URL` est en place dans Vercel (type « sensitive ») : connexion par le transaction pooler (`aws-1-eu-west-3`) avec l'utilisateur dédié `creator_hub_app` (droits limités aux tables de l'application, contournement RLS côté serveur uniquement). Les migrations futures qui modifient une table existante doivent être appliquées avec l'utilisateur `postgres` (propriétaire des tables).
+- Reste à définir dans Vercel : `ADMIN_PASSWORD`. Facultatif : `CRON_SECRET`, `FIRECRAWL_API_KEY`, clés VAPID.
 
 ## Mise en production (Vercel + Supabase)
 
