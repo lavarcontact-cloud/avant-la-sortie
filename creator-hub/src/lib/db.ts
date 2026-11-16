@@ -21,7 +21,7 @@ async function createDb(): Promise<Db> {
   let db: Db;
   if (url) {
     const postgres = (await import("postgres")).default;
-    const sql = postgres(url, { max: 5, prepare: false, idle_timeout: 20 });
+    const sql = postgres(url, { max: Number(process.env.DB_POOL_MAX) || 5, prepare: false, idle_timeout: 20 });
     db = {
       driver: "postgres",
       query: async (q, p = []) => (await sql.unsafe(q, p as any[])) as any,

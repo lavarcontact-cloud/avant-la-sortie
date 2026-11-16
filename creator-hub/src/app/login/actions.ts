@@ -6,7 +6,7 @@ import { audit } from "@/lib/audit";
 
 const attempts = new Map<string, { n: number; until: number }>();
 
-export async function login(_: { error?: string } | undefined, fd: FormData) {
+export async function login(_: { error?: string; next?: string } | undefined, fd: FormData): Promise<{ error?: string; next?: string }> {
   if (!authConfigured()) return { error: "Accès non configuré : définissez ADMIN_PASSWORD (et DATABASE_URL ou SESSION_SECRET) dans les variables d'environnement." };
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   const a = attempts.get(ip);
@@ -23,7 +23,8 @@ export async function login(_: { error?: string } | undefined, fd: FormData) {
   });
   await audit("auth.login");
   const next = String(fd.get("next") || "/hub");
-  redirect(next.startsWith("/hub") ? next : "/hub");
+  // Pas de redirect() ici : le navigateur recharge /hub en pleine page (plus fiable, notamment sur Safari iOS).
+  return { next: /^\/hub(\/|$|\?)/.test(next) ? next : "/hub" };
 }
 
 export async function logout() {
