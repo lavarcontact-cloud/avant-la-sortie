@@ -107,3 +107,16 @@ test("session : clé dérivée sans SESSION_SECRET (ADMIN_PASSWORD + DATABASE_UR
   delete process.env.DATABASE_URL; assert.equal(authConfigured(), false);
   process.env = saved;
 });
+
+import { semaphore } from "../src/lib/db";
+test("semaphore : jamais plus de N tâches simultanées, toutes terminées", async () => {
+  const gate = semaphore(2);
+  let active = 0, peak = 0;
+  const res = await Promise.all(Array.from({ length: 9 }, (_, i) => gate(async () => {
+    active++; peak = Math.max(peak, active);
+    await new Promise((r) => setTimeout(r, 5 + (i % 3)));
+    active--; return i;
+  })));
+  assert.equal(peak, 2);
+  assert.deepEqual(res, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+});

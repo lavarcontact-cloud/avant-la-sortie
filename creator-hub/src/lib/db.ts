@@ -21,12 +21,17 @@ async function createDb(): Promise<Db> {
   let db: Db;
   if (url) {
     const postgres = (await import("postgres")).default;
-    const sql = postgres(url, { max: Number(process.env.DB_POOL_MAX) || 5, prepare: false, idle_timeout: 20, connect_timeout: 10 });
+    const max = Number(process.env.DB_POOL_MAX) || 5;
+    const sql = postgres(url, { max, prepare: false, idle_timeout: 20, connect_timeout: 10 });
+    // postgres.js « pipeline » plusieurs requêtes sur une même connexion quand le pool est saturé ;
+    // le pooler Supabase (mode transaction) ne le supporte pas et la requête reste bloquée.
+    // On limite donc le nombre de requêtes simultanées au nombre de connexions.
+    const gate = semaphore(max);
     db = {
       driver: "postgres",
-      query: (q, p = []) => timed(q, sql.unsafe(q, p as any[]) as unknown as Promise<any>),
-      tx: async (fn) =>
-        (await sql.begin(async (t) => fn(async (q, p = []) => (await t.unsafe(q, p as any[])) as any))) as any,
+      query: (q, p = []) => gate(() => timed(q, sql.unsafe(q, p as any[]) as unknown as Promise<any>)),
+      tx: (fn) => gate(async () =>
+        (await sql.begin(async (t) => fn(async (q, p = []) => (await t.unsafe(q, p as any[])) as any))) as any),
     };
   } else {
     if (process.env.VERCEL || process.env.NODE_ENV === "production" && process.env.REQUIRE_DATABASE_URL === "1") {
@@ -45,6 +50,18 @@ async function createDb(): Promise<Db> {
   }
   await migrate(db);
   return db;
+}
+
+/** Limite le nombre de tâches asynchrones simultanées. */
+export function semaphore(limit: number) {
+  let active = 0;
+  const waiting: (() => void)[] = [];
+  return async <T>(fn: () => Promise<T>): Promise<T> => {
+    if (active >= limit) await new Promise<void>((r) => waiting.push(r));
+    else active++;
+    try { return await fn(); }
+    finally { const next = waiting.shift(); if (next) next(); else active--; }
+  };
 }
 
 const QUERY_TIMEOUT_MS = Number(process.env.DB_QUERY_TIMEOUT_MS) || 20000;
