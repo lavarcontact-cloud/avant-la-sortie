@@ -1,3 +1,4 @@
+import { requireAuth } from "@/lib/auth";
 import Link from "next/link";
 import { computeAll, recommendations, sectorChanges } from "@/lib/forecast/service";
 import { SCENARIOS, SCENARIO_LABEL, monthLabel } from "@/lib/forecast/business";
@@ -14,6 +15,7 @@ const pct = (x: number | null | undefined) => (x == null ? "—" : `${Math.round
 const SRC_TONE = { données: "green", mixte: "blue", hypothèse: "amber" } as const;
 
 export default async function Forecast() {
+  await requireAuth();
   const all = await computeAll();
   const { bf, trend, accuracy, calibration } = all;
   const recs = recommendations(all);

@@ -1,3 +1,4 @@
+import { requireAuth } from "@/lib/auth";
 import { pctFr, numFr } from "@/lib/money";
 import Link from "next/link";
 import { q } from "@/lib/db";
@@ -17,6 +18,7 @@ const nf = (v: number | null | undefined) => (v == null ? "—" : new Intl.Numbe
 const SC_REAL = { prudent: "Prudent", central: "Réaliste", ambitious: "Ambitieux" } as const;
 
 export default async function Audience({ searchParams }: { searchParams: Promise<{ owner?: string }> }) {
+  await requireAuth();
   const owner = (await searchParams).owner && /^[a-z_]+$/.test((await searchParams).owner!) ? (await searchParams).owner! : "personal";
   const all = await computeAll({ owner });
   const owners = await q<{ owner: string }>(`select distinct owner from social_accounts`);

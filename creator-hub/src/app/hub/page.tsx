@@ -1,3 +1,4 @@
+import { requireAuth } from "@/lib/auth";
 import { pctFr, numFr } from "@/lib/money";
 import Link from "next/link";
 import { loadDataset } from "@/lib/data";
@@ -16,6 +17,7 @@ export const metadata = { title: "Dashboard" };
 const PERIODS = [{ k: "1", l: "Aujourd'hui" }, { k: "7", l: "7 jours" }, { k: "30", l: "30 jours" }, { k: "90", l: "90 jours" }, { k: "custom", l: "Personnalisée" }];
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ p?: string; from?: string; to?: string }> }) {
+  await requireAuth();
   const sp = await searchParams;
   const p = PERIODS.some((x) => x.k === sp.p) ? sp.p! : "30";
   const today = todayParis();

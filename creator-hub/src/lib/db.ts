@@ -21,10 +21,10 @@ async function createDb(): Promise<Db> {
   let db: Db;
   if (url) {
     const postgres = (await import("postgres")).default;
-    const sql = postgres(url, { max: Number(process.env.DB_POOL_MAX) || 5, prepare: false, idle_timeout: 20 });
+    const sql = postgres(url, { max: Number(process.env.DB_POOL_MAX) || 5, prepare: false, idle_timeout: 20, connect_timeout: 10 });
     db = {
       driver: "postgres",
-      query: async (q, p = []) => (await sql.unsafe(q, p as any[])) as any,
+      query: (q, p = []) => timed(q, sql.unsafe(q, p as any[]) as unknown as Promise<any>),
       tx: async (fn) =>
         (await sql.begin(async (t) => fn(async (q, p = []) => (await t.unsafe(q, p as any[])) as any))) as any,
     };
@@ -45,6 +45,24 @@ async function createDb(): Promise<Db> {
   }
   await migrate(db);
   return db;
+}
+
+const QUERY_TIMEOUT_MS = Number(process.env.DB_QUERY_TIMEOUT_MS) || 20000;
+/** Journalise les requêtes lentes et coupe celles qui ne répondent pas (évite une page bloquée jusqu'au délai max de Vercel). */
+async function timed<T>(sqlText: string, p: Promise<T>): Promise<T> {
+  const t0 = Date.now();
+  const head = sqlText.replace(/\s+/g, " ").trim().slice(0, 90);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([p, new Promise<never>((_, rej) => { timer = setTimeout(() => rej(new Error(`[db] délai dépassé (${QUERY_TIMEOUT_MS} ms) : ${head}`)), QUERY_TIMEOUT_MS); })]);
+  } catch (e) {
+    console.error(`[db] échec après ${Date.now() - t0} ms : ${head} — ${(e as Error).message}`);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+    const ms = Date.now() - t0;
+    if (ms > 1500) console.warn(`[db] lente ${ms} ms : ${head}`);
+  }
 }
 
 async function migrate(db: Db) {
