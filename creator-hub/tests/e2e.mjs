@@ -25,6 +25,16 @@ try {
     await page.click("button:has-text('Entrer')");
     await page.getByText("Mot de passe incorrect").waitFor();
   });
+  await step("Session falsifiée refusée (pages, export, PDF)", async () => {
+    const ctx = await browser.newContext();
+    await ctx.addCookies([{ name: "hub_session", value: "v1.9999999999999.deadbeef", url: BASE }]);
+    const p2 = await ctx.newPage();
+    await p2.goto(`${BASE}/hub`);
+    assert.match(p2.url(), /\/login/);
+    assert.equal((await p2.request.get(`${BASE}/api/hub/export`)).status(), 401);
+    assert.equal((await p2.request.get(`${BASE}/api/hub/documents/1/pdf`)).status(), 401);
+    await ctx.close();
+  });
   await step("1. Ouvrir l'application", async () => {
     await page.fill("#password", PASS);
     await page.click("button:has-text('Entrer')");
